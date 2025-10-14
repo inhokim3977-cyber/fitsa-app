@@ -60,6 +60,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userPhotoPath = objectStorageService.generateObjectPath("png");
         const clothingPhotoPath = objectStorageService.generateObjectPath("png");
 
+        console.log("Uploading photos to storage:", { userPhotoPath, clothingPhotoPath });
+
         await Promise.all([
           objectStorageService.uploadBuffer(
             userPhotoFile.buffer,
@@ -73,6 +75,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ),
         ]);
 
+        console.log("Photos uploaded successfully");
+
         // Create virtual fitting record
         const fitting = await storage.createVirtualFitting({
           userPhotoPath,
@@ -84,20 +88,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userPhotoBase64 = userPhotoFile.buffer.toString("base64");
         const clothingPhotoBase64 = clothingPhotoFile.buffer.toString("base64");
 
+        console.log("Generating virtual fitting with AI...");
         const result = await generateVirtualFitting({
           userPhotoBase64,
           clothingPhotoBase64,
         });
+        console.log("AI generation completed, result base64 length:", result.resultImageBase64.length);
 
         // Upload result to storage
         const resultPhotoPath = objectStorageService.generateObjectPath("png");
         const resultBuffer = Buffer.from(result.resultImageBase64, "base64");
 
+        console.log("Uploading result to storage:", resultPhotoPath);
         await objectStorageService.uploadBuffer(
           resultBuffer,
           resultPhotoPath,
           "image/png"
         );
+        console.log("Result uploaded successfully");
 
         // Update fitting record
         await storage.updateVirtualFitting(fitting.id, {
