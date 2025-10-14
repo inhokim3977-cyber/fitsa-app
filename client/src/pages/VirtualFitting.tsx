@@ -55,8 +55,9 @@ export default function VirtualFitting() {
       formData.append("userPhoto", userPhoto);
       formData.append("clothingPhoto", clothingPhoto);
 
-      const response = await apiRequest("POST", "/api/virtual-fitting", formData) as unknown;
-      return response as { id: string; resultUrl: string; status: string };
+      const response = await apiRequest("POST", "/api/virtual-fitting", formData);
+      const data = await response.json();
+      return data as { id: string; resultUrl: string; status: string };
     },
     onSuccess: (data: { id: string; resultUrl: string; status: string }) => {
       setResultImage(data.resultUrl);
