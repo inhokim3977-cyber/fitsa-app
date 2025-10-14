@@ -18,8 +18,11 @@ export class MemStorage implements IStorage {
   async createVirtualFitting(insertFitting: InsertVirtualFitting): Promise<VirtualFitting> {
     const id = randomUUID();
     const fitting: VirtualFitting = {
-      ...insertFitting,
       id,
+      userPhotoPath: insertFitting.userPhotoPath,
+      clothingPhotoPath: insertFitting.clothingPhotoPath,
+      resultPhotoPath: insertFitting.resultPhotoPath || null,
+      status: insertFitting.status || "processing",
       createdAt: new Date(),
     };
     this.fittings.set(id, fitting);

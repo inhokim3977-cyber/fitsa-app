@@ -10,7 +10,7 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint to serve objects from storage
   app.get("/objects/*", async (req, res) => {
     try {
-      const objectPath = req.params[0];
+      const objectPath = req.params[0] || "";
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
       console.error("Error downloading object:", error);

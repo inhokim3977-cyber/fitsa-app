@@ -55,10 +55,10 @@ export default function VirtualFitting() {
       formData.append("userPhoto", userPhoto);
       formData.append("clothingPhoto", clothingPhoto);
 
-      const response = await apiRequest("POST", "/api/virtual-fitting", formData);
-      return response;
+      const response = await apiRequest("POST", "/api/virtual-fitting", formData) as unknown;
+      return response as { id: string; resultUrl: string; status: string };
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { id: string; resultUrl: string; status: string }) => {
       setResultImage(data.resultUrl);
       toast({
         title: "피팅 완료!",
