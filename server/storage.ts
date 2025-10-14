@@ -1,37 +1,46 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type VirtualFitting, type InsertVirtualFitting } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createVirtualFitting(fitting: InsertVirtualFitting): Promise<VirtualFitting>;
+  updateVirtualFitting(id: string, updates: Partial<VirtualFitting>): Promise<VirtualFitting | undefined>;
+  getVirtualFitting(id: string): Promise<VirtualFitting | undefined>;
+  getAllVirtualFittings(): Promise<VirtualFitting[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private fittings: Map<string, VirtualFitting>;
 
   constructor() {
-    this.users = new Map();
+    this.fittings = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createVirtualFitting(insertFitting: InsertVirtualFitting): Promise<VirtualFitting> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const fitting: VirtualFitting = {
+      ...insertFitting,
+      id,
+      createdAt: new Date(),
+    };
+    this.fittings.set(id, fitting);
+    return fitting;
+  }
+
+  async updateVirtualFitting(id: string, updates: Partial<VirtualFitting>): Promise<VirtualFitting | undefined> {
+    const fitting = this.fittings.get(id);
+    if (!fitting) return undefined;
+
+    const updatedFitting = { ...fitting, ...updates };
+    this.fittings.set(id, updatedFitting);
+    return updatedFitting;
+  }
+
+  async getVirtualFitting(id: string): Promise<VirtualFitting | undefined> {
+    return this.fittings.get(id);
+  }
+
+  async getAllVirtualFittings(): Promise<VirtualFitting[]> {
+    return Array.from(this.fittings.values());
   }
 }
 
