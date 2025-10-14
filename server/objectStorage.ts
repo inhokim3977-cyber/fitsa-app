@@ -36,7 +36,16 @@ export class ObjectStorageService {
 
   // Gets the private object directory path
   getPrivateObjectDir(): string {
-    return process.env.PRIVATE_OBJECT_DIR || "";
+    const privateDir = process.env.PRIVATE_OBJECT_DIR || "";
+    // Remove bucket ID prefix if present
+    const bucketId = this.getBucketId();
+    if (privateDir.startsWith(`/${bucketId}/`)) {
+      return privateDir.substring(`/${bucketId}/`.length);
+    }
+    if (privateDir.startsWith(bucketId)) {
+      return privateDir.substring(bucketId.length + 1);
+    }
+    return privateDir.replace(/^\//, ''); // Remove leading slash
   }
 
   // Gets the bucket ID
