@@ -75,7 +75,9 @@ export class ObjectStorageService {
   generateObjectPath(fileExtension: string = "png"): string {
     const privateDir = this.getPrivateObjectDir();
     const fileName = `${randomUUID()}.${fileExtension}`;
-    return `${privateDir}/${fileName}`;
+    const fullPath = `${privateDir}/${fileName}`;
+    console.log('Generated object path:', fullPath);
+    return fullPath;
   }
 
   // Get presigned URL for uploading
