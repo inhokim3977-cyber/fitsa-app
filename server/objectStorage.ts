@@ -36,34 +36,8 @@ export class ObjectStorageService {
 
   // Gets the private object directory path
   getPrivateObjectDir(): string {
-    const privateDir = process.env.PRIVATE_OBJECT_DIR || "";
-    const bucketId = this.getBucketId();
-    
-    // PRIVATE_OBJECT_DIR format: /bucket-id/.private or bucket-id/.private
-    // We need to extract just the ".private" part
-    
-    // Remove bucket ID prefix if present
-    let cleanPath = privateDir;
-    
-    // Handle /bucket-id/.private format
-    if (cleanPath.startsWith(`/${bucketId}/`)) {
-      cleanPath = cleanPath.substring(`/${bucketId}/`.length);
-    }
-    // Handle bucket-id/.private format
-    else if (cleanPath.startsWith(`${bucketId}/`)) {
-      cleanPath = cleanPath.substring(`${bucketId}/`.length);
-    }
-    // Handle /bucket-id.private (no slash before .private)
-    else if (cleanPath.startsWith(`/${bucketId}`)) {
-      cleanPath = cleanPath.substring(`/${bucketId}`.length);
-    }
-    // Handle bucket-id.private
-    else if (cleanPath.startsWith(bucketId)) {
-      cleanPath = cleanPath.substring(bucketId.length);
-    }
-    
-    // Remove leading slash
-    return cleanPath.replace(/^\//, '');
+    // Just return .private without any bucket ID prefix
+    return ".private";
   }
 
   // Gets the bucket ID
