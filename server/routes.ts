@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint to serve objects from storage
   app.get("/objects/*", async (req, res) => {
     try {
-      const objectPath = req.params[0] || "";
+      const objectPath = (req.params as any)[0] || "";
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
       console.error("Error downloading object:", error);
