@@ -27,13 +27,25 @@ class ReplicateService:
                 }
             )
             
-            # Output is typically a URL to the generated image
+            # Handle different output types
             if isinstance(output, str):
                 return output
             elif isinstance(output, list) and len(output) > 0:
-                return output[0]
+                # Get first item from list
+                first_item = output[0]
+                # If it's a FileOutput object, get the URL
+                if hasattr(first_item, 'url'):
+                    return first_item.url
+                elif isinstance(first_item, str):
+                    return first_item
+                else:
+                    return str(first_item)
+            elif hasattr(output, 'url'):
+                # If it's a FileOutput object directly
+                return output.url
             else:
-                return None
+                # Try to convert to string as last resort
+                return str(output) if output else None
                 
         except Exception as e:
             print(f"Replicate error: {str(e)}")

@@ -25,12 +25,15 @@ class BackgroundRemovalService:
                 }
             )
             
-            # Output is the URL or file
+            # Handle different output types
             if isinstance(output, str):
                 return output
+            elif hasattr(output, 'url'):
+                # If it's a FileOutput object
+                return output.url
             else:
-                # If it's a file object, we need the URL
-                return str(output)
+                # Try to convert to string
+                return str(output) if output else None
                 
         except Exception as e:
             print(f"Background removal error: {str(e)}")
