@@ -1,6 +1,7 @@
 // Global state
 let personImage = null;
 let hatImage = null;
+let glassesImage = null;
 let topClothImage = null;
 let bottomClothImage = null;
 let dressImage = null;
@@ -10,6 +11,7 @@ let clothingMode = 'separate'; // 'separate' or 'dress'
 // DOM elements
 const personDropZone = document.getElementById('personDropZone');
 const hatDropZone = document.getElementById('hatDropZone');
+const glassesDropZone = document.getElementById('glassesDropZone');
 const topClothDropZone = document.getElementById('topClothDropZone');
 const bottomClothDropZone = document.getElementById('bottomClothDropZone');
 const dressDropZone = document.getElementById('dressDropZone');
@@ -17,6 +19,7 @@ const shoesDropZone = document.getElementById('shoesDropZone');
 
 const personFileInput = document.getElementById('personFileInput');
 const hatFileInput = document.getElementById('hatFileInput');
+const glassesFileInput = document.getElementById('glassesFileInput');
 const topClothFileInput = document.getElementById('topClothFileInput');
 const bottomClothFileInput = document.getElementById('bottomClothFileInput');
 const dressFileInput = document.getElementById('dressFileInput');
@@ -77,6 +80,7 @@ function switchClothingMode(mode) {
 // Setup all drop zones
 setupDropZone(personDropZone, personFileInput, 'person');
 setupDropZone(hatDropZone, hatFileInput, 'hat');
+setupDropZone(glassesDropZone, glassesFileInput, 'glasses');
 setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
 setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
 setupDropZone(dressDropZone, dressFileInput, 'dress');
@@ -85,6 +89,7 @@ setupDropZone(shoesDropZone, shoesFileInput, 'shoes');
 // Setup file inputs
 personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
 hatFileInput.addEventListener('change', (e) => handleFileSelect(e, 'hat'));
+glassesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'glasses'));
 topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
 bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
 dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
@@ -152,6 +157,9 @@ function handleFile(file, type) {
                 break;
             case 'hat':
                 hatImage = file;
+                break;
+            case 'glasses':
+                glassesImage = file;
                 break;
             case 'topCloth':
                 topClothImage = file;
@@ -259,13 +267,14 @@ function resetAll() {
     // Clear all images
     personImage = null;
     hatImage = null;
+    glassesImage = null;
     topClothImage = null;
     bottomClothImage = null;
     dressImage = null;
     shoesImage = null;
     
     // Reset all previews
-    ['person', 'hat', 'topCloth', 'bottomCloth', 'dress', 'shoes'].forEach(type => {
+    ['person', 'hat', 'glasses', 'topCloth', 'bottomCloth', 'dress', 'shoes'].forEach(type => {
         const preview = document.getElementById(`${type}Preview`);
         const placeholder = document.getElementById(`${type}Placeholder`);
         if (preview && placeholder) {

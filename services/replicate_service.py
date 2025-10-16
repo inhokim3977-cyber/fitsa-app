@@ -22,8 +22,8 @@ class ReplicateService:
             output = replicate.run(
                 "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                 input={
-                    "model_image": person_image_url,
-                    "garment_image": clothing_image_url,
+                    "face_image": person_image_url,
+                    "commerce_image": clothing_image_url,
                 }
             )
             
