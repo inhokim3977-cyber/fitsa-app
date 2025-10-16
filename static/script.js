@@ -1,21 +1,25 @@
 // Global state
 let personImage = null;
 let hatImage = null;
-let glassesImage = null;
-let clothesImage = null;
+let topClothImage = null;
+let bottomClothImage = null;
+let dressImage = null;
 let shoesImage = null;
+let clothingMode = 'separate'; // 'separate' or 'dress'
 
 // DOM elements
 const personDropZone = document.getElementById('personDropZone');
 const hatDropZone = document.getElementById('hatDropZone');
-const glassesDropZone = document.getElementById('glassesDropZone');
-const clothesDropZone = document.getElementById('clothesDropZone');
+const topClothDropZone = document.getElementById('topClothDropZone');
+const bottomClothDropZone = document.getElementById('bottomClothDropZone');
+const dressDropZone = document.getElementById('dressDropZone');
 const shoesDropZone = document.getElementById('shoesDropZone');
 
 const personFileInput = document.getElementById('personFileInput');
 const hatFileInput = document.getElementById('hatFileInput');
-const glassesFileInput = document.getElementById('glassesFileInput');
-const clothesFileInput = document.getElementById('clothesFileInput');
+const topClothFileInput = document.getElementById('topClothFileInput');
+const bottomClothFileInput = document.getElementById('bottomClothFileInput');
+const dressFileInput = document.getElementById('dressFileInput');
 const shoesFileInput = document.getElementById('shoesFileInput');
 
 const generateBtn = document.getElementById('generateBtn');
@@ -27,18 +31,63 @@ const sliderInput = document.getElementById('sliderInput');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetAllBtn = document.getElementById('resetAllBtn');
 
+// Clothing type buttons
+const clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
+
+// Setup clothing type switching
+clothTypeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const type = btn.getAttribute('data-type');
+        switchClothingMode(type);
+        
+        // Update active state
+        clothTypeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
+function switchClothingMode(mode) {
+    clothingMode = mode;
+    
+    if (mode === 'separate') {
+        // Show top and bottom cloth zones
+        topClothDropZone.classList.remove('hidden');
+        topClothDropZone.style.display = 'flex';
+        bottomClothDropZone.classList.remove('hidden');
+        bottomClothDropZone.style.display = 'flex';
+        
+        // Hide dress zone
+        dressDropZone.classList.add('hidden');
+        dressDropZone.style.display = 'none';
+    } else {
+        // Hide top and bottom cloth zones
+        topClothDropZone.classList.add('hidden');
+        topClothDropZone.style.display = 'none';
+        bottomClothDropZone.classList.add('hidden');
+        bottomClothDropZone.style.display = 'none';
+        
+        // Show dress zone
+        dressDropZone.classList.remove('hidden');
+        dressDropZone.style.display = 'flex';
+    }
+    
+    checkCanGenerate();
+}
+
 // Setup all drop zones
 setupDropZone(personDropZone, personFileInput, 'person');
 setupDropZone(hatDropZone, hatFileInput, 'hat');
-setupDropZone(glassesDropZone, glassesFileInput, 'glasses');
-setupDropZone(clothesDropZone, clothesFileInput, 'clothes');
+setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
+setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
+setupDropZone(dressDropZone, dressFileInput, 'dress');
 setupDropZone(shoesDropZone, shoesFileInput, 'shoes');
 
 // Setup file inputs
 personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
 hatFileInput.addEventListener('change', (e) => handleFileSelect(e, 'hat'));
-glassesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'glasses'));
-clothesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'clothes'));
+topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
+bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
+dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
 shoesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'shoes'));
 
 // Generate button
@@ -104,11 +153,14 @@ function handleFile(file, type) {
             case 'hat':
                 hatImage = file;
                 break;
-            case 'glasses':
-                glassesImage = file;
+            case 'topCloth':
+                topClothImage = file;
                 break;
-            case 'clothes':
-                clothesImage = file;
+            case 'bottomCloth':
+                bottomClothImage = file;
+                break;
+            case 'dress':
+                dressImage = file;
                 break;
             case 'shoes':
                 shoesImage = file;
@@ -122,14 +174,37 @@ function handleFile(file, type) {
 }
 
 function checkCanGenerate() {
-    // Need person image and at least one item (preferably clothes)
-    generateBtn.disabled = !(personImage && clothesImage);
+    // Need person image and clothing based on mode
+    if (clothingMode === 'separate') {
+        // Need at least top or bottom cloth
+        generateBtn.disabled = !(personImage && (topClothImage || bottomClothImage));
+    } else {
+        // Need dress
+        generateBtn.disabled = !(personImage && dressImage);
+    }
 }
 
 async function generateFitting() {
-    if (!personImage || !clothesImage) {
-        alert('사람 사진과 옷 사진을 모두 업로드해주세요!');
+    if (!personImage) {
+        alert('사람 사진을 업로드해주세요!');
         return;
+    }
+    
+    let clothingPhoto = null;
+    
+    if (clothingMode === 'separate') {
+        if (!topClothImage && !bottomClothImage) {
+            alert('상의 또는 하의를 업로드해주세요!');
+            return;
+        }
+        // Use top cloth if available, otherwise bottom cloth
+        clothingPhoto = topClothImage || bottomClothImage;
+    } else {
+        if (!dressImage) {
+            alert('원피스 사진을 업로드해주세요!');
+            return;
+        }
+        clothingPhoto = dressImage;
     }
     
     generateBtn.disabled = true;
@@ -138,7 +213,7 @@ async function generateFitting() {
     try {
         const formData = new FormData();
         formData.append('userPhoto', personImage, 'person.png');
-        formData.append('clothingPhoto', clothesImage, 'clothes.png');
+        formData.append('clothingPhoto', clothingPhoto, 'clothes.png');
         
         // Add background removal option
         const removeBg = document.getElementById('removeBgCheckbox').checked;
@@ -184,16 +259,19 @@ function resetAll() {
     // Clear all images
     personImage = null;
     hatImage = null;
-    glassesImage = null;
-    clothesImage = null;
+    topClothImage = null;
+    bottomClothImage = null;
+    dressImage = null;
     shoesImage = null;
     
     // Reset all previews
-    ['person', 'hat', 'glasses', 'clothes', 'shoes'].forEach(type => {
+    ['person', 'hat', 'topCloth', 'bottomCloth', 'dress', 'shoes'].forEach(type => {
         const preview = document.getElementById(`${type}Preview`);
         const placeholder = document.getElementById(`${type}Placeholder`);
-        preview.classList.add('hidden');
-        placeholder.classList.remove('hidden');
+        if (preview && placeholder) {
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
     });
     
     resultsSection.classList.add('hidden');

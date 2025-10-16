@@ -32,16 +32,24 @@ Preferred communication style: Simple, everyday language.
 - Vanilla JS for file upload, drag & drop, and API communication
 
 **UI Features**
-- Drag & drop image upload for user and clothing photos
-- Canvas-based image editing with rotate, crop, reset tools
+- Clothing type selection: "상의 + 하의" or "원피스/전체"
+- Circular layout with person in center, items around:
+  - Top: Hat (모자)
+  - Left: Top clothing (상의) - in separate mode
+  - Right: Bottom clothing (하의) - in separate mode  
+  - Center: Dress (원피스) - in dress mode
+  - Bottom: Shoes (신발)
+- Drag & drop image upload for all zones
 - Before/After slider comparison for results
 - Download functionality for final images
 - Background removal checkbox (checked by default)
 
 **Design**
-- Clean, modern UI with Tailwind CSS
-- Responsive layout for mobile and desktop
+- Artistic circular layout with glassmorphism effects
+- Gradient background (purple to violet)
+- Floating animations and smooth transitions
 - Korean language interface
+- Two clothing modes for flexible styling
 
 ### Backend Architecture
 
