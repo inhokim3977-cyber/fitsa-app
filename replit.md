@@ -2,7 +2,22 @@
 
 ## Overview
 
-This is a Virtual Fitting application that allows users to virtually try on clothing items using AI technology. Users upload a photo of themselves and a photo of a clothing item, and the app generates a composite image showing how the clothing would look when worn. The application is built with a React frontend and Express backend, featuring a modern, image-centric UI inspired by premium fashion e-commerce platforms.
+This is a Virtual Fitting application that allows users to virtually try on clothing items using AI technology. Users upload a photo of themselves and a photo of a clothing item, and the app generates a composite image showing how the clothing would look when worn. 
+
+**Current Implementation: Flask Backend (Following AIFurnish Interior App Structure)**
+
+The app uses:
+- **Flask Backend (Python)**: 3-stage AI pipeline with background removal
+- **Static HTML/CSS/JS Frontend**: Canvas editing, Before/After comparison
+- **Port 5000**: Flask serves both frontend and API
+
+## How to Run
+
+**Stop the default workflow** (which runs Express):
+1. Click the workflow panel and stop it, OR
+2. Run manually: `python app.py`
+
+The Flask app will start on port 5000 and serve everything.
 
 ## User Preferences
 
@@ -13,51 +28,58 @@ Preferred communication style: Simple, everyday language.
 ### Frontend Architecture
 
 **Framework & Tooling**
-- React with TypeScript for type safety and modern component development
-- Vite as the build tool and development server for fast HMR (Hot Module Replacement)
-- Wouter for lightweight client-side routing
-- TanStack Query (React Query) for server state management and API data fetching
+- **Static HTML/CSS/JavaScript** (no React framework)
+- **Tailwind CSS** via CDN for styling
+- Canvas API for image editing (rotate, crop, preview)
+- Vanilla JS for file upload, drag & drop, and API communication
 
-**UI Component System**
-- shadcn/ui component library (New York style variant) built on Radix UI primitives
-- Tailwind CSS for utility-first styling with custom design tokens
-- Class Variance Authority (CVA) for component variant management
-- Dark/Light theme support with system preference detection
+**UI Features**
+- Drag & drop image upload for user and clothing photos
+- Canvas-based image editing with rotate, crop, reset tools
+- Before/After slider comparison for results
+- Download functionality for final images
+- Background removal checkbox (checked by default)
 
-**Design System**
-- Color palette: Deep teal primary (17 85% 35%), coral secondary (340 75% 55%)
-- Typography: Inter font family from Google Fonts
-- Responsive spacing system using Tailwind's 4-based scale
-- Custom CSS variables for theme-aware colors and elevations
-
-**State Management**
-- Local component state for UI interactions (file uploads, previews)
-- React Query for async state (API calls, mutations)
-- Context API for theme state (ThemeProvider)
+**Design**
+- Clean, modern UI with Tailwind CSS
+- Responsive layout for mobile and desktop
+- Korean language interface
 
 ### Backend Architecture
 
 **Server Framework**
-- Express.js with TypeScript for the API server
-- ESM module system throughout the codebase
-- Custom middleware for request logging and error handling
+- **Flask (Python)** following AIFurnish interior app structure
+- CORS enabled for cross-origin requests
+- Multipart form data handling with Werkzeug
+- Maximum file size: 16MB
 
-**Image Processing & AI**
-- OpenAI integration via Replit AI Integrations service (no API key required)
-- GPT-5-nano model for image analysis and virtual fitting generation
-- Sharp library for image manipulation and processing
-- Multer for multipart/form-data file upload handling (10MB limit)
+**3-Stage AI Pipeline**
+1. **Stage 0 (Optional): Background Removal**
+   - Replicate's `cjwbw/rembg` model
+   - Cost: ~$0.0043 per image
+   - Applied to clothing photos when checkbox is checked
+   
+2. **Stage 1: Virtual Try-On**
+   - Replicate's `wolverinn/ecommerce-virtual-try-on` model
+   - Cost: ~$0.11 per image
+   - Combines user photo with clothing
+   
+3. **Stage 2: Quality Enhancement**
+   - Nano Banana (gpt-5-nano) via Replit AI Integrations
+   - Enhances final image quality
+   - No additional cost (uses Replit credits)
 
 **API Design**
-- RESTful endpoints with multipart form data support
-- `/objects/*` - Static file serving for uploaded and processed images
-- `/api/virtual-fitting` - Main endpoint accepting user and clothing photos
-- Error handling middleware with proper HTTP status codes
+- `POST /api/virtual-fitting` - Main endpoint
+  - Accepts: `userPhoto`, `clothingPhoto`, `removeBackground` (boolean)
+  - Returns: JSON with `resultUrl` or error message
+- `GET /health` - Health check endpoint
+- Static file serving from `/static/` directory
 
-**Development Environment**
-- Hot reload in development via Vite middleware integration
-- Replit-specific plugins for error overlay and dev banner
-- Development/production environment separation
+**Environment Variables (from AIFurnish pattern)**
+- `REPLICATE_API_TOKEN` - Set in Replit Secrets
+- `AI_INTEGRATIONS_OPENAI_API_KEY` - Auto-provided by Replit
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-provided by Replit
 
 ### Data Storage Solutions
 

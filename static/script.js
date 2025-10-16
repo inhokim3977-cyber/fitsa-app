@@ -162,6 +162,10 @@ async function generateFitting() {
         formData.append('userPhoto', userBlob, 'user.png');
         formData.append('clothingPhoto', clothingBlob, 'clothing.png');
         
+        // Add background removal option
+        const removeBg = document.getElementById('removeBgCheckbox').checked;
+        formData.append('removeBackground', removeBg.toString());
+        
         const response = await fetch('/api/virtual-fitting', {
             method: 'POST',
             body: formData

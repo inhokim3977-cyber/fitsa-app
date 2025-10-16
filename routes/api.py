@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from services.replicate_service import ReplicateService
 from services.nano_service import NanoService
+from services.background_removal_service import BackgroundRemovalService
 
 api_bp = Blueprint('api', __name__)
 
@@ -51,14 +52,30 @@ def virtual_fitting():
         
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
+        background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
         nano_service = NanoService(
             current_app.config['AI_INTEGRATIONS_OPENAI_API_KEY'],
             current_app.config['AI_INTEGRATIONS_OPENAI_BASE_URL']
         )
         
-        # Stage 1: Virtual Try-On with Replicate
+        # Check if background removal is requested
+        remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
+        
+        # Prepare image URLs
         user_data_url = f"data:image/png;base64,{user_b64}"
         clothing_data_url = f"data:image/png;base64,{clothing_b64}"
+        
+        # Optional: Remove background from clothing image
+        if remove_bg:
+            try:
+                print("Removing background from clothing image...")
+                bg_removed = background_removal_service.remove_background(clothing_data_url)
+                if bg_removed:
+                    clothing_data_url = bg_removed
+            except Exception as e:
+                print(f"Background removal failed, using original image: {e}")
+        
+        # Stage 1: Virtual Try-On with Replicate
         
         try:
             stage1_result = replicate_service.virtual_try_on(user_data_url, clothing_data_url)
