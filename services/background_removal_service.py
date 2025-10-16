@@ -9,7 +9,8 @@ class BackgroundRemovalService:
     
     def remove_background(self, image_url: str) -> Optional[str]:
         """
-        Remove background from clothing image using Replicate's rembg model
+        Remove background from clothing image using Replicate's BRIA RMBG 2.0 model
+        BRIA RMBG 2.0: Faster and better quality than rembg
         
         Args:
             image_url: URL or base64 of the image
@@ -18,8 +19,9 @@ class BackgroundRemovalService:
             URL of the image with background removed
         """
         try:
+            # Using BRIA RMBG 2.0 - faster and better quality
             output = replicate.run(
-                "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
+                "briaai/rmbg-2.0:4c9740d407f7675f6b63a02e801c509564c7521bcb2d0c097af3411f114b6498",
                 input={
                     "image": image_url
                 }
