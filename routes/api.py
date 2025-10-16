@@ -44,12 +44,6 @@ def virtual_fitting():
         user_photo.save(user_path)
         clothing_photo.save(clothing_path)
         
-        # Convert to base64 for API
-        with open(user_path, 'rb') as f:
-            user_b64 = base64.b64encode(f.read()).decode('utf-8')
-        with open(clothing_path, 'rb') as f:
-            clothing_b64 = base64.b64encode(f.read()).decode('utf-8')
-        
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
         background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
@@ -61,24 +55,38 @@ def virtual_fitting():
         # Check if background removal is requested
         remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
         
-        # Prepare image URLs
-        user_data_url = f"data:image/png;base64,{user_b64}"
-        clothing_data_url = f"data:image/png;base64,{clothing_b64}"
+        # Prepare clothing image path (with optional background removal)
+        clothing_final_path = clothing_path
         
         # Optional: Remove background from clothing image
         if remove_bg:
             try:
                 print("Removing background from clothing image...")
-                bg_removed = background_removal_service.remove_background(clothing_data_url)
-                if bg_removed:
-                    clothing_data_url = bg_removed
+                # Read clothing image as base64 for background removal
+                with open(clothing_path, 'rb') as f:
+                    clothing_b64 = base64.b64encode(f.read()).decode('utf-8')
+                clothing_data_url = f"data:image/png;base64,{clothing_b64}"
+                
+                bg_removed_url = background_removal_service.remove_background(clothing_data_url)
+                if bg_removed_url:
+                    # Save background-removed image to new file
+                    bg_removed_b64 = bg_removed_url.split(',')[1]
+                    bg_removed_bytes = base64.b64decode(bg_removed_b64)
+                    
+                    bg_removed_filename = f"bg_removed_{clothing_filename}"
+                    bg_removed_path = os.path.join(current_app.config['UPLOAD_FOLDER'], bg_removed_filename)
+                    
+                    with open(bg_removed_path, 'wb') as f:
+                        f.write(bg_removed_bytes)
+                    
+                    clothing_final_path = bg_removed_path
+                    print(f"Background removed, saved to {bg_removed_path}")
             except Exception as e:
                 print(f"Background removal failed, using original image: {e}")
         
-        # Stage 1: Virtual Try-On with Replicate
-        
+        # Stage 1: Virtual Try-On with Replicate (using file paths)
         try:
-            stage1_result = replicate_service.virtual_try_on(user_data_url, clothing_data_url)
+            stage1_result = replicate_service.virtual_try_on(user_path, clothing_final_path)
         except Exception as e:
             return jsonify({'error': f'Stage 1 failed: {str(e)}'}), 500
         

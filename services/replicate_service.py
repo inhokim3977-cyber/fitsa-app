@@ -7,27 +7,27 @@ class ReplicateService:
         self.api_token = api_token
         os.environ['REPLICATE_API_TOKEN'] = api_token
     
-    def virtual_try_on(self, person_image_url: str, clothing_image_url: str) -> Optional[str]:
+    def virtual_try_on(self, person_image_path: str, clothing_image_path: str) -> Optional[str]:
         """
         Stage 1: Virtual Try-On using Replicate's wolverinn/ecommerce-virtual-try-on model
         
         Args:
-            person_image_url: URL or base64 of person photo
-            clothing_image_url: URL or base64 of clothing photo
+            person_image_path: File path to person photo
+            clothing_image_path: File path to clothing photo
         
         Returns:
             URL of the try-on result image
         """
         try:
-            # Force file output to get URLs instead of bytes
-            output = replicate.run(
-                "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
-                input={
-                    "face_image": person_image_url,
-                    "commerce_image": clothing_image_url,
-                },
-                use_file_output=False  # Return URLs not files
-            )
+            # Open files for Replicate API
+            with open(person_image_path, 'rb') as person_file, open(clothing_image_path, 'rb') as clothing_file:
+                output = replicate.run(
+                    "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
+                    input={
+                        "face_image": person_file,
+                        "commerce_image": clothing_file,
+                    }
+                )
             
             # Debug logging
             print(f"Replicate output type: {type(output)}")
