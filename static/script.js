@@ -1,38 +1,45 @@
 // Global state
-let userImage = null;
-let clothingImage = null;
-let currentEditingCanvas = null;
-let rotation = 0;
+let personImage = null;
+let hatImage = null;
+let glassesImage = null;
+let clothesImage = null;
+let shoesImage = null;
 
 // DOM elements
-const userDropZone = document.getElementById('userDropZone');
-const clothingDropZone = document.getElementById('clothingDropZone');
-const userFileInput = document.getElementById('userFileInput');
-const clothingFileInput = document.getElementById('clothingFileInput');
-const userCanvas = document.getElementById('userCanvas');
-const clothingCanvas = document.getElementById('clothingCanvas');
+const personDropZone = document.getElementById('personDropZone');
+const hatDropZone = document.getElementById('hatDropZone');
+const glassesDropZone = document.getElementById('glassesDropZone');
+const clothesDropZone = document.getElementById('clothesDropZone');
+const shoesDropZone = document.getElementById('shoesDropZone');
+
+const personFileInput = document.getElementById('personFileInput');
+const hatFileInput = document.getElementById('hatFileInput');
+const glassesFileInput = document.getElementById('glassesFileInput');
+const clothesFileInput = document.getElementById('clothesFileInput');
+const shoesFileInput = document.getElementById('shoesFileInput');
+
 const generateBtn = document.getElementById('generateBtn');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const resultsSection = document.getElementById('resultsSection');
-const canvasTools = document.getElementById('canvasTools');
 const beforeImage = document.getElementById('beforeImage');
 const afterImage = document.getElementById('afterImage');
 const sliderInput = document.getElementById('sliderInput');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetAllBtn = document.getElementById('resetAllBtn');
 
-// Setup drop zones
-setupDropZone(userDropZone, userFileInput, 'user');
-setupDropZone(clothingDropZone, clothingFileInput, 'clothing');
+// Setup all drop zones
+setupDropZone(personDropZone, personFileInput, 'person');
+setupDropZone(hatDropZone, hatFileInput, 'hat');
+setupDropZone(glassesDropZone, glassesFileInput, 'glasses');
+setupDropZone(clothesDropZone, clothesFileInput, 'clothes');
+setupDropZone(shoesDropZone, shoesFileInput, 'shoes');
 
 // Setup file inputs
-userFileInput.addEventListener('change', (e) => handleFileSelect(e, 'user'));
-clothingFileInput.addEventListener('change', (e) => handleFileSelect(e, 'clothing'));
-
-// Canvas tools
-document.getElementById('rotateBtn').addEventListener('click', () => rotateImage());
-document.getElementById('cropBtn').addEventListener('click', () => alert('크롭 기능은 곧 추가됩니다!'));
-document.getElementById('resetBtn').addEventListener('click', () => resetCanvas());
+personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
+hatFileInput.addEventListener('change', (e) => handleFileSelect(e, 'hat'));
+glassesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'glasses'));
+clothesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'clothes'));
+shoesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'shoes'));
 
 // Generate button
 generateBtn.addEventListener('click', () => generateFitting());
@@ -78,32 +85,34 @@ function handleFileSelect(e, type) {
 }
 
 function handleFile(file, type) {
-    const canvas = type === 'user' ? userCanvas : clothingCanvas;
-    const dropZone = type === 'user' ? userDropZone : clothingDropZone;
-    const ctx = canvas.getContext('2d');
-    
-    const img = new Image();
     const reader = new FileReader();
     
     reader.onload = (e) => {
-        img.src = e.target.result;
-    };
-    
-    img.onload = () => {
-        canvas.width = Math.min(img.width, 500);
-        canvas.height = (img.height * canvas.width) / img.width;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageUrl = e.target.result;
+        const preview = document.getElementById(`${type}Preview`);
+        const placeholder = document.getElementById(`${type}Placeholder`);
         
-        canvas.classList.remove('hidden');
-        dropZone.classList.add('hidden');
-        canvasTools.classList.remove('hidden');
+        preview.src = imageUrl;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
         
-        if (type === 'user') {
-            userImage = file;
-            currentEditingCanvas = userCanvas;
-        } else {
-            clothingImage = file;
-            currentEditingCanvas = clothingCanvas;
+        // Store the file
+        switch(type) {
+            case 'person':
+                personImage = file;
+                break;
+            case 'hat':
+                hatImage = file;
+                break;
+            case 'glasses':
+                glassesImage = file;
+                break;
+            case 'clothes':
+                clothesImage = file;
+                break;
+            case 'shoes':
+                shoesImage = file;
+                break;
         }
         
         checkCanGenerate();
@@ -112,55 +121,24 @@ function handleFile(file, type) {
     reader.readAsDataURL(file);
 }
 
-function rotateImage() {
-    if (!currentEditingCanvas) return;
-    
-    const ctx = currentEditingCanvas.getContext('2d');
-    const imageData = ctx.getImageData(0, 0, currentEditingCanvas.width, currentEditingCanvas.height);
-    
-    rotation = (rotation + 90) % 360;
-    
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = currentEditingCanvas.height;
-    tempCanvas.height = currentEditingCanvas.width;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-    tempCtx.rotate(Math.PI / 2);
-    tempCtx.drawImage(currentEditingCanvas, -currentEditingCanvas.width / 2, -currentEditingCanvas.height / 2);
-    
-    currentEditingCanvas.width = tempCanvas.width;
-    currentEditingCanvas.height = tempCanvas.height;
-    ctx.drawImage(tempCanvas, 0, 0);
-}
-
-function resetCanvas() {
-    rotation = 0;
-    // Re-load original image
-    if (currentEditingCanvas === userCanvas && userImage) {
-        handleFile(userImage, 'user');
-    } else if (currentEditingCanvas === clothingCanvas && clothingImage) {
-        handleFile(clothingImage, 'clothing');
-    }
-}
-
 function checkCanGenerate() {
-    generateBtn.disabled = !(userImage && clothingImage);
+    // Need person image and at least one item (preferably clothes)
+    generateBtn.disabled = !(personImage && clothesImage);
 }
 
 async function generateFitting() {
+    if (!personImage || !clothesImage) {
+        alert('사람 사진과 옷 사진을 모두 업로드해주세요!');
+        return;
+    }
+    
     generateBtn.disabled = true;
     loadingIndicator.classList.remove('hidden');
     
     try {
         const formData = new FormData();
-        
-        // Convert canvas to blob
-        const userBlob = await new Promise(resolve => userCanvas.toBlob(resolve, 'image/png'));
-        const clothingBlob = await new Promise(resolve => clothingCanvas.toBlob(resolve, 'image/png'));
-        
-        formData.append('userPhoto', userBlob, 'user.png');
-        formData.append('clothingPhoto', clothingBlob, 'clothing.png');
+        formData.append('userPhoto', personImage, 'person.png');
+        formData.append('clothingPhoto', clothesImage, 'clothes.png');
         
         // Add background removal option
         const removeBg = document.getElementById('removeBgCheckbox').checked;
@@ -179,7 +157,8 @@ async function generateFitting() {
         }
         
         // Show results
-        beforeImage.src = userCanvas.toDataURL();
+        const personPreview = document.getElementById('personPreview');
+        beforeImage.src = personPreview.src;
         afterImage.src = data.resultUrl;
         resultsSection.classList.remove('hidden');
         
@@ -197,21 +176,26 @@ async function generateFitting() {
 function downloadResult() {
     const link = document.createElement('a');
     link.href = afterImage.src;
-    link.download = `fashion-fitting-${Date.now()}.png`;
+    link.download = `ai-fashion-fitting-${Date.now()}.png`;
     link.click();
 }
 
 function resetAll() {
-    userImage = null;
-    clothingImage = null;
-    currentEditingCanvas = null;
-    rotation = 0;
+    // Clear all images
+    personImage = null;
+    hatImage = null;
+    glassesImage = null;
+    clothesImage = null;
+    shoesImage = null;
     
-    userCanvas.classList.add('hidden');
-    clothingCanvas.classList.add('hidden');
-    userDropZone.classList.remove('hidden');
-    clothingDropZone.classList.remove('hidden');
-    canvasTools.classList.add('hidden');
+    // Reset all previews
+    ['person', 'hat', 'glasses', 'clothes', 'shoes'].forEach(type => {
+        const preview = document.getElementById(`${type}Preview`);
+        const placeholder = document.getElementById(`${type}Placeholder`);
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+    });
+    
     resultsSection.classList.add('hidden');
     generateBtn.disabled = true;
     
