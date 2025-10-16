@@ -4,20 +4,18 @@
 
 This is a Virtual Fitting application that allows users to virtually try on clothing items using AI technology. Users upload a photo of themselves and a photo of a clothing item, and the app generates a composite image showing how the clothing would look when worn. 
 
-**Current Implementation: Flask Backend (Following AIFurnish Interior App Structure)**
+**Current Implementation: Flask Backend (Following AIFurnish Interior App Structure)** ✅
 
 The app uses:
-- **Flask Backend (Python)**: 3-stage AI pipeline with background removal
-- **Static HTML/CSS/JS Frontend**: Canvas editing, Before/After comparison
-- **Port 5000**: Flask serves both frontend and API
+- **Flask Backend (Python)**: 3-stage AI pipeline with background removal - **자동 실행 완료**
+- **Static HTML/CSS/JS Frontend**: Artistic circular layout with glassmorphism
+- **Port 5000**: Flask serves both frontend and API - **워크플로우 자동 실행**
 
 ## How to Run
 
-**Stop the default workflow** (which runs Express):
-1. Click the workflow panel and stop it, OR
-2. Run manually: `python app.py`
+**자동 실행:** 워크플로우가 Flask를 자동으로 포트 5000에서 실행합니다.
 
-The Flask app will start on port 5000 and serve everything.
+브라우저를 열면 바로 가상 피팅 앱을 사용할 수 있습니다!
 
 ## User Preferences
 
