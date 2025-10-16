@@ -19,12 +19,14 @@ class ReplicateService:
             URL of the try-on result image
         """
         try:
+            # Force file output to get URLs instead of bytes
             output = replicate.run(
                 "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                 input={
                     "face_image": person_image_url,
                     "commerce_image": clothing_image_url,
-                }
+                },
+                use_file_output=False  # Return URLs not files
             )
             
             # Debug logging
