@@ -34,6 +34,10 @@ class GeminiVirtualFittingService:
             person_img = Image.open(BytesIO(person_image_bytes))
             clothing_img = Image.open(BytesIO(clothing_image_bytes))
             
+            # Store original size to restore later
+            original_size = person_img.size
+            print(f"Original person image size: {original_size}")
+            
             print("Converting images to RGB...")
             person_img = person_img.convert('RGB')
             clothing_img = clothing_img.convert('RGB')
@@ -74,11 +78,22 @@ OUTPUT: A photorealistic image where ONLY the clothing has changed. Everything e
                             image_data = part.inline_data.data
                             mime_type = part.inline_data.mime_type or 'image/png'
                             
-                            # Convert to base64 data URI
-                            b64_data = base64.b64encode(image_data).decode('utf-8')
-                            data_uri = f"data:{mime_type};base64,{b64_data}"
+                            # Resize to original dimensions
+                            result_img = Image.open(BytesIO(image_data))
+                            if result_img.size != original_size:
+                                print(f"Resizing from {result_img.size} to original {original_size}")
+                                result_img = result_img.resize(original_size, Image.Resampling.LANCZOS)
                             
-                            print(f"✓ Generated image: {len(image_data)} bytes")
+                            # Convert back to bytes
+                            output_buffer = BytesIO()
+                            result_img.save(output_buffer, format='PNG')
+                            resized_data = output_buffer.getvalue()
+                            
+                            # Convert to base64 data URI
+                            b64_data = base64.b64encode(resized_data).decode('utf-8')
+                            data_uri = f"data:image/png;base64,{b64_data}"
+                            
+                            print(f"✓ Generated image: {len(resized_data)} bytes (size: {original_size})")
                             return data_uri
             
             print("✗ No image data in response")
