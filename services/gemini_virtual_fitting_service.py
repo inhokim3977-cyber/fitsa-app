@@ -149,23 +149,27 @@ CRITICAL BODY SHAPE PRESERVATION (MANDATORY):
 
 STEP 1 - PRESERVE EVERYTHING:
 - Face: EXACT same
-- Hands: EXACT same
+- Hands: EXACT same (show hands at wrist)
 - Lower body: EXACT same (pants/skirt unchanged)
 - Legs: EXACT same
 - Pose: EXACT same
 - Objects: EXACT same positions
 - Background: EXACT same
 
-STEP 2 - REPLACE UPPER CLOTHING ONLY:
-- Copy garment image's EXACT fit/style
-- Clothing should wrap around person's EXISTING body shape (not reshape body)
-- Match fabric texture and color
+STEP 2 - REPLACE UPPER CLOTHING WITH EXACT SLEEVE LENGTH:
+- Copy garment's EXACT sleeve length (long sleeve, 3/4 sleeve, short sleeve, or sleeveless)
+- IF GARMENT IS LONG SLEEVE: Cover entire arm, show ONLY hands (NO exposed arm skin)
+- IF GARMENT IS SHORT SLEEVE: Cover shoulder, expose lower arm and hands
+- IF GARMENT IS SLEEVELESS: Show entire arm
+- Match garment's fabric texture, color, and pattern EXACTLY
+- Clothing wraps around person's EXISTING body shape (not reshape body)
 
 STEP 3 - NATURAL INTEGRATION:
+- Sleeves must drape naturally following arm position
 - Match lighting and shadows
-- Natural fabric draping
+- Natural fabric wrinkles and folds
 
-OUTPUT: SAME person (identical body) with ONLY upper clothing changed - ZERO body modification."""
+OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT sleeve length - ZERO body modification."""
 
             print("Calling Gemini 2.5 Flash Image API...")
             
