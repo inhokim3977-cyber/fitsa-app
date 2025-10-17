@@ -23,20 +23,22 @@ class ReplicateService:
             print(f"Person image: {person_image_path}")
             print(f"Clothing image: {clothing_image_path}")
             
-            # Use replicate.upload to convert files to URLs (like AIFurnish pattern)
-            print("Uploading images to Replicate...")
-            person_file = replicate.upload(open(person_image_path, 'rb'))
-            clothing_file = replicate.upload(open(clothing_image_path, 'rb'))
+            # Convert files to data URLs for Replicate API
+            import base64
+            with open(person_image_path, 'rb') as f:
+                person_b64 = base64.b64encode(f.read()).decode('utf-8')
+            with open(clothing_image_path, 'rb') as f:
+                clothing_b64 = base64.b64encode(f.read()).decode('utf-8')
             
-            print(f"Person file uploaded: {person_file}")
-            print(f"Clothing file uploaded: {clothing_file}")
+            person_url = f"data:image/png;base64,{person_b64}"
+            clothing_url = f"data:image/png;base64,{clothing_b64}"
             
-            print("Calling Replicate API...")
+            print("Calling Replicate API with data URLs...")
             output = replicate.run(
                 "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                 input={
-                    "face_image": person_file,
-                    "commerce_image": clothing_file,
+                    "face_image": person_url,
+                    "commerce_image": clothing_url,
                 }
             )
             print("Replicate API call completed!")
