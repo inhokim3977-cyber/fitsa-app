@@ -120,14 +120,14 @@ def virtual_fitting():
         
         print(f"✓ Virtual fitting completed using: {method_used}")
         
-        # Stage 2: Quality enhancement with Nano Banana (GPT-5-nano)
+        # Stage 2: Face & Hand Enhancement with CodeFormer
         final_result = stage1_result
         try:
-            print("\n=== Stage 2: Nano Banana Quality Enhancement ===")
-            stage2_result = nano_service.enhance_quality(stage1_result)
+            print("\n=== Stage 2: CodeFormer Face & Hand Enhancement ===")
+            stage2_result = replicate_service.enhance_face_and_hands(stage1_result)
             if stage2_result:
                 final_result = stage2_result
-                print(f"✓ Stage 2 enhancement completed")
+                print(f"✓ Stage 2 enhancement completed: {final_result[:100]}...")
         except Exception as e:
             print(f"✗ Stage 2 enhancement failed, using Stage 1 result: {e}")
         

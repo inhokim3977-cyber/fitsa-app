@@ -44,7 +44,7 @@ class ReplicateService:
                     "human_img": person_data_uri,
                     "garm_img": clothing_data_uri,
                     "category": category,
-                    "garment_des": "clothing item"
+                    "garment_des": "high quality fashion clothing with clear visible details, natural realistic fit, well-defined fabric texture, proper color accuracy"
                 }
             )
             print(f"✓ Replicate API call completed")
@@ -76,6 +76,57 @@ class ReplicateService:
                 
         except Exception as e:
             print(f"Replicate error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
+    
+    def enhance_face_and_hands(self, image_url: str) -> Optional[str]:
+        """
+        Enhance face and hands using CodeFormer (face/hand restoration)
+        
+        Args:
+            image_url: URL of the image to enhance
+        
+        Returns:
+            URL of the enhanced image
+        """
+        try:
+            print(f"\n=== CodeFormer Face & Hand Enhancement ===")
+            print(f"Input URL: {image_url[:100]}...")
+            
+            output = replicate.run(
+                "sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56",
+                input={
+                    "image": image_url,
+                    "upscale": 2,
+                    "face_upsample": True,
+                    "background_enhance": True,
+                    "codeformer_fidelity": 0.7
+                }
+            )
+            
+            print(f"✓ CodeFormer completed")
+            print(f"Output type: {type(output)}")
+            
+            # Handle different output formats
+            if isinstance(output, str):
+                print(f"✓ Enhanced URL: {output[:100]}...")
+                return output
+            elif hasattr(output, 'url'):
+                print(f"✓ Enhanced URL from object: {output.url[:100]}...")
+                return output.url
+            elif isinstance(output, list) and len(output) > 0:
+                first = output[0]
+                if isinstance(first, str):
+                    return first
+                elif hasattr(first, 'url'):
+                    return first.url
+            
+            print(f"✗ Unexpected output format: {output}")
+            return None
+            
+        except Exception as e:
+            print(f"CodeFormer error: {str(e)}")
             import traceback
             traceback.print_exc()
             raise
