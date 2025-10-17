@@ -65,19 +65,26 @@ Preferred communication style: Simple, everyday language.
 - Removes background from clothing images
 - Applied when checkbox is checked
 
-**Stage 1: Virtual Try-On** (Quality-first approach)
+**Stage 1: Virtual Try-On** (Smart category-based routing)
 
 *Supported Categories: upper_body, lower_body, dress*
 
+**Upper Body (상의):**
 1. **Gemini 2.5 Flash** (1st priority) ✅
-   - Best quality - preserves hands, books, objects
-   - Natural results without artifacts
-   - Temperature: 0.1 for precision
-   - Supports: upper_body, lower_body, dress
-   
-2. **Replicate IDM-VTON** (2nd fallback)
-   - If Gemini fails
-   - Note: May remove hands/objects, lower quality
+   - Preserves hands, books, objects perfectly
+   - Natural overlay results
+2. **IDM-VTON** (fallback)
+
+**Lower Body (하의):**
+1. **IDM-VTON** (only option) ✅
+   - Only model that works for lower body
+   - May affect hands/objects but better than nothing
+
+**Dress (원피스):**
+1. **Gemini 2.5 Flash** (1st priority) ✅
+   - Full body preservation
+   - Natural results
+2. **IDM-VTON** (fallback)
 
 **Stage 2: Quality Enhancement** (Removed)
 - Not needed for simple workflow
@@ -99,14 +106,14 @@ Preferred communication style: Simple, everyday language.
 - ✅ Simplified to 3 categories: upper_body, lower_body, dress
 - ✅ Removed hat, glasses, and shoes - focus on clothing only
 - ✅ Local rembg background removal (faster than Replicate)
-- ✅ Quality-first pipeline: Gemini → IDM-VTON fallback
+- ✅ Smart category-based AI routing for best results
 - ✅ Image format validation (PNG/JPG only)
-- ✅ Preserves hands, books, and objects (Gemini)
+- ✅ Preserves hands/objects for upper body & dress (Gemini)
 
 **Supported Categories:**
-- Top (상의): upper_body - ✅ Gemini (preserves details)
-- Bottom (하의): lower_body - ✅ Gemini (preserves details)
-- Dress (원피스): dress - ✅ Gemini (preserves details)
+- Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
+- Bottom (하의): lower_body - ✅ IDM-VTON (works for lower body)
+- Dress (원피스): dress - ✅ Gemini (full body preservation)
 
 ### Data Storage Solutions
 

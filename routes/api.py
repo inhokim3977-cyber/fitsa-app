@@ -75,44 +75,62 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # Quality-First AI Routing - Gemini Primary
+        # Smart Category-Based AI Routing
         stage1_result = None
         method_used = "unknown"
         
         # Support only: upper_body, lower_body, dress
         if category in ['upper_body', 'lower_body', 'dress']:
-            # 1st Try: Gemini 2.5 Flash (best quality, preserves hands/objects)
-            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-            if gemini_api_key:
-                print(f"\n=== 1st Try: Gemini 2.5 Flash (Category: {category}) ===")
-                try:
-                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                    stage1_result = gemini_service.virtual_try_on(
-                        user_photo_bytes,
-                        clothing_final_bytes,
-                        category=category
-                    )
-                    if stage1_result:
-                        method_used = "Gemini 2.5 Flash Image"
-                        print(f"✓ Gemini succeeded!")
-                except Exception as e:
-                    print(f"✗ Gemini failed: {str(e)}")
             
-            # 2nd Try: Replicate IDM-VTON fallback (lower quality but works)
-            if not stage1_result:
-                print(f"\n=== 2nd Try: Replicate IDM-VTON (Category: {category}) ===")
-                replicate_category = 'dresses' if category == 'dress' else category
+            # Category-specific routing for best results
+            if category == 'lower_body':
+                # Lower body: Use IDM-VTON (only model that works for lower body)
+                print(f"\n=== Lower Body: Using IDM-VTON (specialized) ===")
                 try:
                     stage1_result = replicate_service.virtual_try_on(
                         user_photo_bytes, 
                         clothing_final_bytes,
-                        category=replicate_category
+                        category='lower_body'
                     )
                     if stage1_result:
                         method_used = "Replicate IDM-VTON"
-                        print(f"✓ IDM-VTON succeeded")
+                        print(f"✓ IDM-VTON succeeded for lower body")
                 except Exception as e:
                     print(f"✗ IDM-VTON failed: {str(e)}")
+                    
+            else:
+                # Upper body & Dress: Use Gemini (preserves hands/objects)
+                gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+                if gemini_api_key:
+                    print(f"\n=== {category}: Using Gemini (quality-first) ===")
+                    try:
+                        gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                        stage1_result = gemini_service.virtual_try_on(
+                            user_photo_bytes,
+                            clothing_final_bytes,
+                            category=category
+                        )
+                        if stage1_result:
+                            method_used = "Gemini 2.5 Flash Image"
+                            print(f"✓ Gemini succeeded for {category}")
+                    except Exception as e:
+                        print(f"✗ Gemini failed: {str(e)}")
+                
+                # Fallback to IDM-VTON if Gemini fails
+                if not stage1_result:
+                    print(f"\n=== Fallback: IDM-VTON for {category} ===")
+                    replicate_category = 'dresses' if category == 'dress' else category
+                    try:
+                        stage1_result = replicate_service.virtual_try_on(
+                            user_photo_bytes, 
+                            clothing_final_bytes,
+                            category=replicate_category
+                        )
+                        if stage1_result:
+                            method_used = "Replicate IDM-VTON"
+                            print(f"✓ IDM-VTON fallback succeeded")
+                    except Exception as e:
+                        print(f"✗ IDM-VTON also failed: {str(e)}")
         else:
             return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress are supported.'}), 400
         
