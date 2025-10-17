@@ -80,32 +80,34 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # 3-Stage Fallback System for Virtual Try-On
+        # Smart Category-Based AI Routing
         stage1_result = None
         method_used = "unknown"
         
-        # 1st Priority: Gemini 2.5 Flash Image (Best for preserving hands/face/books)
-        gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-        if gemini_api_key:
-            print(f"\n=== 1st Try: Gemini 2.5 Flash Image (Category: {category}) ===")
-            try:
-                gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                stage1_result = gemini_service.virtual_try_on(
-                    user_photo_bytes,
-                    clothing_final_bytes,
-                    category=category
-                )
-                if stage1_result:
-                    method_used = "Gemini 2.5 Flash Image"
-                    print(f"✓ Gemini succeeded!")
-            except Exception as e:
-                print(f"✗ Gemini failed: {str(e)}")
-        else:
-            print("⚠ GEMINI_API_KEY not set, skipping Gemini try-on")
+        # Accessories (hat, glasses, shoes) → Gemini 1st priority (better preservation)
+        # Clothing (upper_body, lower_body, dress) → Replicate 1st priority (clothing specialist)
         
-        # 2nd Priority: Replicate IDM-VTON (Backup for clothing only)
-        if not stage1_result and category in ['upper_body', 'lower_body', 'dress']:
-            print(f"\n=== 2nd Try: Replicate IDM-VTON (Category: {category}) ===")
+        if category in ['hat', 'glasses', 'shoes']:
+            # For accessories: Gemini first
+            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+            if gemini_api_key:
+                print(f"\n=== 1st Try: Gemini 2.5 Flash (Category: {category}) ===")
+                try:
+                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                    stage1_result = gemini_service.virtual_try_on(
+                        user_photo_bytes,
+                        clothing_final_bytes,
+                        category=category
+                    )
+                    if stage1_result:
+                        method_used = "Gemini 2.5 Flash Image"
+                        print(f"✓ Gemini succeeded!")
+                except Exception as e:
+                    print(f"✗ Gemini failed: {str(e)}")
+        
+        elif category in ['upper_body', 'lower_body', 'dress']:
+            # For clothing: Replicate first
+            print(f"\n=== 1st Try: Replicate IDM-VTON (Category: {category}) ===")
             
             # Map 'dress' to 'dresses' for Replicate
             replicate_category = 'dresses' if category == 'dress' else category
@@ -121,6 +123,24 @@ def virtual_fitting():
                     print(f"✓ Replicate succeeded")
             except Exception as e:
                 print(f"✗ Replicate failed: {str(e)}")
+            
+            # 2nd Try: Gemini fallback for clothing
+            if not stage1_result:
+                gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+                if gemini_api_key:
+                    print(f"\n=== 2nd Try: Gemini 2.5 Flash (Category: {category}) ===")
+                    try:
+                        gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                        stage1_result = gemini_service.virtual_try_on(
+                            user_photo_bytes,
+                            clothing_final_bytes,
+                            category=category
+                        )
+                        if stage1_result:
+                            method_used = "Gemini 2.5 Flash Image"
+                            print(f"✓ Gemini succeeded!")
+                    except Exception as e:
+                        print(f"✗ Gemini failed: {str(e)}")
         
         # 3rd Priority: OpenAI DALL-E (Final fallback)
         if not stage1_result:
