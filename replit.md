@@ -34,11 +34,11 @@ Preferred communication style: Simple, everyday language.
 **UI Features**
 - Clothing type selection: "상의 + 하의" or "원피스/전체"
 - Circular layout with person in center, items around:
-  - Top: Hat (모자)
   - Left: Top clothing (상의) - in separate mode
   - Right: Bottom clothing (하의) - in separate mode  
   - Center: Dress (원피스) - in dress mode
   - Bottom: Shoes (신발)
+- **Removed**: Hat and glasses (focus on clothing & shoes only)
 - Drag & drop image upload for all zones
 - Before/After slider comparison for results
 - Download functionality for final images
@@ -59,37 +59,33 @@ Preferred communication style: Simple, everyday language.
 - Multipart form data handling with Werkzeug
 - Maximum file size: 16MB
 
-**Smart Category-Based AI Pipeline** ✅
+**Optimized AI Pipeline for Clothing & Shoes** ✅
 
 **Stage 0: Background Removal** (Optional)
 - Local `rembg` processing (~5 seconds)
 - Removes background from clothing images
 - Applied when checkbox is checked
 
-**Stage 1: Virtual Try-On** (Category-aware routing)
+**Stage 1: Virtual Try-On** (Optimized routing)
 
-*For Accessories (hat, glasses, shoes):*
-1. **Gemini 2.5 Flash Image** (1st priority) ✅
-   - Better at preserving hands, face, books, objects
-   - Temperature: 0.1 (maximum preservation, minimal creativity)
-   - Top_p: 0.7, Top_k: 20
-   - Works well for simple overlay tasks like hats
+*Supported Categories: upper_body, lower_body, dress, shoes*
 
-*For Clothing (upper_body, lower_body, dress):*
-1. **Replicate IDM-VTON** (1st priority) ✅
-   - Specialized clothing replacement AI
-   - Supports: upper_body, lower_body, dresses
+1. **CatVTON-Flux** (1st priority - 2024 SOTA) ✅
+   - Model: `mmezhov/catvton-flux` on Replicate
+   - Cost: ~$0.046 per run (50% cheaper than IDM-VTON)
+   - Speed: ~33 seconds
+   - Better quality, structure alignment, and detail preservation
+   - Supports all clothing types: upper, lower, overall (dress), shoes
+   
+2. **Replicate IDM-VTON** (2nd fallback)
+   - If CatVTON fails
    - Cost: ~$0.11 per image
    
-2. **Gemini 2.5 Flash** (2nd fallback)
-   - If Replicate fails
-   
-3. **OpenAI DALL-E 3** (3rd fallback)
-   - Final fallback option
+3. **Gemini 2.5 Flash** (3rd fallback)
+   - If both CatVTON and IDM-VTON fail
 
-**Stage 2: Quality Enhancement** (Skipped for Gemini results)
-- Gemini results already optimal quality
-- Only applied for other AI outputs if needed
+**Stage 2: Quality Enhancement** (Removed)
+- No longer needed - CatVTON results are already optimal
 
 **API Design**
 - `POST /api/virtual-fitting` - Main endpoint
@@ -105,17 +101,18 @@ Preferred communication style: Simple, everyday language.
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-provided by Replit
 
 **Recent Improvements (October 2025)**
-- ✅ Implemented category-based AI routing for optimal results
-- ✅ Gemini temperature tuned to 0.1 for natural hat fitting
+- ✅ Switched to CatVTON-Flux (2024 SOTA model) as primary AI
+- ✅ Removed hat and glasses - focus on clothing & shoes only
 - ✅ Local rembg background removal (faster than Replicate)
-- ✅ Replicate IDM-VTON for clothing (upper/lower/dress)
-- ✅ All categories tested and working: hat, top, bottom
+- ✅ Simplified pipeline: CatVTON → IDM-VTON → Gemini fallback
+- ✅ 50% cost reduction ($0.046 vs $0.11 per run)
+- ✅ Faster processing (33s vs previous models)
 
-**Test Results:**
-- Hat (모자): ✅ Natural with Gemini (temperature 0.1)
-- Top (상의): ✅ Works with Replicate IDM-VTON
-- Bottom (하의): ✅ Works with Replicate IDM-VTON
-- Preserves hands, face, books perfectly
+**Supported Categories:**
+- Top (상의): upper_body - ✅ CatVTON
+- Bottom (하의): lower_body - ✅ CatVTON
+- Dress (원피스): dress - ✅ CatVTON
+- Shoes (신발): shoes - ✅ CatVTON
 
 ### Data Storage Solutions
 
