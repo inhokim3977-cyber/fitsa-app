@@ -120,10 +120,21 @@ def virtual_fitting():
         
         print(f"✓ Virtual fitting completed using: {method_used}")
         
-        # Return the Replicate URL directly (skip stage 2 to avoid 414 errors)
+        # Stage 2: Quality enhancement with Nano Banana (GPT-5-nano)
+        final_result = stage1_result
+        try:
+            print("\n=== Stage 2: Nano Banana Quality Enhancement ===")
+            stage2_result = nano_service.enhance_quality(stage1_result)
+            if stage2_result:
+                final_result = stage2_result
+                print(f"✓ Stage 2 enhancement completed")
+        except Exception as e:
+            print(f"✗ Stage 2 enhancement failed, using Stage 1 result: {e}")
+        
         return jsonify({
             'success': True,
-            'resultUrl': stage1_result,
+            'resultUrl': final_result,
+            'stage1_url': stage1_result,
             'method': method_used,
             'status': 'completed'
         })
