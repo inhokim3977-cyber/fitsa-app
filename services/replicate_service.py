@@ -35,17 +35,27 @@ class ReplicateService:
             person_data_uri = f"data:image/png;base64,{person_b64}"
             clothing_data_uri = f"data:image/png;base64,{clothing_b64}"
             
-            print("Using base64 data URIs for image input...")
+            print("Using base64 data URIs with optimized parameters...")
+            
+            # Optimized parameters for preserving hands and background
+            # Higher steps = more accurate clothing region detection
+            # Lower guidance = preserve more of original image
+            input_params = {
+                "human_img": person_data_uri,
+                "garm_img": clothing_data_uri,
+                "category": category,
+                "garment_des": "clothing item only, preserve hands and background",
+                "n_steps": 40,  # Increased for better accuracy
+                "guidance_scale": 1.5,  # Reduced to preserve more original
+                "seed": 42  # Consistent results
+            }
+            
+            print(f"✓ Parameters: steps={input_params['n_steps']}, guidance={input_params['guidance_scale']}")
             
             # Use the correct IDM-VTON model version (verified working 2025)
             output = replicate.run(
                 "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
-                input={
-                    "human_img": person_data_uri,
-                    "garm_img": clothing_data_uri,
-                    "category": category,
-                    "garment_des": "high quality fashion clothing with clear visible details, natural realistic fit, well-defined fabric texture, proper color accuracy"
-                }
+                input=input_params
             )
             print(f"✓ Replicate API call completed")
             
