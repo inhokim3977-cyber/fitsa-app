@@ -19,21 +19,27 @@ class ReplicateService:
             URL of the try-on result image
         """
         try:
-            # Open files for Replicate API
             print(f"Starting Replicate virtual try-on...")
             print(f"Person image: {person_image_path}")
             print(f"Clothing image: {clothing_image_path}")
             
-            with open(person_image_path, 'rb') as person_file, open(clothing_image_path, 'rb') as clothing_file:
-                print("Files opened, calling Replicate API...")
-                output = replicate.run(
-                    "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
-                    input={
-                        "face_image": person_file,
-                        "commerce_image": clothing_file,
-                    }
-                )
-                print("Replicate API call completed!")
+            # Use replicate.upload to convert files to URLs (like AIFurnish pattern)
+            print("Uploading images to Replicate...")
+            person_file = replicate.upload(open(person_image_path, 'rb'))
+            clothing_file = replicate.upload(open(clothing_image_path, 'rb'))
+            
+            print(f"Person file uploaded: {person_file}")
+            print(f"Clothing file uploaded: {clothing_file}")
+            
+            print("Calling Replicate API...")
+            output = replicate.run(
+                "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
+                input={
+                    "face_image": person_file,
+                    "commerce_image": clothing_file,
+                }
+            )
+            print("Replicate API call completed!")
             
             # Debug logging
             print(f"Replicate output type: {type(output)}")
