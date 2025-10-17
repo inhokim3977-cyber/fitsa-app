@@ -92,7 +92,8 @@ def virtual_fitting():
                 gemini_service = GeminiVirtualFittingService(gemini_api_key)
                 stage1_result = gemini_service.virtual_try_on(
                     user_photo_bytes,
-                    clothing_final_bytes
+                    clothing_final_bytes,
+                    category=category
                 )
                 if stage1_result:
                     method_used = "Gemini 2.5 Flash Image"

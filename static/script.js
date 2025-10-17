@@ -245,20 +245,42 @@ async function generateFitting() {
     }
     
     let clothingPhoto = null;
+    let category = 'upper_body'; // Default category
     
-    if (clothingMode === 'separate') {
+    // Determine clothing photo and category based on what's available
+    // Priority order: hat > glasses > top > bottom > dress > shoes
+    if (hatImage) {
+        clothingPhoto = hatImage;
+        category = 'hat';
+    } else if (glassesImage) {
+        clothingPhoto = glassesImage;
+        category = 'glasses';
+    } else if (clothingMode === 'separate') {
         if (!topClothImage && !bottomClothImage) {
             alert('상의 또는 하의를 업로드해주세요!');
             return;
         }
-        // Use top cloth if available, otherwise bottom cloth
-        clothingPhoto = topClothImage || bottomClothImage;
+        // Prioritize top cloth
+        if (topClothImage) {
+            clothingPhoto = topClothImage;
+            category = 'upper_body';
+        } else {
+            clothingPhoto = bottomClothImage;
+            category = 'lower_body';
+        }
     } else {
         if (!dressImage) {
             alert('원피스 사진을 업로드해주세요!');
             return;
         }
         clothingPhoto = dressImage;
+        category = 'dress';
+    }
+    
+    // Check for shoes
+    if (shoesImage && !hatImage && !glassesImage && !topClothImage && !bottomClothImage && !dressImage) {
+        clothingPhoto = shoesImage;
+        category = 'shoes';
     }
     
     generateBtn.disabled = true;
@@ -268,6 +290,7 @@ async function generateFitting() {
         const formData = new FormData();
         formData.append('userPhoto', personImage, 'person.png');
         formData.append('clothingPhoto', clothingPhoto, 'clothes.png');
+        formData.append('category', category); // Send category to server
         
         // Add background removal option
         const removeBg = document.getElementById('removeBgCheckbox').checked;
