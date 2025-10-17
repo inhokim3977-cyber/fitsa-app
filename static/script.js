@@ -123,6 +123,8 @@ function setupDropZone(dropZone, fileInput, type) {
     console.log(`Setting up dropZone for ${type}:`, dropZone, fileInput);
     dropZone.addEventListener('click', () => {
         console.log(`Drop zone clicked for ${type}`);
+        // Reset file input to allow selecting the same file again
+        fileInput.value = '';
         fileInput.click();
     });
     
