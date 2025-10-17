@@ -48,13 +48,7 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    const { serveStatic } = await import("./vite");
-    serveStatic(app);
-  }
-
+  // Node.js는 Object Storage API만 제공 (Vite 없음)
   const PORT = 5001;
   server.listen(PORT, "0.0.0.0", () => {
     log(`Node.js API server running on port ${PORT}`);
