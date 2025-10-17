@@ -75,44 +75,44 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # Simple AI Routing - IDM-VTON Primary
+        # Quality-First AI Routing - Gemini Primary
         stage1_result = None
         method_used = "unknown"
         
         # Support only: upper_body, lower_body, dress
         if category in ['upper_body', 'lower_body', 'dress']:
-            # 1st Try: Replicate IDM-VTON (proven to work)
-            print(f"\n=== 1st Try: Replicate IDM-VTON (Category: {category}) ===")
-            replicate_category = 'dresses' if category == 'dress' else category
-            try:
-                stage1_result = replicate_service.virtual_try_on(
-                    user_photo_bytes, 
-                    clothing_final_bytes,
-                    category=replicate_category
-                )
-                if stage1_result:
-                    method_used = "Replicate IDM-VTON"
-                    print(f"✓ IDM-VTON succeeded")
-            except Exception as e:
-                print(f"✗ IDM-VTON failed: {str(e)}")
+            # 1st Try: Gemini 2.5 Flash (best quality, preserves hands/objects)
+            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+            if gemini_api_key:
+                print(f"\n=== 1st Try: Gemini 2.5 Flash (Category: {category}) ===")
+                try:
+                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                    stage1_result = gemini_service.virtual_try_on(
+                        user_photo_bytes,
+                        clothing_final_bytes,
+                        category=category
+                    )
+                    if stage1_result:
+                        method_used = "Gemini 2.5 Flash Image"
+                        print(f"✓ Gemini succeeded!")
+                except Exception as e:
+                    print(f"✗ Gemini failed: {str(e)}")
             
-            # 2nd Try: Gemini fallback
+            # 2nd Try: Replicate IDM-VTON fallback (lower quality but works)
             if not stage1_result:
-                gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-                if gemini_api_key:
-                    print(f"\n=== 2nd Try: Gemini 2.5 Flash (Category: {category}) ===")
-                    try:
-                        gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                        stage1_result = gemini_service.virtual_try_on(
-                            user_photo_bytes,
-                            clothing_final_bytes,
-                            category=category
-                        )
-                        if stage1_result:
-                            method_used = "Gemini 2.5 Flash Image"
-                            print(f"✓ Gemini succeeded!")
-                    except Exception as e:
-                        print(f"✗ Gemini failed: {str(e)}")
+                print(f"\n=== 2nd Try: Replicate IDM-VTON (Category: {category}) ===")
+                replicate_category = 'dresses' if category == 'dress' else category
+                try:
+                    stage1_result = replicate_service.virtual_try_on(
+                        user_photo_bytes, 
+                        clothing_final_bytes,
+                        category=replicate_category
+                    )
+                    if stage1_result:
+                        method_used = "Replicate IDM-VTON"
+                        print(f"✓ IDM-VTON succeeded")
+                except Exception as e:
+                    print(f"✗ IDM-VTON failed: {str(e)}")
         else:
             return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress are supported.'}), 400
         

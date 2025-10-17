@@ -65,17 +65,19 @@ Preferred communication style: Simple, everyday language.
 - Removes background from clothing images
 - Applied when checkbox is checked
 
-**Stage 1: Virtual Try-On** (Simple and reliable)
+**Stage 1: Virtual Try-On** (Quality-first approach)
 
 *Supported Categories: upper_body, lower_body, dress*
 
-1. **Replicate IDM-VTON** (1st priority) ✅
-   - Proven to work for all categories
-   - Cost: ~$0.11 per image
-   - Supports: upper_body, lower_body, dresses
+1. **Gemini 2.5 Flash** (1st priority) ✅
+   - Best quality - preserves hands, books, objects
+   - Natural results without artifacts
+   - Temperature: 0.1 for precision
+   - Supports: upper_body, lower_body, dress
    
-2. **Gemini 2.5 Flash** (2nd fallback)
-   - If IDM-VTON fails
+2. **Replicate IDM-VTON** (2nd fallback)
+   - If Gemini fails
+   - Note: May remove hands/objects, lower quality
 
 **Stage 2: Quality Enhancement** (Removed)
 - Not needed for simple workflow
@@ -97,14 +99,14 @@ Preferred communication style: Simple, everyday language.
 - ✅ Simplified to 3 categories: upper_body, lower_body, dress
 - ✅ Removed hat, glasses, and shoes - focus on clothing only
 - ✅ Local rembg background removal (faster than Replicate)
-- ✅ Simple pipeline: IDM-VTON → Gemini fallback
+- ✅ Quality-first pipeline: Gemini → IDM-VTON fallback
 - ✅ Image format validation (PNG/JPG only)
-- ✅ Proven to work reliably
+- ✅ Preserves hands, books, and objects (Gemini)
 
 **Supported Categories:**
-- Top (상의): upper_body - ✅ IDM-VTON
-- Bottom (하의): lower_body - ✅ IDM-VTON
-- Dress (원피스): dress - ✅ IDM-VTON
+- Top (상의): upper_body - ✅ Gemini (preserves details)
+- Bottom (하의): lower_body - ✅ Gemini (preserves details)
+- Dress (원피스): dress - ✅ Gemini (preserves details)
 
 ### Data Storage Solutions
 
