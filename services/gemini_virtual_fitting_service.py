@@ -69,27 +69,36 @@ Return the original photo with ONLY a hat digitally added on top.
 Same dimensions as input. This is a simple overlay - do not alter anything else."""
 
             elif category == 'lower_body':
-                prompt = """You are a professional photo editor. Replace only the lower body clothing (pants/trousers) in this photo.
+                prompt = """CRITICAL: This is a PHOTO EDITING task - PRESERVE the person's photo, only change pants.
 
-STRICT REQUIREMENTS:
-1. EXACT PRESERVATION: The person's face, hands, arms, upper body clothing, and all objects (books, cups, blankets) must remain PIXEL-PERFECT identical to the original
-2. PRESERVE BODY SHAPE: Keep the person's leg thickness, body volume, and physique EXACTLY as in original - DO NOT make legs slimmer or thinner
-3. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers from waist down to ankles
-4. PRESERVE UPPER CLOTHING: Keep the shirt/top EXACTLY as it is - same color, same pattern, same wrinkles
-5. MATCH GARMENT IMAGE EXACTLY:
-   - Copy the EXACT fit/width of the pants from the garment image (loose, slim, wide-leg, etc.)
-   - DO NOT make pants slimmer or tighter than shown in garment image
-   - Match the exact style: straight, bootcut, wide-leg, baggy - whatever the garment shows
-   - Keep the same fabric texture and wrinkles as garment image
-6. REALISTIC INTEGRATION:
-   - Match the lighting direction and intensity from the original photo
-   - Add natural shadows and fabric draping
-   - Ensure pants match the person's sitting/standing position naturally
-   - Pants should not change the leg position or posture
-7. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
-8. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
+STEP 1 - PRESERVE EVERYTHING ABOVE WAIST (DO NOT TOUCH):
+- Face: Keep EXACT same face
+- Hair: Keep EXACT same hair
+- Arms: Keep EXACT same arms
+- Hands: Keep EXACT same hands
+- Upper body clothing: Keep EXACT same shirt/top (color, pattern, wrinkles)
+- Torso shape: Keep EXACT same body width/volume
+- All objects: Keep books, cups, blankets in EXACT positions
 
-This is a simple lower body clothing replacement - do not regenerate, modify face/hands/upper body/objects, alter body shape/volume, or change the fit of the garment."""
+STEP 2 - PRESERVE BODY SHAPE (DO NOT ALTER):
+- Leg thickness: Keep EXACT same leg volume (DO NOT slim down)
+- Body proportions: Keep EXACT same width/height ratio
+- Waist size: Keep EXACT same waist circumference
+- Hip size: Keep EXACT same hip width
+- Overall physique: NO body slimming or reshaping
+
+STEP 3 - REPLACE PANTS ONLY (FROM WAIST DOWN):
+- Use the garment image's EXACT fit/style (loose, slim, wide-leg, baggy)
+- DO NOT change the fit - if garment is loose, make it loose; if slim, make it slim
+- Match garment's fabric texture and color exactly
+- Pants should follow person's leg shape (not change it)
+
+STEP 4 - NATURAL INTEGRATION:
+- Match original photo's lighting and shadows
+- Ensure pants drape naturally based on pose (sitting/standing)
+- Keep exact leg position and posture
+
+OUTPUT: Same person photo with ONLY pants replaced - everything else untouched."""
 
             elif category == 'shoes':
                 prompt = """Generate a photorealistic image showing this person wearing these shoes.
