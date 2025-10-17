@@ -9,7 +9,7 @@ let clothingMode = 'separate'; // 'separate' or 'dress'
 let personDropZone, topClothDropZone, bottomClothDropZone, dressDropZone;
 let personFileInput, topClothFileInput, bottomClothFileInput, dressFileInput;
 let generateBtn, loadingIndicator, resultsSection;
-let beforeImage, afterImage, sliderInput, downloadBtn, resetAllBtn;
+let downloadBtn, resetAllBtn;
 let clothTypeButtons;
 
 // Initialize everything after DOM is loaded
@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn = document.getElementById('generateBtn');
     loadingIndicator = document.getElementById('loadingIndicator');
     resultsSection = document.getElementById('resultsSection');
-    beforeImage = document.getElementById('beforeImage');
-    afterImage = document.getElementById('afterImage');
-    sliderInput = document.getElementById('sliderInput');
     downloadBtn = document.getElementById('downloadBtn');
     resetAllBtn = document.getElementById('resetAllBtn');
     
@@ -106,13 +103,6 @@ function switchClothingMode(mode) {
 
     // Generate button
     generateBtn.addEventListener('click', () => generateFitting());
-
-    // Comparison slider
-    sliderInput.addEventListener('input', (e) => {
-        const value = e.target.value;
-        const afterDiv = document.querySelector('.comparison-after');
-        afterDiv.style.clipPath = `inset(0 0 0 ${value}%)`;
-    });
 
     // Download and reset
     downloadBtn.addEventListener('click', () => downloadResult());
@@ -302,10 +292,9 @@ async function generateFitting() {
                 finalResultUrl = bottomData.resultUrl;
             }
             
-            // Show final results
-            const personPreview = document.getElementById('personPreview');
-            beforeImage.src = personPreview.src;
-            afterImage.src = finalResultUrl;
+            // Show final results (result only, no comparison)
+            const resultImage = document.getElementById('resultImage');
+            resultImage.src = finalResultUrl;
             resultsSection.classList.remove('hidden');
             resultsSection.scrollIntoView({ behavior: 'smooth' });
             return;
@@ -334,9 +323,8 @@ async function generateFitting() {
                 return;
             }
             
-            const personPreview = document.getElementById('personPreview');
-            beforeImage.src = personPreview.src;
-            afterImage.src = dressData.resultUrl;
+            const resultImage = document.getElementById('resultImage');
+            resultImage.src = dressData.resultUrl;
             resultsSection.classList.remove('hidden');
             resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
@@ -350,9 +338,10 @@ async function generateFitting() {
 }
 
 function downloadResult() {
+    const resultImage = document.getElementById('resultImage');
     const link = document.createElement('a');
-    link.href = afterImage.src;
-    link.download = `ai-fashion-fitting-${Date.now()}.png`;
+    link.href = resultImage.src;
+    link.download = `ai-virtual-fitting-${Date.now()}.png`;
     link.click();
 }
 
