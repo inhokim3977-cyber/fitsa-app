@@ -206,75 +206,111 @@ async function generateFitting() {
         return;
     }
     
-    let clothingPhoto = null;
-    let category = 'upper_body'; // Default category
-    
-    // Determine clothing photo and category based on what's available
-    // Priority order: top > bottom > dress
-    if (clothingMode === 'separate') {
-        if (!topClothImage && !bottomClothImage) {
-            alert('상의 또는 하의를 업로드해주세요!');
-            return;
-        }
-        // Prioritize top cloth, then bottom
-        if (topClothImage) {
-            clothingPhoto = topClothImage;
-            category = 'upper_body';
-        } else {
-            clothingPhoto = bottomClothImage;
-            category = 'lower_body';
-        }
-    } else {
-        if (!dressImage) {
-            alert('원피스 사진을 업로드해주세요!');
-            return;
-        }
-        clothingPhoto = dressImage;
-        category = 'dress';
-    }
-    
     generateBtn.disabled = true;
     loadingIndicator.classList.remove('hidden');
     
     try {
-        const formData = new FormData();
-        formData.append('userPhoto', personImage, 'person.png');
-        formData.append('clothingPhoto', clothingPhoto, 'clothes.png');
-        formData.append('category', category); // Send category to server
-        
-        // Add background removal option
+        let currentPersonImage = personImage;
         const removeBg = document.getElementById('removeBgCheckbox').checked;
-        formData.append('removeBackground', removeBg.toString());
         
-        const response = await fetch('/api/virtual-fitting', {
-            method: 'POST',
-            body: formData
-        });
-        
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const text = await response.text();
-            console.error('Non-JSON response:', text.substring(0, 500));
-            alert('서버 오류가 발생했습니다. 콘솔을 확인하세요.');
-            return;
+        if (clothingMode === 'separate') {
+            if (!topClothImage && !bottomClothImage) {
+                alert('상의 또는 하의를 업로드해주세요!');
+                return;
+            }
+            
+            // Process top cloth first (if available)
+            if (topClothImage) {
+                const topFormData = new FormData();
+                topFormData.append('userPhoto', currentPersonImage, 'person.png');
+                topFormData.append('clothingPhoto', topClothImage, 'top.png');
+                topFormData.append('category', 'upper_body');
+                topFormData.append('removeBackground', removeBg.toString());
+                
+                const topResponse = await fetch('/api/virtual-fitting', {
+                    method: 'POST',
+                    body: topFormData
+                });
+                
+                const topData = await topResponse.json();
+                if (topData.error) {
+                    alert('상의 피팅 오류: ' + topData.error);
+                    return;
+                }
+                
+                // Convert result to blob for next step
+                const topResultBlob = await fetch(topData.resultUrl).then(r => r.blob());
+                currentPersonImage = topResultBlob;
+            }
+            
+            // Process bottom cloth (if available)
+            if (bottomClothImage) {
+                const bottomFormData = new FormData();
+                bottomFormData.append('userPhoto', currentPersonImage, 'person.png');
+                bottomFormData.append('clothingPhoto', bottomClothImage, 'bottom.png');
+                bottomFormData.append('category', 'lower_body');
+                bottomFormData.append('removeBackground', removeBg.toString());
+                
+                const bottomResponse = await fetch('/api/virtual-fitting', {
+                    method: 'POST',
+                    body: bottomFormData
+                });
+                
+                const bottomData = await bottomResponse.json();
+                if (bottomData.error) {
+                    alert('하의 피팅 오류: ' + bottomData.error);
+                    return;
+                }
+                
+                // Show final results
+                const personPreview = document.getElementById('personPreview');
+                beforeImage.src = personPreview.src;
+                afterImage.src = bottomData.resultUrl;
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // Only top was processed
+            if (topClothImage) {
+                const personPreview = document.getElementById('personPreview');
+                beforeImage.src = personPreview.src;
+                const topResultUrl = URL.createObjectURL(currentPersonImage);
+                afterImage.src = topResultUrl;
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+        } else {
+            // Dress mode
+            if (!dressImage) {
+                alert('원피스 사진을 업로드해주세요!');
+                return;
+            }
+            
+            const dressFormData = new FormData();
+            dressFormData.append('userPhoto', currentPersonImage, 'person.png');
+            dressFormData.append('clothingPhoto', dressImage, 'dress.png');
+            dressFormData.append('category', 'dress');
+            dressFormData.append('removeBackground', removeBg.toString());
+            
+            const dressResponse = await fetch('/api/virtual-fitting', {
+                method: 'POST',
+                body: dressFormData
+            });
+            
+            const dressData = await dressResponse.json();
+            if (dressData.error) {
+                alert('원피스 피팅 오류: ' + dressData.error);
+                return;
+            }
+            
+            const personPreview = document.getElementById('personPreview');
+            beforeImage.src = personPreview.src;
+            afterImage.src = dressData.resultUrl;
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            alert('오류: ' + data.error);
-            return;
-        }
-        
-        // Show results
-        const personPreview = document.getElementById('personPreview');
-        beforeImage.src = personPreview.src;
-        afterImage.src = data.resultUrl;
-        resultsSection.classList.remove('hidden');
-        
-        // Scroll to results
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
         
     } catch (error) {
         alert('피팅 생성 중 오류가 발생했습니다: ' + error.message);
