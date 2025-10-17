@@ -1,5 +1,6 @@
 import os
-from flask import Flask, send_from_directory
+import requests
+from flask import Flask, send_from_directory, Response
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -21,6 +22,23 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Import and register routes
 from routes.api import api_bp
 app.register_blueprint(api_bp, url_prefix='/api')
+
+# Proxy /objects/ requests to Node.js server
+@app.route('/objects/<path:object_path>')
+def serve_object(object_path):
+    node_api_url = os.getenv('NODE_API_URL', 'http://127.0.0.1:5001')
+    try:
+        response = requests.get(f"{node_api_url}/objects/{object_path}", stream=True)
+        return Response(
+            response.iter_content(chunk_size=8192),
+            content_type=response.headers.get('Content-Type', 'image/png'),
+            headers={
+                'Cache-Control': response.headers.get('Cache-Control', 'public, max-age=31536000')
+            }
+        )
+    except Exception as e:
+        print(f"Error proxying object: {e}")
+        return "Object not found", 404
 
 # Serve frontend
 @app.route('/')
