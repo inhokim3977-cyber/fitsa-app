@@ -41,16 +41,18 @@ class GeminiVirtualFittingService:
             # Create optimized prompt for virtual try-on
             prompt = """Generate a photorealistic virtual try-on image showing this person wearing the clothing item.
 
-CRITICAL REQUIREMENTS:
-1. Preserve the person's face, hands, and body EXACTLY as they appear
-2. Only replace the existing clothing with the new garment
-3. Keep hands, arms, and any objects (books, accessories) completely unchanged
-4. Maintain natural skin tones and body proportions
-5. Ensure the clothing fits naturally with realistic draping and shadows
-6. Match the original photo's lighting and background perfectly
-7. Make it look like a real photograph, not an AI composite
+CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
+1. PRESERVE EXACT POSE: Keep the person's exact body position, leg position, and posture UNCHANGED
+2. PRESERVE ANATOMY: The person must have exactly TWO legs and TWO arms - no duplicates
+3. PRESERVE FACE & HANDS: Keep face, hands, fingers, and skin tone EXACTLY as in original
+4. PRESERVE OBJECTS: Keep all objects (books, coffee cups, blankets) in their exact positions
+5. ONLY REPLACE CLOTHING: Change ONLY the clothing item, nothing else
+6. PRESERVE COMPOSITION: Keep the same camera angle, framing, and image dimensions
+7. PRESERVE BACKGROUND: Keep background, furniture, and environment identical
+8. NATURAL FIT: The new clothing should fit naturally with realistic shadows and draping
+9. SAME LIGHTING: Match the original photo's lighting and color temperature exactly
 
-The result should look like the person naturally wore this clothing when the photo was taken."""
+OUTPUT: A photorealistic image where ONLY the clothing has changed. Everything else must be identical to the original photo."""
 
             print("Calling Gemini 2.5 Flash Image API...")
             
