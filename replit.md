@@ -7,16 +7,16 @@ This is a Virtual Fitting application that allows users to virtually try on clot
 **Current Implementation: Flask Backend (Following AIFurnish Interior App Structure)** ✅
 
 The app uses:
-- **Flask Backend (Python)**: 3-stage AI pipeline with background removal - **자동 실행 완료**
-- **Node.js Proxy**: Port 5000 → Flask port 5001 forwarding (for Replit deployment)
+- **Node.js Proxy (5000)**: Opens port for Autoscale deployment, proxies to Flask ✅
+- **Flask Backend (5001)**: AI pipeline with Gemini 2.5 Flash + background removal
 - **Static HTML/CSS/JS Frontend**: Artistic circular layout with glassmorphism
 - **Mobile Responsive**: Vertical layout for portrait mode (all inputs visible)
 
 ## How to Run
 
 **자동 실행:** 워크플로우가 자동으로 실행됩니다:
-- Node.js proxy: Port 5000 (public)
-- Flask backend: Port 5001 (internal)
+- Node.js Express: Port 5000 (opens port for deployment, proxies all requests)
+- Flask backend: Port 5001 (AI processing)
 
 브라우저를 열면 바로 가상 피팅 앱을 사용할 수 있습니다!
 
