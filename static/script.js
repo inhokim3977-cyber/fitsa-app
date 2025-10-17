@@ -5,40 +5,56 @@ let bottomClothImage = null;
 let dressImage = null;
 let clothingMode = 'separate'; // 'separate' or 'dress'
 
-// DOM elements
-const personDropZone = document.getElementById('personDropZone');
-const topClothDropZone = document.getElementById('topClothDropZone');
-const bottomClothDropZone = document.getElementById('bottomClothDropZone');
-const dressDropZone = document.getElementById('dressDropZone');
+// DOM elements - will be initialized after DOM loads
+let personDropZone, topClothDropZone, bottomClothDropZone, dressDropZone;
+let personFileInput, topClothFileInput, bottomClothFileInput, dressFileInput;
+let generateBtn, loadingIndicator, resultsSection;
+let beforeImage, afterImage, sliderInput, downloadBtn, resetAllBtn;
+let clothTypeButtons;
 
-const personFileInput = document.getElementById('personFileInput');
-const topClothFileInput = document.getElementById('topClothFileInput');
-const bottomClothFileInput = document.getElementById('bottomClothFileInput');
-const dressFileInput = document.getElementById('dressFileInput');
-
-const generateBtn = document.getElementById('generateBtn');
-const loadingIndicator = document.getElementById('loadingIndicator');
-const resultsSection = document.getElementById('resultsSection');
-const beforeImage = document.getElementById('beforeImage');
-const afterImage = document.getElementById('afterImage');
-const sliderInput = document.getElementById('sliderInput');
-const downloadBtn = document.getElementById('downloadBtn');
-const resetAllBtn = document.getElementById('resetAllBtn');
-
-// Clothing type buttons
-const clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
-
-// Setup clothing type switching
-clothTypeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const type = btn.getAttribute('data-type');
-        switchClothingMode(type);
-        
-        // Update active state
-        clothTypeButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    });
+// Initialize everything after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing...');
+    
+    // Get DOM elements
+    personDropZone = document.getElementById('personDropZone');
+    topClothDropZone = document.getElementById('topClothDropZone');
+    bottomClothDropZone = document.getElementById('bottomClothDropZone');
+    dressDropZone = document.getElementById('dressDropZone');
+    
+    personFileInput = document.getElementById('personFileInput');
+    topClothFileInput = document.getElementById('topClothFileInput');
+    bottomClothFileInput = document.getElementById('bottomClothFileInput');
+    dressFileInput = document.getElementById('dressFileInput');
+    
+    generateBtn = document.getElementById('generateBtn');
+    loadingIndicator = document.getElementById('loadingIndicator');
+    resultsSection = document.getElementById('resultsSection');
+    beforeImage = document.getElementById('beforeImage');
+    afterImage = document.getElementById('afterImage');
+    sliderInput = document.getElementById('sliderInput');
+    downloadBtn = document.getElementById('downloadBtn');
+    resetAllBtn = document.getElementById('resetAllBtn');
+    
+    clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
+    
+    initializeApp();
 });
+
+function initializeApp() {
+    console.log('Initializing app...');
+
+    // Setup clothing type switching
+    clothTypeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.getAttribute('data-type');
+            switchClothingMode(type);
+            
+            // Update active state
+            clothTypeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
 
 function switchClothingMode(mode) {
     clothingMode = mode;
@@ -68,39 +84,40 @@ function switchClothingMode(mode) {
     checkCanGenerate();
 }
 
-// Setup all drop zones
-console.log('Setting up drop zones...');
-console.log('personDropZone:', personDropZone);
-console.log('topClothDropZone:', topClothDropZone);
-console.log('bottomClothDropZone:', bottomClothDropZone);
-console.log('dressDropZone:', dressDropZone);
+    // Setup all drop zones
+    console.log('Setting up drop zones...');
+    console.log('personDropZone:', personDropZone);
+    console.log('topClothDropZone:', topClothDropZone);
+    console.log('bottomClothDropZone:', bottomClothDropZone);
+    console.log('dressDropZone:', dressDropZone);
 
-setupDropZone(personDropZone, personFileInput, 'person');
-setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
-setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
-setupDropZone(dressDropZone, dressFileInput, 'dress');
+    setupDropZone(personDropZone, personFileInput, 'person');
+    setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
+    setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
+    setupDropZone(dressDropZone, dressFileInput, 'dress');
 
-console.log('Drop zones setup complete!');
+    console.log('Drop zones setup complete!');
 
-// Setup file inputs
-personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
-topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
-bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
-dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
+    // Setup file inputs
+    personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
+    topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
+    bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
+    dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
 
-// Generate button
-generateBtn.addEventListener('click', () => generateFitting());
+    // Generate button
+    generateBtn.addEventListener('click', () => generateFitting());
 
-// Comparison slider
-sliderInput.addEventListener('input', (e) => {
-    const value = e.target.value;
-    const afterDiv = document.querySelector('.comparison-after');
-    afterDiv.style.clipPath = `inset(0 0 0 ${value}%)`;
-});
+    // Comparison slider
+    sliderInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        const afterDiv = document.querySelector('.comparison-after');
+        afterDiv.style.clipPath = `inset(0 0 0 ${value}%)`;
+    });
 
-// Download and reset
-downloadBtn.addEventListener('click', () => downloadResult());
-resetAllBtn.addEventListener('click', () => resetAll());
+    // Download and reset
+    downloadBtn.addEventListener('click', () => downloadResult());
+    resetAllBtn.addEventListener('click', () => resetAll());
+}
 
 function setupDropZone(dropZone, fileInput, type) {
     console.log(`Setting up dropZone for ${type}:`, dropZone, fileInput);
