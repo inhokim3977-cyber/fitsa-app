@@ -45,16 +45,20 @@ class GeminiVirtualFittingService:
             
             # Create category-specific prompt
             if category == 'hat':
-                prompt = """Generate a photorealistic image showing this person wearing this hat/cap.
+                prompt = """You are a professional photo editor. Add this hat/cap to the person's photo.
 
-CRITICAL REQUIREMENTS:
-1. PRESERVE EVERYTHING: Keep face, hair, body, hands, objects, background EXACTLY as in original
-2. ADD HAT ONLY: Place the hat/cap naturally on the person's head
-3. PRESERVE POSE: Keep exact body position and posture unchanged
-4. NATURAL FIT: Hat should fit naturally with realistic shadows
-5. SAME LIGHTING: Match original photo's lighting exactly
+STRICT REQUIREMENTS:
+1. EXACT PRESERVATION: The person's face, hair style, facial expression, body, hands, and all objects (books, cups, etc.) must remain PIXEL-PERFECT identical to the original
+2. HAT PLACEMENT: Place the hat naturally on top of the head, adjusting for the person's head shape and hair
+3. REALISTIC INTEGRATION: 
+   - Match the lighting direction and intensity from the original photo
+   - Add natural shadows under the hat brim
+   - Ensure hat size is proportional to head size
+   - Hat should not float or sink into the head
+4. PRESERVE HAIR: Hair should peek out naturally from under the hat where appropriate
+5. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
 
-OUTPUT: Same photo with ONLY the hat added."""
+This is a simple hat overlay task - do not regenerate or modify any other part of the image."""
 
             elif category == 'lower_body':
                 prompt = """Generate a photorealistic image showing this person wearing these pants/trousers.
@@ -119,12 +123,18 @@ OUTPUT: Same photo with ONLY the upper body clothing changed."""
 
             print("Calling Gemini 2.5 Flash Image API...")
             
+            # Configure generation parameters for better quality
+            generation_config = {
+                'temperature': 0.4,  # Lower temperature for more consistent results
+                'top_p': 0.8,
+                'top_k': 40,
+            }
+            
             # Generate with Gemini
-            response = self.model.generate_content([
-                prompt,
-                person_img,
-                clothing_img
-            ])
+            response = self.model.generate_content(
+                [prompt, person_img, clothing_img],
+                generation_config=generation_config
+            )
             
             print(f"✓ Gemini API call completed")
             
