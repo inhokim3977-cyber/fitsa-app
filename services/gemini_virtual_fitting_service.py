@@ -61,16 +61,21 @@ STRICT REQUIREMENTS:
 This is a simple hat overlay task - do not regenerate or modify any other part of the image."""
 
             elif category == 'lower_body':
-                prompt = """Generate a photorealistic image showing this person wearing these pants/trousers.
+                prompt = """You are a professional photo editor. Replace only the lower body clothing (pants/trousers) in this photo.
 
-CRITICAL REQUIREMENTS:
-1. PRESERVE UPPER BODY: Keep face, hands, arms, upper clothing EXACTLY as in original
-2. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers, nothing else
-3. PRESERVE POSE: Keep exact leg position and posture unchanged
-4. PRESERVE OBJECTS: Keep books, blankets, furniture exactly as they are
-5. NATURAL FIT: Pants should fit naturally with realistic draping and shadows
+STRICT REQUIREMENTS:
+1. EXACT PRESERVATION: The person's face, hands, arms, upper body clothing, and all objects (books, cups, blankets) must remain PIXEL-PERFECT identical to the original
+2. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers from waist down to ankles
+3. PRESERVE UPPER CLOTHING: Keep the shirt/top EXACTLY as it is - same color, same pattern, same wrinkles
+4. REALISTIC INTEGRATION:
+   - Match the lighting direction and intensity from the original photo
+   - Add natural shadows and fabric draping
+   - Ensure pants fit the person's sitting/standing position naturally
+   - Pants should not change the leg position or posture
+5. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
+6. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
 
-OUTPUT: Same photo with ONLY the pants/trousers changed."""
+This is a simple lower body clothing replacement - do not regenerate or modify face, hands, upper body, or objects."""
 
             elif category == 'shoes':
                 prompt = """Generate a photorealistic image showing this person wearing these shoes.
