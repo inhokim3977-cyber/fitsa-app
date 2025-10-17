@@ -85,9 +85,14 @@ def virtual_fitting():
                 print(f"Background removal failed, using original image: {e}")
         
         # Stage 1: Virtual Try-On with Replicate (using file paths)
+        print(f"About to call Replicate API with user_path={user_path}, clothing_path={clothing_final_path}")
         try:
             stage1_result = replicate_service.virtual_try_on(user_path, clothing_final_path)
+            print(f"Replicate API returned: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
         except Exception as e:
+            print(f"Replicate API error: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': f'Stage 1 failed: {str(e)}'}), 500
         
         if not stage1_result:
