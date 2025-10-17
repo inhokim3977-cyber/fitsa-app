@@ -137,10 +137,11 @@ OUTPUT: Same photo with ONLY the upper body clothing changed."""
             print("Calling Gemini 2.5 Flash Image API...")
             
             # Configure generation parameters for better quality
+            # Very low temperature for maximum preservation of original photo
             generation_config = {
-                'temperature': 0.4,  # Lower temperature for more consistent results
-                'top_p': 0.8,
-                'top_k': 40,
+                'temperature': 0.1,  # Minimal creativity, maximum preservation
+                'top_p': 0.7,        # Reduced randomness
+                'top_k': 20,         # Fewer options for more consistency
             }
             
             # Generate with Gemini
