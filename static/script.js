@@ -145,10 +145,12 @@ function handleFile(file, type) {
         const imageUrl = e.target.result;
         const preview = document.getElementById(`${type}Preview`);
         const placeholder = document.getElementById(`${type}Placeholder`);
+        const deleteBtn = document.getElementById(`${type}DeleteBtn`);
         
         preview.src = imageUrl;
         preview.classList.remove('hidden');
         placeholder.classList.add('hidden');
+        if (deleteBtn) deleteBtn.classList.add('show');
         
         // Store the file
         switch(type) {
@@ -180,6 +182,50 @@ function handleFile(file, type) {
     
     reader.readAsDataURL(file);
 }
+
+function clearImage(type, event) {
+    event.stopPropagation();
+    
+    const preview = document.getElementById(`${type}Preview`);
+    const placeholder = document.getElementById(`${type}Placeholder`);
+    const deleteBtn = document.getElementById(`${type}DeleteBtn`);
+    const fileInput = document.getElementById(`${type}FileInput`);
+    
+    preview.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    if (deleteBtn) deleteBtn.classList.remove('show');
+    if (fileInput) fileInput.value = '';
+    
+    // Clear the stored image
+    switch(type) {
+        case 'person':
+            personImage = null;
+            break;
+        case 'hat':
+            hatImage = null;
+            break;
+        case 'glasses':
+            glassesImage = null;
+            break;
+        case 'topCloth':
+            topClothImage = null;
+            break;
+        case 'bottomCloth':
+            bottomClothImage = null;
+            break;
+        case 'dress':
+            dressImage = null;
+            break;
+        case 'shoes':
+            shoesImage = null;
+            break;
+    }
+    
+    checkCanGenerate();
+}
+
+// Make clearImage available globally
+window.clearImage = clearImage;
 
 function checkCanGenerate() {
     // Need person image and clothing based on mode

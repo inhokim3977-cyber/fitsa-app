@@ -132,6 +132,32 @@
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
         }
+
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 32px;
+            height: 32px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .drop-zone:hover .delete-btn.show {
+            display: flex;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -170,6 +196,11 @@
                                 <p class="text-white text-sm opacity-75 mt-1">클릭 또는 드롭</p>
                             </div>
                             <img id="personPreview" class="preview-image hidden" />
+                            <div id="personDeleteBtn" class="delete-btn" onclick="clearImage('person', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="personFileInput" class="hidden" accept="image/*">
                         
@@ -180,6 +211,11 @@
                                 <p class="text-white text-sm mt-2">모자</p>
                             </div>
                             <img id="hatPreview" class="preview-image hidden" />
+                            <div id="hatDeleteBtn" class="delete-btn" onclick="clearImage('hat', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="hatFileInput" class="hidden" accept="image/*">
                         
@@ -200,6 +236,11 @@
                                 <p class="text-white text-sm mt-2">상의</p>
                             </div>
                             <img id="topClothPreview" class="preview-image hidden" />
+                            <div id="topClothDeleteBtn" class="delete-btn" onclick="clearImage('topCloth', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="topClothFileInput" class="hidden" accept="image/*">
                         
@@ -210,6 +251,11 @@
                                 <p class="text-white text-sm mt-2">하의</p>
                             </div>
                             <img id="bottomClothPreview" class="preview-image hidden" />
+                            <div id="bottomClothDeleteBtn" class="delete-btn" onclick="clearImage('bottomCloth', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="bottomClothFileInput" class="hidden" accept="image/*">
 
@@ -220,6 +266,11 @@
                                 <p class="text-white text-sm mt-2">원피스</p>
                             </div>
                             <img id="dressPreview" class="preview-image hidden" />
+                            <div id="dressDeleteBtn" class="delete-btn" onclick="clearImage('dress', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="dressFileInput" class="hidden" accept="image/*">
                         
