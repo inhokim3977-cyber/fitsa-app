@@ -82,8 +82,8 @@ def virtual_fitting():
         stage1_result = None
         method_used = "unknown"
         
-        # Support only: upper_body, lower_body, dress, shoes
-        if category in ['upper_body', 'lower_body', 'dress', 'shoes']:
+        # Support only: upper_body, lower_body, dress
+        if category in ['upper_body', 'lower_body', 'dress']:
             # 1st Try: CatVTON-Flux (2024 SOTA - best performance)
             print(f"\n=== 1st Try: CatVTON-Flux (Category: {category}) ===")
             try:
@@ -132,7 +132,7 @@ def virtual_fitting():
                     except Exception as e:
                         print(f"✗ Gemini failed: {str(e)}")
         else:
-            return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress, shoes are supported.'}), 400
+            return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress are supported.'}), 400
         
         if not stage1_result:
             return jsonify({'error': f'All virtual fitting methods failed for category: {category}'}), 500

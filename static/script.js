@@ -3,7 +3,6 @@ let personImage = null;
 let topClothImage = null;
 let bottomClothImage = null;
 let dressImage = null;
-let shoesImage = null;
 let clothingMode = 'separate'; // 'separate' or 'dress'
 
 // DOM elements
@@ -11,13 +10,11 @@ const personDropZone = document.getElementById('personDropZone');
 const topClothDropZone = document.getElementById('topClothDropZone');
 const bottomClothDropZone = document.getElementById('bottomClothDropZone');
 const dressDropZone = document.getElementById('dressDropZone');
-const shoesDropZone = document.getElementById('shoesDropZone');
 
 const personFileInput = document.getElementById('personFileInput');
 const topClothFileInput = document.getElementById('topClothFileInput');
 const bottomClothFileInput = document.getElementById('bottomClothFileInput');
 const dressFileInput = document.getElementById('dressFileInput');
-const shoesFileInput = document.getElementById('shoesFileInput');
 
 const generateBtn = document.getElementById('generateBtn');
 const loadingIndicator = document.getElementById('loadingIndicator');
@@ -76,14 +73,12 @@ setupDropZone(personDropZone, personFileInput, 'person');
 setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
 setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
 setupDropZone(dressDropZone, dressFileInput, 'dress');
-setupDropZone(shoesDropZone, shoesFileInput, 'shoes');
 
 // Setup file inputs
 personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
 topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
 bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
 dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
-shoesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'shoes'));
 
 // Generate button
 generateBtn.addEventListener('click', () => generateFitting());
@@ -156,9 +151,6 @@ function handleFile(file, type) {
             case 'dress':
                 dressImage = file;
                 break;
-            case 'shoes':
-                shoesImage = file;
-                break;
         }
         
         checkCanGenerate();
@@ -194,9 +186,6 @@ function clearImage(type, event) {
         case 'dress':
             dressImage = null;
             break;
-        case 'shoes':
-            shoesImage = null;
-            break;
     }
     
     checkCanGenerate();
@@ -207,7 +196,7 @@ window.clearImage = clearImage;
 
 function checkCanGenerate() {
     // Need person image and at least one clothing item
-    const hasAnyClothing = topClothImage || bottomClothImage || dressImage || shoesImage;
+    const hasAnyClothing = topClothImage || bottomClothImage || dressImage;
     generateBtn.disabled = !(personImage && hasAnyClothing);
 }
 
@@ -221,36 +210,27 @@ async function generateFitting() {
     let category = 'upper_body'; // Default category
     
     // Determine clothing photo and category based on what's available
-    // Priority order: top > bottom > dress > shoes
+    // Priority order: top > bottom > dress
     if (clothingMode === 'separate') {
-        if (!topClothImage && !bottomClothImage && !shoesImage) {
-            alert('상의, 하의 또는 신발을 업로드해주세요!');
+        if (!topClothImage && !bottomClothImage) {
+            alert('상의 또는 하의를 업로드해주세요!');
             return;
         }
-        // Prioritize top cloth, then bottom, then shoes
+        // Prioritize top cloth, then bottom
         if (topClothImage) {
             clothingPhoto = topClothImage;
             category = 'upper_body';
-        } else if (bottomClothImage) {
+        } else {
             clothingPhoto = bottomClothImage;
             category = 'lower_body';
-        } else {
-            clothingPhoto = shoesImage;
-            category = 'shoes';
         }
     } else {
-        if (!dressImage && !shoesImage) {
-            alert('원피스 또는 신발 사진을 업로드해주세요!');
+        if (!dressImage) {
+            alert('원피스 사진을 업로드해주세요!');
             return;
         }
-        // Prioritize dress, then shoes
-        if (dressImage) {
-            clothingPhoto = dressImage;
-            category = 'dress';
-        } else {
-            clothingPhoto = shoesImage;
-            category = 'shoes';
-        }
+        clothingPhoto = dressImage;
+        category = 'dress';
     }
     
     generateBtn.disabled = true;

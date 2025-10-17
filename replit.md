@@ -37,8 +37,7 @@ Preferred communication style: Simple, everyday language.
   - Left: Top clothing (상의) - in separate mode
   - Right: Bottom clothing (하의) - in separate mode  
   - Center: Dress (원피스) - in dress mode
-  - Bottom: Shoes (신발)
-- **Removed**: Hat and glasses (focus on clothing & shoes only)
+- **Removed**: Hat, glasses, and shoes (focus on clothing only)
 - Drag & drop image upload for all zones
 - Before/After slider comparison for results
 - Download functionality for final images
@@ -68,14 +67,14 @@ Preferred communication style: Simple, everyday language.
 
 **Stage 1: Virtual Try-On** (Optimized routing)
 
-*Supported Categories: upper_body, lower_body, dress, shoes*
+*Supported Categories: upper_body, lower_body, dress*
 
 1. **CatVTON-Flux** (1st priority - 2024 SOTA) ✅
    - Model: `mmezhov/catvton-flux` on Replicate
    - Cost: ~$0.046 per run (50% cheaper than IDM-VTON)
    - Speed: ~33 seconds
    - Better quality, structure alignment, and detail preservation
-   - Supports all clothing types: upper, lower, overall (dress), shoes
+   - Supports all clothing types: upper, lower, overall (dress)
    
 2. **Replicate IDM-VTON** (2nd fallback)
    - If CatVTON fails
@@ -102,7 +101,7 @@ Preferred communication style: Simple, everyday language.
 
 **Recent Improvements (October 2025)**
 - ✅ Switched to CatVTON-Flux (2024 SOTA model) as primary AI
-- ✅ Removed hat and glasses - focus on clothing & shoes only
+- ✅ Removed hat, glasses, and shoes - focus on clothing only
 - ✅ Local rembg background removal (faster than Replicate)
 - ✅ Simplified pipeline: CatVTON → IDM-VTON → Gemini fallback
 - ✅ 50% cost reduction ($0.046 vs $0.11 per run)
@@ -112,7 +111,6 @@ Preferred communication style: Simple, everyday language.
 - Top (상의): upper_body - ✅ CatVTON
 - Bottom (하의): lower_body - ✅ CatVTON
 - Dress (원피스): dress - ✅ CatVTON
-- Shoes (신발): shoes - ✅ CatVTON
 
 ### Data Storage Solutions
 
