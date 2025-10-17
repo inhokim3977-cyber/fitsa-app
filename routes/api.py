@@ -84,10 +84,13 @@ def virtual_fitting():
             except Exception as e:
                 print(f"Background removal failed, using original image: {e}")
         
-        # Stage 1: Virtual Try-On with Replicate (using file paths)
+        # Stage 1: Virtual Try-On with Replicate (using public URLs)
+        # Get base URL for public file access
+        base_url = request.host_url.rstrip('/')
+        print(f"Base URL: {base_url}")
         print(f"About to call Replicate API with user_path={user_path}, clothing_path={clothing_final_path}")
         try:
-            stage1_result = replicate_service.virtual_try_on(user_path, clothing_final_path)
+            stage1_result = replicate_service.virtual_try_on(user_path, clothing_final_path, base_url)
             print(f"Replicate API returned: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
         except Exception as e:
             print(f"Replicate API error: {str(e)}")

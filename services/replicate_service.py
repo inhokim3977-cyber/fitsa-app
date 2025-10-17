@@ -7,13 +7,14 @@ class ReplicateService:
         self.api_token = api_token
         os.environ['REPLICATE_API_TOKEN'] = api_token
     
-    def virtual_try_on(self, person_image_path: str, clothing_image_path: str) -> Optional[str]:
+    def virtual_try_on(self, person_image_path: str, clothing_image_path: str, base_url: str) -> Optional[str]:
         """
         Stage 1: Virtual Try-On using Replicate's wolverinn/ecommerce-virtual-try-on model
         
         Args:
             person_image_path: File path to person photo
-            clothing_image_path: File path to clothing photo
+            clothing_image_path: File path to clothing photo  
+            base_url: Base URL of the application for creating public URLs
         
         Returns:
             URL of the try-on result image
@@ -23,17 +24,14 @@ class ReplicateService:
             print(f"Person image: {person_image_path}")
             print(f"Clothing image: {clothing_image_path}")
             
-            # Convert files to data URLs for Replicate API
-            import base64
-            with open(person_image_path, 'rb') as f:
-                person_b64 = base64.b64encode(f.read()).decode('utf-8')
-            with open(clothing_image_path, 'rb') as f:
-                clothing_b64 = base64.b64encode(f.read()).decode('utf-8')
+            # Create public URLs that Replicate can access
+            person_url = f"{base_url}/{person_image_path}"
+            clothing_url = f"{base_url}/{clothing_image_path}"
             
-            person_url = f"data:image/png;base64,{person_b64}"
-            clothing_url = f"data:image/png;base64,{clothing_b64}"
+            print(f"Person URL: {person_url}")
+            print(f"Clothing URL: {clothing_url}")
             
-            print("Calling Replicate API with data URLs...")
+            print("Calling Replicate API with HTTP URLs...")
             output = replicate.run(
                 "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                 input={
