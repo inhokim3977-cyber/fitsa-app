@@ -73,22 +73,23 @@ Same dimensions as input. This is a simple overlay - do not alter anything else.
 
 STRICT REQUIREMENTS:
 1. EXACT PRESERVATION: The person's face, hands, arms, upper body clothing, and all objects (books, cups, blankets) must remain PIXEL-PERFECT identical to the original
-2. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers from waist down to ankles
-3. PRESERVE UPPER CLOTHING: Keep the shirt/top EXACTLY as it is - same color, same pattern, same wrinkles
-4. MATCH GARMENT IMAGE EXACTLY:
+2. PRESERVE BODY SHAPE: Keep the person's leg thickness, body volume, and physique EXACTLY as in original - DO NOT make legs slimmer or thinner
+3. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers from waist down to ankles
+4. PRESERVE UPPER CLOTHING: Keep the shirt/top EXACTLY as it is - same color, same pattern, same wrinkles
+5. MATCH GARMENT IMAGE EXACTLY:
    - Copy the EXACT fit/width of the pants from the garment image (loose, slim, wide-leg, etc.)
    - DO NOT make pants slimmer or tighter than shown in garment image
    - Match the exact style: straight, bootcut, wide-leg, baggy - whatever the garment shows
    - Keep the same fabric texture and wrinkles as garment image
-5. REALISTIC INTEGRATION:
+6. REALISTIC INTEGRATION:
    - Match the lighting direction and intensity from the original photo
    - Add natural shadows and fabric draping
    - Ensure pants match the person's sitting/standing position naturally
    - Pants should not change the leg position or posture
-6. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
-7. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
+7. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
+8. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
 
-This is a simple lower body clothing replacement - do not regenerate, modify face/hands/upper body/objects, or alter the fit of the garment."""
+This is a simple lower body clothing replacement - do not regenerate, modify face/hands/upper body/objects, alter body shape/volume, or change the fit of the garment."""
 
             elif category == 'shoes':
                 prompt = """Generate a photorealistic image showing this person wearing these shoes.
