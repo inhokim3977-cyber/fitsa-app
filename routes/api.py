@@ -116,10 +116,19 @@ def virtual_fitting():
             print(f"Stage 2 enhancement failed: {e}")
             stage2_result = stage1_result
         
+        # Ensure result is a string (URL or data URL)
+        final_result = stage1_result
+        if isinstance(stage2_result, bytes):
+            # Convert bytes to base64 data URL
+            b64_str = base64.b64encode(stage2_result).decode('utf-8')
+            final_result = f"data:image/png;base64,{b64_str}"
+        elif isinstance(stage2_result, str):
+            final_result = stage2_result
+        
         # Return the final result
         return jsonify({
             'success': True,
-            'resultUrl': stage1_result if isinstance(stage2_result, str) and stage2_result.startswith('http') else f"data:image/png;base64,{stage2_result}",
+            'resultUrl': final_result,
             'stage1_url': stage1_result,
             'status': 'completed'
         })
