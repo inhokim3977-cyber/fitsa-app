@@ -169,6 +169,10 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed - ZERO bod
 
             print("Calling Gemini 2.5 Flash Image API...")
             
+            # Add critical size preservation to prompt
+            size_instruction = f"\n\nCRITICAL: Output image MUST be EXACTLY {original_size[0]}x{original_size[1]} pixels (width x height). DO NOT change dimensions - this will distort body proportions."
+            final_prompt = prompt + size_instruction
+            
             # Configure generation parameters for better quality
             # Very low temperature for maximum preservation of original photo
             generation_config = {
@@ -179,7 +183,7 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed - ZERO bod
             
             # Generate with Gemini
             response = self.model.generate_content(
-                [prompt, person_img, clothing_img],
+                [final_prompt, person_img, clothing_img],
                 generation_config=generation_config
             )
             
@@ -194,22 +198,25 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed - ZERO bod
                             image_data = part.inline_data.data
                             mime_type = part.inline_data.mime_type or 'image/png'
                             
-                            # Resize to original dimensions
+                            # Check generated size (DO NOT RESIZE - preserves body proportions)
                             result_img = Image.open(BytesIO(image_data))
-                            if result_img.size != original_size:
-                                print(f"Resizing from {result_img.size} to original {original_size}")
-                                result_img = result_img.resize(original_size, Image.Resampling.LANCZOS)
+                            generated_size = result_img.size
+                            print(f"Generated image size: {generated_size}, Original: {original_size}")
                             
-                            # Convert back to bytes
+                            if generated_size != original_size:
+                                print(f"⚠️ WARNING: Size mismatch detected - this may distort body proportions")
+                                print(f"⚠️ Using generated size AS-IS to preserve body shape")
+                            
+                            # Use image AS-IS without resizing (prevents body distortion)
                             output_buffer = BytesIO()
                             result_img.save(output_buffer, format='PNG')
-                            resized_data = output_buffer.getvalue()
+                            final_data = output_buffer.getvalue()
                             
                             # Convert to base64 data URI
-                            b64_data = base64.b64encode(resized_data).decode('utf-8')
+                            b64_data = base64.b64encode(final_data).decode('utf-8')
                             data_uri = f"data:image/png;base64,{b64_data}"
                             
-                            print(f"✓ Generated image: {len(resized_data)} bytes (size: {original_size})")
+                            print(f"✓ Generated image: {len(final_data)} bytes (size: {generated_size})")
                             return data_uri
             
             print("✗ No image data in response")
