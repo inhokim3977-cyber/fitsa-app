@@ -208,6 +208,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Proxy all other requests to Flask
+  app.use(async (req, res, next) => {
+    const FLASK_PORT = process.env.FLASK_PORT || 5001;
+    const flaskUrl = `http://127.0.0.1:${FLASK_PORT}${req.url}`;
+    
+    try {
+      const fetch = (await import('node-fetch')).default;
+      const response = await fetch(flaskUrl, {
+        method: req.method,
+        headers: req.headers as any,
+        body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined,
+      });
+
+      res.status(response.status);
+      Object.entries(response.headers.raw()).forEach(([key, value]) => {
+        res.setHeader(key, value);
+      });
+
+      const buffer = await response.buffer();
+      res.send(buffer);
+    } catch (error) {
+      console.error('Proxy error:', error);
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

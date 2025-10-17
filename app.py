@@ -51,4 +51,5 @@ def serve_static(path):
     return send_from_directory('static', path)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    port = int(os.getenv('PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

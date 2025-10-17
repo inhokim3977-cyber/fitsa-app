@@ -48,47 +48,26 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Production: Flask handles everything on port 5000
-  // Development: Node.js API on 5001, Flask on 5000
-  const isProduction = process.env.NODE_ENV === 'production';
-  
-  if (isProduction) {
-    // In production, just run Flask on port 5000
-    log("Production mode: Starting Flask on port 5000...");
-    const flask = spawn("python", ["app.py"], {
-      stdio: "inherit",
-      env: { ...process.env }
-    });
+  // Always start Flask on port 5001 and Node.js proxy on port 5000
+  const FLASK_PORT = 5001;
+  const NODE_PORT = 5000;
 
-    flask.on("error", (err) => {
-      console.error("Failed to start Flask:", err);
-      process.exit(1);
-    });
+  // Start Flask on port 5001
+  log(`Starting Flask application on port ${FLASK_PORT}...`);
+  const flask = spawn("python", ["app.py"], {
+    stdio: "inherit",
+    env: { 
+      ...process.env,
+      PORT: FLASK_PORT.toString()
+    }
+  });
 
-    flask.on("exit", (code) => {
-      if (code !== 0) {
-        console.error(`Flask exited with code ${code}`);
-        process.exit(code || 1);
-      }
-    });
-  } else {
-    // Development: Node.js API on 5001, Flask on 5000
-    const PORT = 5001;
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Node.js API server running on port ${PORT}`);
-    });
+  flask.on("error", (err) => {
+    console.error("Failed to start Flask:", err);
+  });
 
-    log("Starting Flask application on port 5000...");
-    const flask = spawn("python", ["app.py"], {
-      stdio: "inherit",
-      env: { 
-        ...process.env,
-        NODE_API_URL: `http://127.0.0.1:${PORT}`
-      }
-    });
-
-    flask.on("error", (err) => {
-      console.error("Failed to start Flask:", err);
-    });
-  }
+  // Node.js listens on port 5000 and proxies to Flask
+  server.listen(NODE_PORT, "0.0.0.0", () => {
+    log(`Node.js proxy server running on port ${NODE_PORT}, forwarding to Flask on ${FLASK_PORT}`);
+  });
 })();
