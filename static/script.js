@@ -219,6 +219,8 @@ async function generateFitting() {
                 return;
             }
             
+            let finalResultUrl = null;
+            
             // Process top cloth first (if available)
             if (topClothImage) {
                 const topFormData = new FormData();
@@ -238,9 +240,13 @@ async function generateFitting() {
                     return;
                 }
                 
-                // Convert result to blob for next step
-                const topResultBlob = await fetch(topData.resultUrl).then(r => r.blob());
-                currentPersonImage = topResultBlob;
+                finalResultUrl = topData.resultUrl;
+                
+                // If bottom cloth also exists, use top result as input for bottom
+                if (bottomClothImage) {
+                    const topResultBlob = await fetch(topData.resultUrl).then(r => r.blob());
+                    currentPersonImage = topResultBlob;
+                }
             }
             
             // Process bottom cloth (if available)
@@ -262,24 +268,16 @@ async function generateFitting() {
                     return;
                 }
                 
-                // Show final results
-                const personPreview = document.getElementById('personPreview');
-                beforeImage.src = personPreview.src;
-                afterImage.src = bottomData.resultUrl;
-                resultsSection.classList.remove('hidden');
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-                return;
+                finalResultUrl = bottomData.resultUrl;
             }
             
-            // Only top was processed
-            if (topClothImage) {
-                const personPreview = document.getElementById('personPreview');
-                beforeImage.src = personPreview.src;
-                const topResultUrl = URL.createObjectURL(currentPersonImage);
-                afterImage.src = topResultUrl;
-                resultsSection.classList.remove('hidden');
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-            }
+            // Show final results
+            const personPreview = document.getElementById('personPreview');
+            beforeImage.src = personPreview.src;
+            afterImage.src = finalResultUrl;
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            return;
             
         } else {
             // Dress mode
