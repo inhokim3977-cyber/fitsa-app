@@ -45,20 +45,28 @@ class GeminiVirtualFittingService:
             
             # Create category-specific prompt
             if category == 'hat':
-                prompt = """You are a professional photo editor. Add this hat/cap to the person's photo.
+                prompt = """TASK: Digital hat overlay on photo (like Photoshop layer)
 
-STRICT REQUIREMENTS:
-1. EXACT PRESERVATION: The person's face, hair style, facial expression, body, hands, and all objects (books, cups, etc.) must remain PIXEL-PERFECT identical to the original
-2. HAT PLACEMENT: Place the hat naturally on top of the head, adjusting for the person's head shape and hair
-3. REALISTIC INTEGRATION: 
-   - Match the lighting direction and intensity from the original photo
-   - Add natural shadows under the hat brim
-   - Ensure hat size is proportional to head size
-   - Hat should not float or sink into the head
-4. PRESERVE HAIR: Hair should peek out naturally from under the hat where appropriate
-5. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
+STEP 1 - PRESERVE ORIGINAL:
+Copy the person's photo EXACTLY as-is. Do NOT regenerate, redraw, or modify:
+- Face: Keep identical
+- Hair: Keep identical  
+- Body: Keep identical
+- Hands: Keep identical
+- Books/objects: Keep identical
+- Background: Keep identical
 
-This is a simple hat overlay task - do not regenerate or modify any other part of the image."""
+STEP 2 - ADD HAT LAYER:
+Place ONLY the hat on top of the person's head:
+- Hat size: Scale to fit head naturally
+- Hat position: Rest on top of head (not floating, not sinking)
+- Hat angle: Match head tilt
+- Shadows: Add subtle shadow under brim only
+- Lighting: Match photo's light direction
+
+STEP 3 - OUTPUT:
+Return the original photo with ONLY a hat digitally added on top.
+Same dimensions as input. This is a simple overlay - do not alter anything else."""
 
             elif category == 'lower_body':
                 prompt = """You are a professional photo editor. Replace only the lower body clothing (pants/trousers) in this photo.
