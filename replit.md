@@ -8,12 +8,15 @@ This is a Virtual Fitting application that allows users to virtually try on clot
 
 The app uses:
 - **Flask Backend (Python)**: 3-stage AI pipeline with background removal - **자동 실행 완료**
+- **Node.js Proxy**: Port 5000 → Flask port 5001 forwarding (for Replit deployment)
 - **Static HTML/CSS/JS Frontend**: Artistic circular layout with glassmorphism
-- **Port 5000**: Flask serves both frontend and API - **워크플로우 자동 실행**
+- **Mobile Responsive**: Vertical layout for portrait mode (all inputs visible)
 
 ## How to Run
 
-**자동 실행:** 워크플로우가 Flask를 자동으로 포트 5000에서 실행합니다.
+**자동 실행:** 워크플로우가 자동으로 실행됩니다:
+- Node.js proxy: Port 5000 (public)
+- Flask backend: Port 5001 (internal)
 
 브라우저를 열면 바로 가상 피팅 앱을 사용할 수 있습니다!
 
@@ -49,6 +52,12 @@ Preferred communication style: Simple, everyday language.
 - Floating animations and smooth transitions
 - Korean language interface
 - Two clothing modes for flexible styling
+
+**Mobile Responsive** ✅
+- @media (max-width: 768px) for mobile devices
+- Vertical layout on portrait mode (all drop zones visible)
+- Flexbox column layout replaces circular positioning
+- All inputs accessible on narrow screens (tested iPhone 12 Pro 390x844)
 
 ### Backend Architecture
 
@@ -101,6 +110,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ Smart category-based AI routing for best results
 - ✅ Image format validation (PNG/JPG only)
 - ✅ Preserves hands/objects for upper body & dress (Gemini)
+- ✅ Mobile responsive layout - vertical stacking on portrait mode
+- ✅ Node.js proxy (5000) → Flask (5001) for Replit deployment
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
