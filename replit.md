@@ -65,26 +65,20 @@ Preferred communication style: Simple, everyday language.
 - Removes background from clothing images
 - Applied when checkbox is checked
 
-**Stage 1: Virtual Try-On** (Optimized routing)
+**Stage 1: Virtual Try-On** (Simple and reliable)
 
 *Supported Categories: upper_body, lower_body, dress*
 
-1. **CatVTON-Flux** (1st priority - 2024 SOTA) ✅
-   - Model: `mmezhov/catvton-flux` on Replicate
-   - Cost: ~$0.046 per run (50% cheaper than IDM-VTON)
-   - Speed: ~33 seconds
-   - Better quality, structure alignment, and detail preservation
-   - Supports all clothing types: upper, lower, overall (dress)
-   
-2. **Replicate IDM-VTON** (2nd fallback)
-   - If CatVTON fails
+1. **Replicate IDM-VTON** (1st priority) ✅
+   - Proven to work for all categories
    - Cost: ~$0.11 per image
+   - Supports: upper_body, lower_body, dresses
    
-3. **Gemini 2.5 Flash** (3rd fallback)
-   - If both CatVTON and IDM-VTON fail
+2. **Gemini 2.5 Flash** (2nd fallback)
+   - If IDM-VTON fails
 
 **Stage 2: Quality Enhancement** (Removed)
-- No longer needed - CatVTON results are already optimal
+- Not needed for simple workflow
 
 **API Design**
 - `POST /api/virtual-fitting` - Main endpoint
@@ -100,17 +94,17 @@ Preferred communication style: Simple, everyday language.
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-provided by Replit
 
 **Recent Improvements (October 2025)**
-- ✅ Switched to CatVTON-Flux (2024 SOTA model) as primary AI
+- ✅ Simplified to 3 categories: upper_body, lower_body, dress
 - ✅ Removed hat, glasses, and shoes - focus on clothing only
 - ✅ Local rembg background removal (faster than Replicate)
-- ✅ Simplified pipeline: CatVTON → IDM-VTON → Gemini fallback
-- ✅ 50% cost reduction ($0.046 vs $0.11 per run)
-- ✅ Faster processing (33s vs previous models)
+- ✅ Simple pipeline: IDM-VTON → Gemini fallback
+- ✅ Image format validation (PNG/JPG only)
+- ✅ Proven to work reliably
 
 **Supported Categories:**
-- Top (상의): upper_body - ✅ CatVTON
-- Bottom (하의): lower_body - ✅ CatVTON
-- Dress (원피스): dress - ✅ CatVTON
+- Top (상의): upper_body - ✅ IDM-VTON
+- Bottom (하의): lower_body - ✅ IDM-VTON
+- Dress (원피스): dress - ✅ IDM-VTON
 
 ### Data Storage Solutions
 

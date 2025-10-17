@@ -8,7 +8,6 @@ from services.background_removal_service import BackgroundRemovalService
 from services.object_storage_service import ObjectStorageService
 from services.openai_virtual_fitting_service import OpenAIVirtualFittingService
 from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
-from services.catvton_service import CatVTONService
 
 api_bp = Blueprint('api', __name__)
 
@@ -45,7 +44,6 @@ def virtual_fitting():
         print(f"Clothing photo size: {len(clothing_photo_bytes)} bytes")
         
         # Initialize services
-        catvton_service = CatVTONService(current_app.config['REPLICATE_API_TOKEN'])
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
         background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
         openai_fitting_service = OpenAIVirtualFittingService(
@@ -77,48 +75,32 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # Optimized AI Routing for Clothing & Shoes ONLY
-        # Hat and glasses removed - focus on clothing/shoes
+        # Simple AI Routing - IDM-VTON Primary
         stage1_result = None
         method_used = "unknown"
         
         # Support only: upper_body, lower_body, dress
         if category in ['upper_body', 'lower_body', 'dress']:
-            # 1st Try: CatVTON-Flux (2024 SOTA - best performance)
-            print(f"\n=== 1st Try: CatVTON-Flux (Category: {category}) ===")
+            # 1st Try: Replicate IDM-VTON (proven to work)
+            print(f"\n=== 1st Try: Replicate IDM-VTON (Category: {category}) ===")
+            replicate_category = 'dresses' if category == 'dress' else category
             try:
-                stage1_result = catvton_service.virtual_try_on(
-                    user_photo_bytes,
+                stage1_result = replicate_service.virtual_try_on(
+                    user_photo_bytes, 
                     clothing_final_bytes,
-                    category=category
+                    category=replicate_category
                 )
                 if stage1_result:
-                    method_used = "CatVTON-Flux"
-                    print(f"✓ CatVTON succeeded!")
+                    method_used = "Replicate IDM-VTON"
+                    print(f"✓ IDM-VTON succeeded")
             except Exception as e:
-                print(f"✗ CatVTON failed: {str(e)}")
+                print(f"✗ IDM-VTON failed: {str(e)}")
             
-            # 2nd Try: Replicate IDM-VTON (fallback)
-            if not stage1_result:
-                print(f"\n=== 2nd Try: Replicate IDM-VTON (Category: {category}) ===")
-                replicate_category = 'dresses' if category == 'dress' else category
-                try:
-                    stage1_result = replicate_service.virtual_try_on(
-                        user_photo_bytes, 
-                        clothing_final_bytes,
-                        category=replicate_category
-                    )
-                    if stage1_result:
-                        method_used = "Replicate IDM-VTON"
-                        print(f"✓ IDM-VTON succeeded")
-                except Exception as e:
-                    print(f"✗ IDM-VTON failed: {str(e)}")
-            
-            # 3rd Try: Gemini fallback
+            # 2nd Try: Gemini fallback
             if not stage1_result:
                 gemini_api_key = current_app.config.get('GEMINI_API_KEY')
                 if gemini_api_key:
-                    print(f"\n=== 3rd Try: Gemini 2.5 Flash (Category: {category}) ===")
+                    print(f"\n=== 2nd Try: Gemini 2.5 Flash (Category: {category}) ===")
                     try:
                         gemini_service = GeminiVirtualFittingService(gemini_api_key)
                         stage1_result = gemini_service.virtual_try_on(
