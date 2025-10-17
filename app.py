@@ -15,6 +15,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['REPLICATE_API_TOKEN'] = os.getenv('REPLICATE_API_TOKEN')
 app.config['AI_INTEGRATIONS_OPENAI_API_KEY'] = os.getenv('AI_INTEGRATIONS_OPENAI_API_KEY')
 app.config['AI_INTEGRATIONS_OPENAI_BASE_URL'] = os.getenv('AI_INTEGRATIONS_OPENAI_BASE_URL')
+app.config['GEMINI_API_KEY'] = os.getenv('GEMINI_API_KEY')
 
 # Create upload folder if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

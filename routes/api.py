@@ -7,6 +7,7 @@ from services.nano_service import NanoService
 from services.background_removal_service import BackgroundRemovalService
 from services.object_storage_service import ObjectStorageService
 from services.openai_virtual_fitting_service import OpenAIVirtualFittingService
+from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
 
 api_bp = Blueprint('api', __name__)
 
@@ -79,28 +80,49 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # Stage 1: Virtual Try-On - Try Replicate first, fallback to OpenAI
+        # 3-Stage Fallback System for Virtual Try-On
         stage1_result = None
         method_used = "unknown"
         
-        # Try Replicate IDM-VTON first
-        print(f"\n=== Attempting Replicate IDM-VTON ===")
-        print(f"Category: {category}")
+        # 1st Priority: Gemini 2.5 Flash Image (Best quality - preserves hands/face)
+        gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+        if gemini_api_key:
+            print(f"\n=== 1st Try: Gemini 2.5 Flash Image ===")
+            try:
+                gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                stage1_result = gemini_service.virtual_try_on(
+                    user_photo_bytes,
+                    clothing_final_bytes
+                )
+                if stage1_result:
+                    method_used = "Gemini 2.5 Flash Image"
+                    print(f"✓ Gemini succeeded!")
+            except Exception as e:
+                print(f"✗ Gemini failed: {str(e)}")
+        else:
+            print("⚠ GEMINI_API_KEY not set, skipping Gemini try-on")
         
-        try:
-            stage1_result = replicate_service.virtual_try_on(
-                user_photo_bytes, 
-                clothing_final_bytes,
-                category=category
-            )
-            if stage1_result:
-                method_used = "Replicate IDM-VTON"
-                print(f"✓ Replicate succeeded: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
-        except Exception as e:
-            print(f"✗ Replicate failed: {str(e)}")
-            print("Falling back to OpenAI virtual fitting...")
+        # 2nd Priority: Replicate IDM-VTON (Good quality, may affect hands)
+        if not stage1_result:
+            print(f"\n=== 2nd Try: Replicate IDM-VTON ===")
+            print(f"Category: {category}")
             
-            # Fallback to OpenAI
+            try:
+                stage1_result = replicate_service.virtual_try_on(
+                    user_photo_bytes, 
+                    clothing_final_bytes,
+                    category=category
+                )
+                if stage1_result:
+                    method_used = "Replicate IDM-VTON"
+                    print(f"✓ Replicate succeeded")
+            except Exception as e:
+                print(f"✗ Replicate failed: {str(e)}")
+        
+        # 3rd Priority: OpenAI DALL-E (Final fallback)
+        if not stage1_result:
+            print(f"\n=== 3rd Try: OpenAI DALL-E 3 (Final Fallback) ===")
+            
             try:
                 stage1_result = openai_fitting_service.virtual_try_on(
                     user_photo_bytes,
@@ -108,28 +130,30 @@ def virtual_fitting():
                 )
                 if stage1_result:
                     method_used = "OpenAI DALL-E 3"
-                    print(f"✓ OpenAI fallback succeeded: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
+                    print(f"✓ OpenAI fallback succeeded")
             except Exception as openai_error:
-                print(f"✗ OpenAI fallback also failed: {str(openai_error)}")
+                print(f"✗ OpenAI also failed: {str(openai_error)}")
                 import traceback
                 traceback.print_exc()
-                return jsonify({'error': f'Both Replicate and OpenAI failed. Replicate: {str(e)}, OpenAI: {str(openai_error)}'}), 500
         
         if not stage1_result:
-            return jsonify({'error': 'Failed to generate virtual fitting image'}), 500
+            return jsonify({'error': 'All virtual fitting methods failed (Gemini, Replicate, OpenAI)'}), 500
         
         print(f"✓ Virtual fitting completed using: {method_used}")
         
-        # Stage 2: Face & Hand Enhancement with CodeFormer
+        # Skip Stage 2 enhancement if using Gemini (already perfect)
         final_result = stage1_result
-        try:
-            print("\n=== Stage 2: CodeFormer Face & Hand Enhancement ===")
-            stage2_result = replicate_service.enhance_face_and_hands(stage1_result)
-            if stage2_result:
-                final_result = stage2_result
-                print(f"✓ Stage 2 enhancement completed: {final_result[:100]}...")
-        except Exception as e:
-            print(f"✗ Stage 2 enhancement failed, using Stage 1 result: {e}")
+        if method_used != "Gemini 2.5 Flash Image":
+            try:
+                print("\n=== Stage 2: CodeFormer Face & Hand Enhancement ===")
+                stage2_result = replicate_service.enhance_face_and_hands(stage1_result)
+                if stage2_result:
+                    final_result = stage2_result
+                    print(f"✓ Stage 2 enhancement completed")
+            except Exception as e:
+                print(f"✗ Stage 2 enhancement failed, using Stage 1 result: {e}")
+        else:
+            print("✓ Skipping Stage 2 - Gemini result is already optimal")
         
         return jsonify({
             'success': True,
