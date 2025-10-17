@@ -8,6 +8,7 @@ from services.background_removal_service import BackgroundRemovalService
 from services.object_storage_service import ObjectStorageService
 from services.openai_virtual_fitting_service import OpenAIVirtualFittingService
 from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
+from services.catvton_service import CatVTONService
 
 api_bp = Blueprint('api', __name__)
 
@@ -19,9 +20,8 @@ def allowed_file(filename):
 @api_bp.route('/virtual-fitting', methods=['POST'])
 def virtual_fitting():
     """
-    2-stage AI pipeline for virtual fashion fitting
-    Stage 1: Replicate Virtual Try-On
-    Stage 2: Nano Banana quality enhancement
+    Optimized AI pipeline for virtual fashion fitting
+    Uses CatVTON-Flux (2024 SOTA) for best clothing/shoes try-on results
     """
     try:
         # Check if files are present
@@ -45,12 +45,9 @@ def virtual_fitting():
         print(f"Clothing photo size: {len(clothing_photo_bytes)} bytes")
         
         # Initialize services
+        catvton_service = CatVTONService(current_app.config['REPLICATE_API_TOKEN'])
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
         background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
-        nano_service = NanoService(
-            current_app.config['AI_INTEGRATIONS_OPENAI_API_KEY'],
-            current_app.config['AI_INTEGRATIONS_OPENAI_BASE_URL']
-        )
         openai_fitting_service = OpenAIVirtualFittingService(
             current_app.config['AI_INTEGRATIONS_OPENAI_API_KEY'],
             current_app.config['AI_INTEGRATIONS_OPENAI_BASE_URL']
@@ -80,55 +77,48 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
-        # Smart Category-Based AI Routing
+        # Optimized AI Routing for Clothing & Shoes ONLY
+        # Hat and glasses removed - focus on clothing/shoes
         stage1_result = None
         method_used = "unknown"
         
-        # Accessories (hat, glasses, shoes) → Gemini 1st priority (better preservation)
-        # Clothing (upper_body, lower_body, dress) → Replicate 1st priority (clothing specialist)
-        
-        if category in ['hat', 'glasses', 'shoes']:
-            # For accessories: Gemini first
-            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-            if gemini_api_key:
-                print(f"\n=== 1st Try: Gemini 2.5 Flash (Category: {category}) ===")
-                try:
-                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                    stage1_result = gemini_service.virtual_try_on(
-                        user_photo_bytes,
-                        clothing_final_bytes,
-                        category=category
-                    )
-                    if stage1_result:
-                        method_used = "Gemini 2.5 Flash Image"
-                        print(f"✓ Gemini succeeded!")
-                except Exception as e:
-                    print(f"✗ Gemini failed: {str(e)}")
-        
-        elif category in ['upper_body', 'lower_body', 'dress']:
-            # For clothing: Replicate first
-            print(f"\n=== 1st Try: Replicate IDM-VTON (Category: {category}) ===")
-            
-            # Map 'dress' to 'dresses' for Replicate
-            replicate_category = 'dresses' if category == 'dress' else category
-            
+        # Support only: upper_body, lower_body, dress, shoes
+        if category in ['upper_body', 'lower_body', 'dress', 'shoes']:
+            # 1st Try: CatVTON-Flux (2024 SOTA - best performance)
+            print(f"\n=== 1st Try: CatVTON-Flux (Category: {category}) ===")
             try:
-                stage1_result = replicate_service.virtual_try_on(
-                    user_photo_bytes, 
+                stage1_result = catvton_service.virtual_try_on(
+                    user_photo_bytes,
                     clothing_final_bytes,
-                    category=replicate_category
+                    category=category
                 )
                 if stage1_result:
-                    method_used = "Replicate IDM-VTON"
-                    print(f"✓ Replicate succeeded")
+                    method_used = "CatVTON-Flux"
+                    print(f"✓ CatVTON succeeded!")
             except Exception as e:
-                print(f"✗ Replicate failed: {str(e)}")
+                print(f"✗ CatVTON failed: {str(e)}")
             
-            # 2nd Try: Gemini fallback for clothing
+            # 2nd Try: Replicate IDM-VTON (fallback)
+            if not stage1_result:
+                print(f"\n=== 2nd Try: Replicate IDM-VTON (Category: {category}) ===")
+                replicate_category = 'dresses' if category == 'dress' else category
+                try:
+                    stage1_result = replicate_service.virtual_try_on(
+                        user_photo_bytes, 
+                        clothing_final_bytes,
+                        category=replicate_category
+                    )
+                    if stage1_result:
+                        method_used = "Replicate IDM-VTON"
+                        print(f"✓ IDM-VTON succeeded")
+                except Exception as e:
+                    print(f"✗ IDM-VTON failed: {str(e)}")
+            
+            # 3rd Try: Gemini fallback
             if not stage1_result:
                 gemini_api_key = current_app.config.get('GEMINI_API_KEY')
                 if gemini_api_key:
-                    print(f"\n=== 2nd Try: Gemini 2.5 Flash (Category: {category}) ===")
+                    print(f"\n=== 3rd Try: Gemini 2.5 Flash (Category: {category}) ===")
                     try:
                         gemini_service = GeminiVirtualFittingService(gemini_api_key)
                         stage1_result = gemini_service.virtual_try_on(
@@ -141,42 +131,16 @@ def virtual_fitting():
                             print(f"✓ Gemini succeeded!")
                     except Exception as e:
                         print(f"✗ Gemini failed: {str(e)}")
-        
-        # 3rd Priority: OpenAI DALL-E (Final fallback)
-        if not stage1_result:
-            print(f"\n=== 3rd Try: OpenAI DALL-E 3 (Final Fallback) ===")
-            
-            try:
-                stage1_result = openai_fitting_service.virtual_try_on(
-                    user_photo_bytes,
-                    clothing_final_bytes
-                )
-                if stage1_result:
-                    method_used = "OpenAI DALL-E 3"
-                    print(f"✓ OpenAI fallback succeeded")
-            except Exception as openai_error:
-                print(f"✗ OpenAI also failed: {str(openai_error)}")
-                import traceback
-                traceback.print_exc()
+        else:
+            return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress, shoes are supported.'}), 400
         
         if not stage1_result:
-            return jsonify({'error': 'All virtual fitting methods failed (Gemini, Replicate, OpenAI)'}), 500
+            return jsonify({'error': f'All virtual fitting methods failed for category: {category}'}), 500
         
         print(f"✓ Virtual fitting completed using: {method_used}")
         
-        # Skip Stage 2 enhancement if using Gemini (already perfect)
+        # No Stage 2 enhancement needed - CatVTON results are already optimal
         final_result = stage1_result
-        if method_used != "Gemini 2.5 Flash Image":
-            try:
-                print("\n=== Stage 2: CodeFormer Face & Hand Enhancement ===")
-                stage2_result = replicate_service.enhance_face_and_hands(stage1_result)
-                if stage2_result:
-                    final_result = stage2_result
-                    print(f"✓ Stage 2 enhancement completed")
-            except Exception as e:
-                print(f"✗ Stage 2 enhancement failed, using Stage 1 result: {e}")
-        else:
-            print("✓ Skipping Stage 2 - Gemini result is already optimal")
         
         return jsonify({
             'success': True,
