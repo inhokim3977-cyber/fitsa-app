@@ -125,16 +125,39 @@ CRITICAL REQUIREMENTS:
 OUTPUT: Same photo with ONLY the glasses added."""
 
             elif category == 'dress':
-                prompt = """Generate a photorealistic image showing this person wearing this dress/one-piece outfit.
+                prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
 
-CRITICAL REQUIREMENTS:
-1. PRESERVE FACE & HANDS: Keep face, hands, skin tone EXACTLY as in original
-2. REPLACE ENTIRE OUTFIT: Change the full-body clothing to the dress
-3. PRESERVE POSE: Keep exact body position, sitting/standing pose unchanged
-4. PRESERVE OBJECTS: Keep books, blankets, furniture in exact positions
-5. NATURAL FIT: Dress should fit naturally with realistic draping
+CRITICAL BODY SHAPE PRESERVATION (MANDATORY):
+- Shoulder width: IDENTICAL to original (DO NOT broaden, DO NOT narrow)
+- Torso shape: IDENTICAL to original (DO NOT slim waist, DO NOT enlarge)
+- Leg thickness: IDENTICAL to original (DO NOT slim, DO NOT enlarge)
+- Body proportions: IDENTICAL (DO NOT stretch, DO NOT compress)
+- Overall physique: ZERO body reshaping - must look EXACTLY same person
 
-OUTPUT: Same photo with ONLY the full outfit changed to the dress."""
+STEP 1 - PRESERVE EVERYTHING:
+- Face: EXACT same
+- Hands: EXACT same
+- Legs: EXACT same (show bare legs or dress covers legs based on dress length)
+- Pose: EXACT same
+- Objects: EXACT same positions
+- Background: EXACT same
+
+STEP 2 - REPLACE WITH DRESS (REMOVE ALL OTHER CLOTHING):
+- REMOVE original top/shirt completely
+- REMOVE original pants/skirt completely (dress replaces them)
+- SHOW LEGS: If dress is above knee, show bare legs (NO pants visible)
+- Copy dress's EXACT style, length, sleeves, pattern, color
+- IF DRESS IS SHORT: Show bare legs from hem to feet
+- IF DRESS IS LONG: Dress covers legs completely
+- Dress wraps around person's EXISTING body shape (not reshape body)
+
+STEP 3 - NATURAL INTEGRATION:
+- Dress should drape naturally following body curves
+- Match lighting and shadows
+- Natural fabric wrinkles and folds
+- NO clothing visible under dress
+
+OUTPUT: SAME person (identical body) wearing ONLY the dress with bare legs visible if dress is short - ZERO body modification."""
 
             else:  # upper_body or default
                 prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
