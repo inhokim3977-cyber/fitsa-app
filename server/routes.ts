@@ -41,9 +41,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.file.mimetype
       );
 
+      // Generate both URLs:
+      // - publicUrl: For browser access via Flask proxy
+      // - signedUrl: For external API access (Replicate)
       const publicUrl = objectStorageService.getPublicUrl(objectPath);
+      const signedUrl = await objectStorageService.getPublicSignedUrl(objectPath);
 
-      res.json({ publicUrl, objectPath });
+      res.json({ publicUrl, signedUrl, objectPath });
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ error: "Upload failed" });

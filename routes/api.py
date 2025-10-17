@@ -40,20 +40,24 @@ def virtual_fitting():
         
         # Upload user photo to Object Storage
         user_photo_bytes = user_photo.read()
-        user_photo_url = storage_service.upload_file(user_photo_bytes, 'png')
+        user_photo_result = storage_service.upload_file(user_photo_bytes, 'png')
         
-        if not user_photo_url:
+        if not user_photo_result:
             return jsonify({'error': 'Failed to upload user photo'}), 500
         
         # Upload clothing photo to Object Storage
         clothing_photo_bytes = clothing_photo.read()
-        clothing_photo_url = storage_service.upload_file(clothing_photo_bytes, 'png')
+        clothing_photo_result = storage_service.upload_file(clothing_photo_bytes, 'png')
         
-        if not clothing_photo_url:
+        if not clothing_photo_result:
             return jsonify({'error': 'Failed to upload clothing photo'}), 500
         
-        print(f"User photo URL: {user_photo_url}")
-        print(f"Clothing photo URL: {clothing_photo_url}")
+        # Use signed URLs for Replicate API (external access)
+        user_photo_signed_url = user_photo_result['signedUrl']
+        clothing_photo_signed_url = clothing_photo_result['signedUrl']
+        
+        print(f"User photo signed URL: {user_photo_signed_url}")
+        print(f"Clothing photo signed URL: {clothing_photo_signed_url}")
         
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
@@ -67,7 +71,7 @@ def virtual_fitting():
         remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
         
         # Prepare clothing image URL (with optional background removal)
-        clothing_final_url = clothing_photo_url
+        clothing_final_signed_url = clothing_photo_signed_url
         
         # Optional: Remove background from clothing image
         if remove_bg:
@@ -81,19 +85,19 @@ def virtual_fitting():
                     bg_removed_b64 = bg_removed_url.split(',')[1]
                     bg_removed_bytes = base64.b64decode(bg_removed_b64)
                     
-                    bg_removed_url_storage = storage_service.upload_file(bg_removed_bytes, 'png')
-                    if bg_removed_url_storage:
-                        clothing_final_url = bg_removed_url_storage
-                        print(f"Background removed, uploaded to {bg_removed_url_storage}")
+                    bg_removed_result = storage_service.upload_file(bg_removed_bytes, 'png')
+                    if bg_removed_result:
+                        clothing_final_signed_url = bg_removed_result['signedUrl']
+                        print(f"Background removed, uploaded with signed URL: {clothing_final_signed_url}")
             except Exception as e:
                 print(f"Background removal failed, using original image: {e}")
         
-        # Stage 1: Virtual Try-On with Replicate (using public HTTP URLs)
-        print(f"About to call Replicate API")
-        print(f"User photo URL: {user_photo_url}")
-        print(f"Clothing photo URL: {clothing_final_url}")
+        # Stage 1: Virtual Try-On with Replicate (using signed URLs for external access)
+        print(f"About to call Replicate API with signed URLs")
+        print(f"User photo signed URL: {user_photo_signed_url[:80]}...")
+        print(f"Clothing photo signed URL: {clothing_final_signed_url[:80]}...")
         try:
-            stage1_result = replicate_service.virtual_try_on(user_photo_url, clothing_final_url)
+            stage1_result = replicate_service.virtual_try_on(user_photo_signed_url, clothing_final_signed_url)
             print(f"Replicate API returned: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
         except Exception as e:
             print(f"Replicate API error: {str(e)}")

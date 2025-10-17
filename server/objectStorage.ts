@@ -102,7 +102,22 @@ export class ObjectStorageService {
     });
   }
 
-  // Get public URL for an object
+  // Get public signed URL for an object (for external access like Replicate API)
+  async getPublicSignedUrl(objectPath: string): Promise<string> {
+    const bucketId = this.getBucketId();
+    const bucket = objectStorageClient.bucket(bucketId);
+    const file = bucket.file(objectPath);
+
+    const [url] = await file.getSignedUrl({
+      version: "v4",
+      action: "read",
+      expires: Date.now() + 60 * 60 * 1000, // 1 hour
+    });
+
+    return url;
+  }
+
+  // Get public URL for an object (for internal/browser access)
   getPublicUrl(objectPath: string): string {
     // Get the base URL from environment or construct it
     const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;

@@ -6,7 +6,7 @@ class ObjectStorageService:
     def __init__(self, node_api_url: str = None):
         self.node_api_url = node_api_url or os.getenv('NODE_API_URL', 'http://127.0.0.1:5001')
     
-    def upload_file(self, file_bytes: bytes, file_extension: str = 'png') -> Optional[str]:
+    def upload_file(self, file_bytes: bytes, file_extension: str = 'png') -> Optional[dict]:
         """
         Upload file to Object Storage via Node.js API
         
@@ -15,7 +15,7 @@ class ObjectStorageService:
             file_extension: File extension (default: png)
         
         Returns:
-            Public URL of uploaded file
+            Dict with 'publicUrl' (for browser) and 'signedUrl' (for external APIs)
         """
         try:
             # Call Node.js API to upload file
@@ -27,7 +27,10 @@ class ObjectStorageService:
             
             if response.status_code == 200:
                 data = response.json()
-                return data.get('publicUrl')
+                return {
+                    'publicUrl': data.get('publicUrl'),
+                    'signedUrl': data.get('signedUrl')
+                }
             else:
                 print(f"Upload failed: {response.status_code} - {response.text}")
                 return None
