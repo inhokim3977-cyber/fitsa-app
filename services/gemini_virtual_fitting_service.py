@@ -75,15 +75,20 @@ STRICT REQUIREMENTS:
 1. EXACT PRESERVATION: The person's face, hands, arms, upper body clothing, and all objects (books, cups, blankets) must remain PIXEL-PERFECT identical to the original
 2. REPLACE LOWER BODY ONLY: Change ONLY the pants/trousers from waist down to ankles
 3. PRESERVE UPPER CLOTHING: Keep the shirt/top EXACTLY as it is - same color, same pattern, same wrinkles
-4. REALISTIC INTEGRATION:
+4. MATCH GARMENT IMAGE EXACTLY:
+   - Copy the EXACT fit/width of the pants from the garment image (loose, slim, wide-leg, etc.)
+   - DO NOT make pants slimmer or tighter than shown in garment image
+   - Match the exact style: straight, bootcut, wide-leg, baggy - whatever the garment shows
+   - Keep the same fabric texture and wrinkles as garment image
+5. REALISTIC INTEGRATION:
    - Match the lighting direction and intensity from the original photo
    - Add natural shadows and fabric draping
-   - Ensure pants fit the person's sitting/standing position naturally
+   - Ensure pants match the person's sitting/standing position naturally
    - Pants should not change the leg position or posture
-5. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
-6. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
+6. PRESERVE SITTING POSE: If person is sitting, keep the exact way pants drape over legs and chair
+7. SAME DIMENSIONS: Output image must be EXACTLY the same size as the input
 
-This is a simple lower body clothing replacement - do not regenerate or modify face, hands, upper body, or objects."""
+This is a simple lower body clothing replacement - do not regenerate, modify face/hands/upper body/objects, or alter the fit of the garment."""
 
             elif category == 'shoes':
                 prompt = """Generate a photorealistic image showing this person wearing these shoes.
