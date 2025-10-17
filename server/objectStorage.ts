@@ -100,19 +100,17 @@ export class ObjectStorageService {
         cacheControl: "public, max-age=31536000",
       },
     });
-
-    // Make file publicly accessible
-    await file.makePublic();
   }
 
-  // Get public URL for an object (for external access like Replicate API)
+  // Get public URL for external APIs (via Flask proxy)
   async getPublicSignedUrl(objectPath: string): Promise<string> {
-    const bucketId = this.getBucketId();
-    const bucket = objectStorageClient.bucket(bucketId);
-    const file = bucket.file(objectPath);
-
-    // Return GCS public URL
-    return `https://storage.googleapis.com/${bucketId}/${objectPath}`;
+    // Return Flask proxy URL which is publicly accessible
+    const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
+    const baseUrl = replitDevDomain 
+      ? `https://${replitDevDomain}` 
+      : 'https://127.0.0.1:5000';
+    
+    return `${baseUrl}/objects/${objectPath}`;
   }
 
   // Get public URL for an object (for internal/browser access)
