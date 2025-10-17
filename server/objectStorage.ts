@@ -104,6 +104,12 @@ export class ObjectStorageService {
 
   // Get public URL for an object
   getPublicUrl(objectPath: string): string {
-    return `/objects/${objectPath}`;
+    // Get the base URL from environment or construct it
+    const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
+    const baseUrl = replitDevDomain 
+      ? `https://${replitDevDomain}` 
+      : 'http://127.0.0.1:5000';
+    
+    return `${baseUrl}/objects/${objectPath}`;
   }
 }
