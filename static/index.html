@@ -127,6 +127,60 @@
         .drop-zone:hover .delete-btn.show {
             display: flex;
         }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            /* Change main container to flex column on mobile */
+            .upload-area-container {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                width: 100% !important;
+                height: auto !important;
+                gap: 20px;
+            }
+
+            /* Reset absolute positioning on mobile */
+            .upload-area-container > div {
+                position: static !important;
+                transform: none !important;
+            }
+
+            /* Stack vertically on mobile */
+            .item-drop.top-cloth {
+                position: static !important;
+                transform: none !important;
+                margin: 0 auto;
+            }
+            
+            .item-drop.bottom-cloth {
+                position: static !important;
+                transform: none !important;
+                margin: 0 auto;
+            }
+            
+            .item-drop.dress {
+                position: static !important;
+                transform: none !important;
+                margin: 0 auto;
+            }
+
+            /* Make center drop smaller on mobile */
+            .center-drop {
+                width: 200px;
+                height: 200px;
+            }
+
+            /* Adjust header text size */
+            h1 {
+                font-size: 2rem !important;
+            }
+
+            /* Adjust description text */
+            .text-lg {
+                font-size: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -153,7 +207,7 @@
             
             <!-- Main Upload Area -->
             <div class="flex justify-center items-center mb-20">
-                <div class="relative" style="width: 700px; height: 700px;">
+                <div class="relative upload-area-container" style="width: 700px; height: 700px;">
                     <!-- Center: Person Photo -->
                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <div id="personDropZone" class="drop-zone center-drop glow cursor-pointer flex flex-col items-center justify-center">
