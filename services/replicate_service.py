@@ -17,16 +17,23 @@ class ReplicateService:
             category: Clothing category - "upper_body", "lower_body", or "dresses"
         
         Returns:
-            URL of the try-on result image
+            Base64 data URI of the try-on result image (resized to original)
         """
         try:
             import base64
             from io import BytesIO
+            from PIL import Image
+            import requests
             
             print(f"\n=== Starting IDM-VTON Virtual Try-On ===")
             print(f"Person image size: {len(person_image_bytes)} bytes ({len(person_image_bytes)/1024:.1f}KB)")
             print(f"Clothing image size: {len(clothing_image_bytes)} bytes ({len(clothing_image_bytes)/1024:.1f}KB)")
             print(f"Category: {category}")
+            
+            # Store original person image size to restore later
+            person_img = Image.open(BytesIO(person_image_bytes))
+            original_size = person_img.size
+            print(f"Original person image size: {original_size}")
             
             # Method 1: Try with base64 data URIs (works for images < 1MB, most reliable)
             person_b64 = base64.b64encode(person_image_bytes).decode('utf-8')
@@ -61,28 +68,58 @@ class ReplicateService:
             
             print(f"Output type: {type(output)}")
             
-            # IDM-VTON typically returns a URL string directly
+            # Extract URL from various output formats
+            result_url = None
             if isinstance(output, str):
-                print(f"✓ Got URL result: {output[:100]}...")
-                return output
+                result_url = output
+                print(f"✓ Got URL result: {result_url[:100]}...")
             elif isinstance(output, list) and len(output) > 0:
                 first_item = output[0]
                 if isinstance(first_item, str):
-                    print(f"✓ Got URL from list: {first_item[:100]}...")
-                    return first_item
+                    result_url = first_item
+                    print(f"✓ Got URL from list: {result_url[:100]}...")
                 elif hasattr(first_item, 'url'):
-                    print(f"✓ Got URL from object: {first_item.url[:100]}...")
-                    return first_item.url
+                    result_url = first_item.url
+                    print(f"✓ Got URL from object: {result_url[:100]}...")
                 else:
-                    result_str = str(first_item)
-                    print(f"✓ Converted to string: {result_str[:100]}...")
-                    return result_str
+                    result_url = str(first_item)
+                    print(f"✓ Converted to string: {result_url[:100]}...")
             elif hasattr(output, 'url'):
-                print(f"✓ Got URL from FileOutput: {output.url[:100]}...")
-                return output.url
+                result_url = output.url
+                print(f"✓ Got URL from FileOutput: {result_url[:100]}...")
             else:
                 print(f"✗ Unexpected output format: {output}")
                 return None
+            
+            if not result_url:
+                print(f"✗ No URL extracted from output")
+                return None
+            
+            # Download the result image
+            print(f"Downloading result image from: {result_url[:80]}...")
+            response = requests.get(result_url, timeout=30)
+            response.raise_for_status()
+            result_bytes = response.content
+            print(f"✓ Downloaded: {len(result_bytes)} bytes ({len(result_bytes)/1024:.1f}KB)")
+            
+            # Resize to original dimensions (preserve aspect ratio)
+            result_img = Image.open(BytesIO(result_bytes))
+            print(f"IDM-VTON output size: {result_img.size}")
+            
+            if result_img.size != original_size:
+                print(f"Resizing from {result_img.size} to original {original_size}")
+                result_img = result_img.resize(original_size, Image.Resampling.LANCZOS)
+            
+            # Convert to base64 data URI (same format as Gemini)
+            output_buffer = BytesIO()
+            result_img.save(output_buffer, format='PNG')
+            resized_data = output_buffer.getvalue()
+            
+            b64_data = base64.b64encode(resized_data).decode('utf-8')
+            data_uri = f"data:image/png;base64,{b64_data}"
+            
+            print(f"✓ Final image: {len(resized_data)} bytes (size: {original_size})")
+            return data_uri
                 
         except Exception as e:
             print(f"Replicate error: {str(e)}")
