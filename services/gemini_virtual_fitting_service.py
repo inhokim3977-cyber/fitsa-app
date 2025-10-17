@@ -27,6 +27,7 @@ class GeminiVirtualFittingService:
             from io import BytesIO
             
             print(f"\n=== Gemini 2.5 Flash Image Virtual Try-On ===")
+            print(f"Category: {category}")
             print(f"Person image: {len(person_image_bytes)} bytes ({len(person_image_bytes)/1024:.1f}KB)")
             print(f"Clothing image: {len(clothing_image_bytes)} bytes ({len(clothing_image_bytes)/1024:.1f}KB)")
             
