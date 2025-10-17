@@ -1,7 +1,5 @@
 // Global state
 let personImage = null;
-let hatImage = null;
-let glassesImage = null;
 let topClothImage = null;
 let bottomClothImage = null;
 let dressImage = null;
@@ -10,16 +8,12 @@ let clothingMode = 'separate'; // 'separate' or 'dress'
 
 // DOM elements
 const personDropZone = document.getElementById('personDropZone');
-const hatDropZone = document.getElementById('hatDropZone');
-const glassesDropZone = document.getElementById('glassesDropZone');
 const topClothDropZone = document.getElementById('topClothDropZone');
 const bottomClothDropZone = document.getElementById('bottomClothDropZone');
 const dressDropZone = document.getElementById('dressDropZone');
 const shoesDropZone = document.getElementById('shoesDropZone');
 
 const personFileInput = document.getElementById('personFileInput');
-const hatFileInput = document.getElementById('hatFileInput');
-const glassesFileInput = document.getElementById('glassesFileInput');
 const topClothFileInput = document.getElementById('topClothFileInput');
 const bottomClothFileInput = document.getElementById('bottomClothFileInput');
 const dressFileInput = document.getElementById('dressFileInput');
@@ -79,8 +73,6 @@ function switchClothingMode(mode) {
 
 // Setup all drop zones
 setupDropZone(personDropZone, personFileInput, 'person');
-setupDropZone(hatDropZone, hatFileInput, 'hat');
-setupDropZone(glassesDropZone, glassesFileInput, 'glasses');
 setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
 setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
 setupDropZone(dressDropZone, dressFileInput, 'dress');
@@ -88,8 +80,6 @@ setupDropZone(shoesDropZone, shoesFileInput, 'shoes');
 
 // Setup file inputs
 personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
-hatFileInput.addEventListener('change', (e) => handleFileSelect(e, 'hat'));
-glassesFileInput.addEventListener('change', (e) => handleFileSelect(e, 'glasses'));
 topClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'topCloth'));
 bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
 dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
@@ -157,12 +147,6 @@ function handleFile(file, type) {
             case 'person':
                 personImage = file;
                 break;
-            case 'hat':
-                hatImage = file;
-                break;
-            case 'glasses':
-                glassesImage = file;
-                break;
             case 'topCloth':
                 topClothImage = file;
                 break;
@@ -201,12 +185,6 @@ function clearImage(type, event) {
         case 'person':
             personImage = null;
             break;
-        case 'hat':
-            hatImage = null;
-            break;
-        case 'glasses':
-            glassesImage = null;
-            break;
         case 'topCloth':
             topClothImage = null;
             break;
@@ -229,7 +207,7 @@ window.clearImage = clearImage;
 
 function checkCanGenerate() {
     // Need person image and at least one clothing item
-    const hasAnyClothing = hatImage || glassesImage || topClothImage || bottomClothImage || dressImage || shoesImage;
+    const hasAnyClothing = topClothImage || bottomClothImage || dressImage || shoesImage;
     generateBtn.disabled = !(personImage && hasAnyClothing);
 }
 
@@ -243,39 +221,36 @@ async function generateFitting() {
     let category = 'upper_body'; // Default category
     
     // Determine clothing photo and category based on what's available
-    // Priority order: hat > glasses > top > bottom > dress > shoes
-    if (hatImage) {
-        clothingPhoto = hatImage;
-        category = 'hat';
-    } else if (glassesImage) {
-        clothingPhoto = glassesImage;
-        category = 'glasses';
-    } else if (clothingMode === 'separate') {
-        if (!topClothImage && !bottomClothImage) {
-            alert('상의 또는 하의를 업로드해주세요!');
+    // Priority order: top > bottom > dress > shoes
+    if (clothingMode === 'separate') {
+        if (!topClothImage && !bottomClothImage && !shoesImage) {
+            alert('상의, 하의 또는 신발을 업로드해주세요!');
             return;
         }
-        // Prioritize top cloth
+        // Prioritize top cloth, then bottom, then shoes
         if (topClothImage) {
             clothingPhoto = topClothImage;
             category = 'upper_body';
-        } else {
+        } else if (bottomClothImage) {
             clothingPhoto = bottomClothImage;
             category = 'lower_body';
+        } else {
+            clothingPhoto = shoesImage;
+            category = 'shoes';
         }
     } else {
-        if (!dressImage) {
-            alert('원피스 사진을 업로드해주세요!');
+        if (!dressImage && !shoesImage) {
+            alert('원피스 또는 신발 사진을 업로드해주세요!');
             return;
         }
-        clothingPhoto = dressImage;
-        category = 'dress';
-    }
-    
-    // Check for shoes
-    if (shoesImage && !hatImage && !glassesImage && !topClothImage && !bottomClothImage && !dressImage) {
-        clothingPhoto = shoesImage;
-        category = 'shoes';
+        // Prioritize dress, then shoes
+        if (dressImage) {
+            clothingPhoto = dressImage;
+            category = 'dress';
+        } else {
+            clothingPhoto = shoesImage;
+            category = 'shoes';
+        }
     }
     
     generateBtn.disabled = true;

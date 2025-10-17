@@ -44,18 +44,6 @@
             position: absolute;
         }
         
-        .item-drop.hat {
-            top: -180px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .item-drop.glasses {
-            top: -130px;
-            left: -130px;
-            width: 120px;
-            height: 120px;
-        }
         
         .item-drop.top-cloth {
             top: 50%;
@@ -204,31 +192,6 @@
                         </div>
                         <input type="file" id="personFileInput" class="hidden" accept="image/*">
                         
-                        <!-- Hat - Top -->
-                        <div id="hatDropZone" class="drop-zone item-drop hat cursor-pointer flex flex-col items-center justify-center">
-                            <div id="hatPlaceholder" class="text-center">
-                                <span class="text-5xl">🎩</span>
-                                <p class="text-white text-sm mt-2">모자</p>
-                            </div>
-                            <img id="hatPreview" class="preview-image hidden" />
-                            <div id="hatDeleteBtn" class="delete-btn" onclick="clearImage('hat', event)">
-                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </div>
-                        </div>
-                        <input type="file" id="hatFileInput" class="hidden" accept="image/*">
-                        
-                        <!-- Glasses - Top Left -->
-                        <div id="glassesDropZone" class="drop-zone item-drop glasses cursor-pointer flex flex-col items-center justify-center">
-                            <div id="glassesPlaceholder" class="text-center">
-                                <span class="text-4xl">👓</span>
-                                <p class="text-white text-xs mt-1">안경</p>
-                            </div>
-                            <img id="glassesPreview" class="preview-image hidden" />
-                        </div>
-                        <input type="file" id="glassesFileInput" class="hidden" accept="image/*">
-                        
                         <!-- Top Cloth - Left (for separate mode) -->
                         <div id="topClothDropZone" class="drop-zone item-drop top-cloth cursor-pointer flex flex-col items-center justify-center">
                             <div id="topClothPlaceholder" class="text-center">
@@ -281,6 +244,11 @@
                                 <p class="text-white text-sm mt-2">신발</p>
                             </div>
                             <img id="shoesPreview" class="preview-image hidden" />
+                            <div id="shoesDeleteBtn" class="delete-btn" onclick="clearImage('shoes', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
                         </div>
                         <input type="file" id="shoesFileInput" class="hidden" accept="image/*">
                     </div>
