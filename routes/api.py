@@ -84,41 +84,41 @@ def virtual_fitting():
         stage1_result = None
         method_used = "unknown"
         
-        # 1st Priority: Gemini 2.5 Flash Image (Best quality - preserves hands/face)
-        gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-        if gemini_api_key:
-            print(f"\n=== 1st Try: Gemini 2.5 Flash Image ===")
-            try:
-                gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                stage1_result = gemini_service.virtual_try_on(
-                    user_photo_bytes,
-                    clothing_final_bytes,
-                    category=category
-                )
-                if stage1_result:
-                    method_used = "Gemini 2.5 Flash Image"
-                    print(f"✓ Gemini succeeded!")
-            except Exception as e:
-                print(f"✗ Gemini failed: {str(e)}")
-        else:
-            print("⚠ GEMINI_API_KEY not set, skipping Gemini try-on")
+        # 1st Priority: Replicate IDM-VTON (Best for clothing try-on)
+        print(f"\n=== 1st Try: Replicate IDM-VTON ===")
+        print(f"Category: {category}")
         
-        # 2nd Priority: Replicate IDM-VTON (Good quality, may affect hands)
+        try:
+            stage1_result = replicate_service.virtual_try_on(
+                user_photo_bytes, 
+                clothing_final_bytes,
+                category=category
+            )
+            if stage1_result:
+                method_used = "Replicate IDM-VTON"
+                print(f"✓ Replicate succeeded")
+        except Exception as e:
+            print(f"✗ Replicate failed: {str(e)}")
+        
+        # 2nd Priority: Gemini 2.5 Flash Image (Backup - preserves hands/face)
         if not stage1_result:
-            print(f"\n=== 2nd Try: Replicate IDM-VTON ===")
-            print(f"Category: {category}")
-            
-            try:
-                stage1_result = replicate_service.virtual_try_on(
-                    user_photo_bytes, 
-                    clothing_final_bytes,
-                    category=category
-                )
-                if stage1_result:
-                    method_used = "Replicate IDM-VTON"
-                    print(f"✓ Replicate succeeded")
-            except Exception as e:
-                print(f"✗ Replicate failed: {str(e)}")
+            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+            if gemini_api_key:
+                print(f"\n=== 2nd Try: Gemini 2.5 Flash Image ===")
+                try:
+                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                    stage1_result = gemini_service.virtual_try_on(
+                        user_photo_bytes,
+                        clothing_final_bytes,
+                        category=category
+                    )
+                    if stage1_result:
+                        method_used = "Gemini 2.5 Flash Image"
+                        print(f"✓ Gemini succeeded!")
+                except Exception as e:
+                    print(f"✗ Gemini failed: {str(e)}")
+            else:
+                print("⚠ GEMINI_API_KEY not set, skipping Gemini try-on")
         
         # 3rd Priority: OpenAI DALL-E (Final fallback)
         if not stage1_result:
