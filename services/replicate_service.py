@@ -25,10 +25,11 @@ class ReplicateService:
             
             print("Calling Replicate API with HTTP URLs...")
             output = replicate.run(
-                "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
+                "cuuupid/idm-vton:c871bb9b046607b680ea2b57c4f6b7f3e6b8e70d6c3c7c5f0a88a4e2e1c3d2c8",
                 input={
-                    "face_image": person_image_url,
-                    "commerce_image": clothing_image_url,
+                    "human_img": person_image_url,
+                    "garm_img": clothing_image_url,
+                    "garment_des": "clothing"
                 }
             )
             print("Replicate API call completed!")
