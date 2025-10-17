@@ -100,21 +100,19 @@ export class ObjectStorageService {
         cacheControl: "public, max-age=31536000",
       },
     });
+
+    // Make file publicly accessible
+    await file.makePublic();
   }
 
-  // Get public signed URL for an object (for external access like Replicate API)
+  // Get public URL for an object (for external access like Replicate API)
   async getPublicSignedUrl(objectPath: string): Promise<string> {
     const bucketId = this.getBucketId();
     const bucket = objectStorageClient.bucket(bucketId);
     const file = bucket.file(objectPath);
 
-    const [url] = await file.getSignedUrl({
-      version: "v4",
-      action: "read",
-      expires: Date.now() + 60 * 60 * 1000, // 1 hour
-    });
-
-    return url;
+    // Return GCS public URL
+    return `https://storage.googleapis.com/${bucketId}/${objectPath}`;
   }
 
   // Get public URL for an object (for internal/browser access)
