@@ -65,26 +65,18 @@ Preferred communication style: Simple, everyday language.
 - Removes background from clothing images
 - Applied when checkbox is checked
 
-**Stage 1: Virtual Try-On** (Smart category-based routing)
+**Stage 1: Virtual Try-On** (Gemini-first for all categories)
 
 *Supported Categories: upper_body, lower_body, dress*
 
-**Upper Body (상의):**
+**All Categories:**
 1. **Gemini 2.5 Flash** (1st priority) ✅
-   - Preserves hands, books, objects perfectly
-   - Natural overlay results
-2. **IDM-VTON** (fallback)
-
-**Lower Body (하의):**
-1. **IDM-VTON** (only option) ✅
-   - Only model that works for lower body
-   - May affect hands/objects but better than nothing
-
-**Dress (원피스):**
-1. **Gemini 2.5 Flash** (1st priority) ✅
-   - Full body preservation
+   - Preserves full image dimensions and ratio
    - Natural results
+   - For upper body & dress: preserves hands/books/objects
+   - For lower body: may affect hands but preserves full body
 2. **IDM-VTON** (fallback)
+   - Note: lower_body may have ratio issues (crops image short)
 
 **Stage 2: Quality Enhancement** (Removed)
 - Not needed for simple workflow
@@ -112,7 +104,7 @@ Preferred communication style: Simple, everyday language.
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
-- Bottom (하의): lower_body - ✅ IDM-VTON (works for lower body)
+- Bottom (하의): lower_body - ✅ Gemini (preserves full body, may affect hands)
 - Dress (원피스): dress - ✅ Gemini (full body preservation)
 
 ### Data Storage Solutions
