@@ -102,13 +102,37 @@ class ReplicateService:
             result_bytes = response.content
             print(f"✓ Downloaded: {len(result_bytes)} bytes ({len(result_bytes)/1024:.1f}KB)")
             
-            # Resize to original dimensions (preserve aspect ratio)
+            # Process result image to match original dimensions
             result_img = Image.open(BytesIO(result_bytes))
             print(f"IDM-VTON output size: {result_img.size}")
             
             if result_img.size != original_size:
-                print(f"Resizing from {result_img.size} to original {original_size}")
-                result_img = result_img.resize(original_size, Image.Resampling.LANCZOS)
+                # Calculate aspect ratios
+                result_ratio = result_img.size[0] / result_img.size[1]
+                original_ratio = original_size[0] / original_size[1]
+                
+                print(f"Result ratio: {result_ratio:.2f}, Original ratio: {original_ratio:.2f}")
+                
+                # Resize maintaining aspect ratio, then pad
+                if result_ratio > original_ratio:
+                    # Result is wider - fit to width
+                    new_width = original_size[0]
+                    new_height = int(new_width / result_ratio)
+                else:
+                    # Result is taller - fit to height
+                    new_height = original_size[1]
+                    new_width = int(new_height * result_ratio)
+                
+                print(f"Resizing from {result_img.size} to ({new_width}, {new_height}) maintaining ratio")
+                result_img = result_img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                
+                # Create canvas with original size and paste centered
+                canvas = Image.new('RGB', original_size, (255, 255, 255))
+                paste_x = (original_size[0] - new_width) // 2
+                paste_y = (original_size[1] - new_height) // 2
+                canvas.paste(result_img, (paste_x, paste_y))
+                result_img = canvas
+                print(f"Padded to original size: {original_size}")
             
             # Convert to base64 data URI (same format as Gemini)
             output_buffer = BytesIO()
