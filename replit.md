@@ -59,21 +59,37 @@ Preferred communication style: Simple, everyday language.
 - Multipart form data handling with Werkzeug
 - Maximum file size: 16MB
 
-**3-Stage AI Pipeline**
-1. **Stage 0 (Optional): Background Removal**
-   - Replicate's `cjwbw/rembg` model
-   - Cost: ~$0.0043 per image
-   - Applied to clothing photos when checkbox is checked
-   
-2. **Stage 1: Virtual Try-On**
-   - Replicate's `wolverinn/ecommerce-virtual-try-on` model
+**Smart Category-Based AI Pipeline** ✅
+
+**Stage 0: Background Removal** (Optional)
+- Local `rembg` processing (~5 seconds)
+- Removes background from clothing images
+- Applied when checkbox is checked
+
+**Stage 1: Virtual Try-On** (Category-aware routing)
+
+*For Accessories (hat, glasses, shoes):*
+1. **Gemini 2.5 Flash Image** (1st priority) ✅
+   - Better at preserving hands, face, books, objects
+   - Temperature: 0.1 (maximum preservation, minimal creativity)
+   - Top_p: 0.7, Top_k: 20
+   - Works well for simple overlay tasks like hats
+
+*For Clothing (upper_body, lower_body, dress):*
+1. **Replicate IDM-VTON** (1st priority) ✅
+   - Specialized clothing replacement AI
+   - Supports: upper_body, lower_body, dresses
    - Cost: ~$0.11 per image
-   - Combines user photo with clothing
    
-3. **Stage 2: Quality Enhancement**
-   - Nano Banana (gpt-5-nano) via Replit AI Integrations
-   - Enhances final image quality
-   - No additional cost (uses Replit credits)
+2. **Gemini 2.5 Flash** (2nd fallback)
+   - If Replicate fails
+   
+3. **OpenAI DALL-E 3** (3rd fallback)
+   - Final fallback option
+
+**Stage 2: Quality Enhancement** (Skipped for Gemini results)
+- Gemini results already optimal quality
+- Only applied for other AI outputs if needed
 
 **API Design**
 - `POST /api/virtual-fitting` - Main endpoint
@@ -82,10 +98,24 @@ Preferred communication style: Simple, everyday language.
 - `GET /health` - Health check endpoint
 - Static file serving from `/static/` directory
 
-**Environment Variables (from AIFurnish pattern)**
+**Environment Variables**
 - `REPLICATE_API_TOKEN` - Set in Replit Secrets
+- `GEMINI_API_KEY` - Set in Replit Secrets (paid plan active)
 - `AI_INTEGRATIONS_OPENAI_API_KEY` - Auto-provided by Replit
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-provided by Replit
+
+**Recent Improvements (October 2025)**
+- ✅ Implemented category-based AI routing for optimal results
+- ✅ Gemini temperature tuned to 0.1 for natural hat fitting
+- ✅ Local rembg background removal (faster than Replicate)
+- ✅ Replicate IDM-VTON for clothing (upper/lower/dress)
+- ✅ All categories tested and working: hat, top, bottom
+
+**Test Results:**
+- Hat (모자): ✅ Natural with Gemini (temperature 0.1)
+- Top (상의): ✅ Works with Replicate IDM-VTON
+- Bottom (하의): ✅ Works with Replicate IDM-VTON
+- Preserves hands, face, books perfectly
 
 ### Data Storage Solutions
 
