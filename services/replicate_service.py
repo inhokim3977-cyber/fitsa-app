@@ -20,7 +20,12 @@ class ReplicateService:
         """
         try:
             # Open files for Replicate API
+            print(f"Starting Replicate virtual try-on...")
+            print(f"Person image: {person_image_path}")
+            print(f"Clothing image: {clothing_image_path}")
+            
             with open(person_image_path, 'rb') as person_file, open(clothing_image_path, 'rb') as clothing_file:
+                print("Files opened, calling Replicate API...")
                 output = replicate.run(
                     "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                     input={
@@ -28,6 +33,7 @@ class ReplicateService:
                         "commerce_image": clothing_file,
                     }
                 )
+                print("Replicate API call completed!")
             
             # Debug logging
             print(f"Replicate output type: {type(output)}")
