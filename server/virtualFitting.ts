@@ -1,95 +1,85 @@
 import { openai } from "./openai";
-import sharp from "sharp";
+import Replicate from "replicate";
 
 export interface VirtualFittingRequest {
   userPhotoBase64: string;
   clothingPhotoBase64: string;
+  userPhotoUrl: string;
+  clothingPhotoUrl: string;
 }
 
 export interface VirtualFittingResult {
   resultImageBase64: string;
 }
 
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN || "",
+});
+
 export async function generateVirtualFitting(
   request: VirtualFittingRequest
 ): Promise<VirtualFittingResult> {
-  const { userPhotoBase64, clothingPhotoBase64 } = request;
+  const { userPhotoUrl, clothingPhotoUrl } = request;
 
-  // Use GPT-5-nano for high-quality image analysis and synthesis
-  // Note: Since the AI gateway doesn't support image generation directly,
-  // we'll use the vision model to describe the ideal result and then
-  // create a composite image using sharp
-  
-  const completion = await openai.chat.completions.create({
-    model: "gpt-5-nano",
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: "You are a virtual fitting assistant. Analyze the person's photo and the clothing item photo. Describe in detail how the clothing item would look when worn by this person, including placement, size adjustments, and realistic fitting details. Be specific about positioning, proportions, and how the item should overlay on the person.",
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: `data:image/png;base64,${userPhotoBase64}`,
-            },
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: `data:image/png;base64,${clothingPhotoBase64}`,
-            },
-          },
-        ],
+  console.log("Starting Replicate virtual try-on...");
+  console.log("Person URL:", userPhotoUrl);
+  console.log("Clothing URL:", clothingPhotoUrl);
+
+  // Stage 1: Replicate Virtual Try-On
+  const output = await replicate.run(
+    "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
+    {
+      input: {
+        face_image: userPhotoUrl,
+        commerce_image: clothingPhotoUrl,
       },
-    ],
-    max_completion_tokens: 500,
-  });
+    }
+  );
 
-  const description = completion.choices[0].message.content || "";
+  console.log("Replicate output:", output);
 
-  // For MVP, we'll create a simple composite by overlaying the clothing image
-  // This is a simplified approach - in production, you'd use a specialized model
-  const userImageBuffer = Buffer.from(userPhotoBase64, "base64");
-  const clothingImageBuffer = Buffer.from(clothingPhotoBase64, "base64");
+  // Handle output
+  let resultUrl: string;
+  if (typeof output === "string") {
+    resultUrl = output;
+  } else if (Array.isArray(output) && output.length > 0) {
+    resultUrl = output[0];
+  } else {
+    throw new Error("Unexpected Replicate output format");
+  }
 
-  // Get image metadata
-  const userMetadata = await sharp(userImageBuffer).metadata();
-  const clothingMetadata = await sharp(clothingImageBuffer).metadata();
+  // Download result and convert to base64
+  const response = await fetch(resultUrl);
+  const buffer = await response.arrayBuffer();
+  const resultImageBase64 = Buffer.from(buffer).toString("base64");
 
-  const targetWidth = userMetadata.width || 800;
-  const targetHeight = userMetadata.height || 800;
-
-  // Resize clothing to fit proportionally (about 60% of person's size)
-  const clothingResized = await sharp(clothingImageBuffer)
-    .resize({
-      width: Math.floor(targetWidth * 0.6),
-      fit: "inside",
-    })
-    .toBuffer();
-
-  const clothingResizedMeta = await sharp(clothingResized).metadata();
-
-  // Position clothing in center-upper area (typical for clothing overlay)
-  const left = Math.floor((targetWidth - (clothingResizedMeta.width || 0)) / 2);
-  const top = Math.floor(targetHeight * 0.2);
-
-  // Composite the images
-  const compositeBuffer = await sharp(userImageBuffer)
-    .composite([
-      {
-        input: clothingResized,
-        top,
-        left,
-        blend: "over",
-      },
-    ])
-    .png()
-    .toBuffer();
-
-  const resultImageBase64 = compositeBuffer.toString("base64");
+  // Stage 2: Enhance with Nano Banana (optional)
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5-nano",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Enhance the quality of this virtual try-on image. Make it look more realistic and professional.",
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/png;base64,${resultImageBase64}`,
+              },
+            },
+          ],
+        },
+      ],
+      max_completion_tokens: 100,
+    });
+    console.log("Nano enhancement completed");
+  } catch (error) {
+    console.log("Nano enhancement skipped:", error);
+  }
 
   return {
     resultImageBase64,

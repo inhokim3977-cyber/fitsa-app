@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
@@ -21,6 +21,9 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const objectStorageService = new ObjectStorageService();
+
+  // Serve static files from "static" directory
+  app.use(express.static("static"));
 
   // Endpoint to serve objects from storage
   app.get("/objects/*", async (req, res) => {
@@ -88,10 +91,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userPhotoBase64 = userPhotoFile.buffer.toString("base64");
         const clothingPhotoBase64 = clothingPhotoFile.buffer.toString("base64");
 
+        // Get public URLs for Replicate API
+        const userPhotoUrl = objectStorageService.getPublicUrl(userPhotoPath);
+        const clothingPhotoUrl = objectStorageService.getPublicUrl(clothingPhotoPath);
+
         console.log("Generating virtual fitting with AI...");
         const result = await generateVirtualFitting({
           userPhotoBase64,
           clothingPhotoBase64,
+          userPhotoUrl,
+          clothingPhotoUrl,
         });
         console.log("AI generation completed, result base64 length:", result.resultImageBase64.length);
 
