@@ -7,36 +7,28 @@ class ReplicateService:
         self.api_token = api_token
         os.environ['REPLICATE_API_TOKEN'] = api_token
     
-    def virtual_try_on(self, person_image_path: str, clothing_image_path: str, base_url: str) -> Optional[str]:
+    def virtual_try_on(self, person_image_url: str, clothing_image_url: str) -> Optional[str]:
         """
         Stage 1: Virtual Try-On using Replicate's wolverinn/ecommerce-virtual-try-on model
         
         Args:
-            person_image_path: File path to person photo
-            clothing_image_path: File path to clothing photo  
-            base_url: Base URL of the application for creating public URLs
+            person_image_url: Public HTTP URL to person photo
+            clothing_image_url: Public HTTP URL to clothing photo
         
         Returns:
             URL of the try-on result image
         """
         try:
             print(f"Starting Replicate virtual try-on...")
-            print(f"Person image: {person_image_path}")
-            print(f"Clothing image: {clothing_image_path}")
-            
-            # Create public URLs that Replicate can access
-            person_url = f"{base_url}/{person_image_path}"
-            clothing_url = f"{base_url}/{clothing_image_path}"
-            
-            print(f"Person URL: {person_url}")
-            print(f"Clothing URL: {clothing_url}")
+            print(f"Person URL: {person_image_url}")
+            print(f"Clothing URL: {clothing_image_url}")
             
             print("Calling Replicate API with HTTP URLs...")
             output = replicate.run(
                 "wolverinn/ecommerce-virtual-try-on:eb98423e7e49bf03f7ad425bac656405a817f46c56fefe49fc45e9a066b7d0b8",
                 input={
-                    "face_image": person_url,
-                    "commerce_image": clothing_url,
+                    "face_image": person_image_url,
+                    "commerce_image": clothing_image_url,
                 }
             )
             print("Replicate API call completed!")

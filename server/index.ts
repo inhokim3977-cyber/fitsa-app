@@ -1,6 +1,7 @@
 import express from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, log } from "./vite";
+import { spawn } from "child_process";
 
 const app = express();
 
@@ -54,8 +55,22 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const PORT = 5000;
+  const PORT = 5001;
   server.listen(PORT, "0.0.0.0", () => {
-    log(`Server running on port ${PORT}`);
+    log(`Node.js API server running on port ${PORT}`);
+  });
+
+  // Start Flask on port 5000
+  log("Starting Flask application on port 5000...");
+  const flask = spawn("python", ["app.py"], {
+    stdio: "inherit",
+    env: { 
+      ...process.env,
+      NODE_API_URL: `http://127.0.0.1:${PORT}`
+    }
+  });
+
+  flask.on("error", (err) => {
+    console.error("Failed to start Flask:", err);
   });
 })();

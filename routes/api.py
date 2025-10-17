@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from services.replicate_service import ReplicateService
 from services.nano_service import NanoService
 from services.background_removal_service import BackgroundRemovalService
+from services.object_storage_service import ObjectStorageService
 
 api_bp = Blueprint('api', __name__)
 
@@ -34,15 +35,25 @@ def virtual_fitting():
         if not allowed_file(user_photo.filename) or not allowed_file(clothing_photo.filename):
             return jsonify({'error': 'Invalid file type'}), 400
         
-        # Save uploaded files
-        user_filename = secure_filename(user_photo.filename or 'user.png')
-        clothing_filename = secure_filename(clothing_photo.filename or 'clothing.png')
+        # Initialize Object Storage service
+        storage_service = ObjectStorageService()
         
-        user_path = os.path.join(current_app.config['UPLOAD_FOLDER'], user_filename)
-        clothing_path = os.path.join(current_app.config['UPLOAD_FOLDER'], clothing_filename)
+        # Upload user photo to Object Storage
+        user_photo_bytes = user_photo.read()
+        user_photo_url = storage_service.upload_file(user_photo_bytes, 'png')
         
-        user_photo.save(user_path)
-        clothing_photo.save(clothing_path)
+        if not user_photo_url:
+            return jsonify({'error': 'Failed to upload user photo'}), 500
+        
+        # Upload clothing photo to Object Storage
+        clothing_photo_bytes = clothing_photo.read()
+        clothing_photo_url = storage_service.upload_file(clothing_photo_bytes, 'png')
+        
+        if not clothing_photo_url:
+            return jsonify({'error': 'Failed to upload clothing photo'}), 500
+        
+        print(f"User photo URL: {user_photo_url}")
+        print(f"Clothing photo URL: {clothing_photo_url}")
         
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
@@ -55,42 +66,34 @@ def virtual_fitting():
         # Check if background removal is requested
         remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
         
-        # Prepare clothing image path (with optional background removal)
-        clothing_final_path = clothing_path
+        # Prepare clothing image URL (with optional background removal)
+        clothing_final_url = clothing_photo_url
         
         # Optional: Remove background from clothing image
         if remove_bg:
             try:
                 print("Removing background from clothing image...")
-                # Read clothing image as base64 for background removal
-                with open(clothing_path, 'rb') as f:
-                    clothing_b64 = base64.b64encode(f.read()).decode('utf-8')
-                clothing_data_url = f"data:image/png;base64,{clothing_b64}"
+                clothing_data_url = f"data:image/png;base64,{base64.b64encode(clothing_photo_bytes).decode('utf-8')}"
                 
                 bg_removed_url = background_removal_service.remove_background(clothing_data_url)
                 if bg_removed_url:
-                    # Save background-removed image to new file
+                    # Upload background-removed image to Object Storage
                     bg_removed_b64 = bg_removed_url.split(',')[1]
                     bg_removed_bytes = base64.b64decode(bg_removed_b64)
                     
-                    bg_removed_filename = f"bg_removed_{clothing_filename}"
-                    bg_removed_path = os.path.join(current_app.config['UPLOAD_FOLDER'], bg_removed_filename)
-                    
-                    with open(bg_removed_path, 'wb') as f:
-                        f.write(bg_removed_bytes)
-                    
-                    clothing_final_path = bg_removed_path
-                    print(f"Background removed, saved to {bg_removed_path}")
+                    bg_removed_url_storage = storage_service.upload_file(bg_removed_bytes, 'png')
+                    if bg_removed_url_storage:
+                        clothing_final_url = bg_removed_url_storage
+                        print(f"Background removed, uploaded to {bg_removed_url_storage}")
             except Exception as e:
                 print(f"Background removal failed, using original image: {e}")
         
-        # Stage 1: Virtual Try-On with Replicate (using public URLs)
-        # Get base URL for public file access
-        base_url = request.host_url.rstrip('/')
-        print(f"Base URL: {base_url}")
-        print(f"About to call Replicate API with user_path={user_path}, clothing_path={clothing_final_path}")
+        # Stage 1: Virtual Try-On with Replicate (using public HTTP URLs)
+        print(f"About to call Replicate API")
+        print(f"User photo URL: {user_photo_url}")
+        print(f"Clothing photo URL: {clothing_final_url}")
         try:
-            stage1_result = replicate_service.virtual_try_on(user_path, clothing_final_path, base_url)
+            stage1_result = replicate_service.virtual_try_on(user_photo_url, clothing_final_url)
             print(f"Replicate API returned: {stage1_result[:100] if isinstance(stage1_result, str) else type(stage1_result)}")
         except Exception as e:
             print(f"Replicate API error: {str(e)}")

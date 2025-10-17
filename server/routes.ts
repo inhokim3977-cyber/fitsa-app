@@ -22,8 +22,33 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   const objectStorageService = new ObjectStorageService();
 
-  // Serve static files from "static" directory
+  // Serve static files from "static" directory (for Flask frontend)
   app.use(express.static("static"));
+
+  // API endpoint for Flask to upload files to Object Storage
+  app.post("/api/storage/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file provided" });
+      }
+
+      const extension = req.body.extension || 'png';
+      const objectPath = objectStorageService.generateObjectPath(extension);
+
+      await objectStorageService.uploadBuffer(
+        req.file.buffer,
+        objectPath,
+        req.file.mimetype
+      );
+
+      const publicUrl = objectStorageService.getPublicUrl(objectPath);
+
+      res.json({ publicUrl, objectPath });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
 
   // Endpoint to serve objects from storage
   app.get("/objects/*", async (req, res) => {
