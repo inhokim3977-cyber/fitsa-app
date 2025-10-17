@@ -228,14 +228,9 @@ function clearImage(type, event) {
 window.clearImage = clearImage;
 
 function checkCanGenerate() {
-    // Need person image and clothing based on mode
-    if (clothingMode === 'separate') {
-        // Need at least top or bottom cloth
-        generateBtn.disabled = !(personImage && (topClothImage || bottomClothImage));
-    } else {
-        // Need dress
-        generateBtn.disabled = !(personImage && dressImage);
-    }
+    // Need person image and at least one clothing item
+    const hasAnyClothing = hatImage || glassesImage || topClothImage || bottomClothImage || dressImage || shoesImage;
+    generateBtn.disabled = !(personImage && hasAnyClothing);
 }
 
 async function generateFitting() {
