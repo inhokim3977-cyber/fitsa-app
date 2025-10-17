@@ -120,28 +120,10 @@ def virtual_fitting():
         
         print(f"✓ Virtual fitting completed using: {method_used}")
         
-        # Stage 2: Quality enhancement with Nano Banana
-        try:
-            stage2_result = nano_service.enhance_quality(stage1_result)
-        except Exception as e:
-            # If stage 2 fails, return stage 1 result
-            print(f"Stage 2 enhancement failed: {e}")
-            stage2_result = stage1_result
-        
-        # Ensure result is a string (URL or data URL)
-        final_result = stage1_result
-        if isinstance(stage2_result, bytes):
-            # Convert bytes to base64 data URL
-            b64_str = base64.b64encode(stage2_result).decode('utf-8')
-            final_result = f"data:image/png;base64,{b64_str}"
-        elif isinstance(stage2_result, str):
-            final_result = stage2_result
-        
-        # Return the final result
+        # Return the Replicate URL directly (skip stage 2 to avoid 414 errors)
         return jsonify({
             'success': True,
-            'resultUrl': final_result,
-            'stage1_url': stage1_result,
+            'resultUrl': stage1_result,
             'method': method_used,
             'status': 'completed'
         })
