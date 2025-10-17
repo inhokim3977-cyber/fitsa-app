@@ -69,36 +69,38 @@ Return the original photo with ONLY a hat digitally added on top.
 Same dimensions as input. This is a simple overlay - do not alter anything else."""
 
             elif category == 'lower_body':
-                prompt = """CRITICAL: This is a PHOTO EDITING task - PRESERVE the person's photo, only change pants.
+                prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
 
-STEP 1 - PRESERVE EVERYTHING ABOVE WAIST (DO NOT TOUCH):
-- Face: Keep EXACT same face
-- Hair: Keep EXACT same hair
-- Arms: Keep EXACT same arms
-- Hands: Keep EXACT same hands
-- Upper body clothing: Keep EXACT same shirt/top (color, pattern, wrinkles)
-- Torso shape: Keep EXACT same body width/volume
-- All objects: Keep books, cups, blankets in EXACT positions
+CRITICAL BODY SHAPE PRESERVATION (MANDATORY):
+- Leg thickness: IDENTICAL to original - measure and match exactly (DO NOT slim, DO NOT enlarge)
+- Waist circumference: IDENTICAL to original (DO NOT narrow, DO NOT widen)
+- Hip width: IDENTICAL to original (DO NOT reduce, DO NOT expand)
+- Body proportions: IDENTICAL width/height ratio (DO NOT stretch, DO NOT compress)
+- Thigh size: IDENTICAL volume (DO NOT thin, DO NOT bulk)
+- Calf size: IDENTICAL volume (DO NOT modify)
+- Overall physique: ZERO body reshaping - must look EXACTLY same person
 
-STEP 2 - PRESERVE BODY SHAPE (DO NOT ALTER):
-- Leg thickness: Keep EXACT same leg volume (DO NOT slim down)
-- Body proportions: Keep EXACT same width/height ratio
-- Waist size: Keep EXACT same waist circumference
-- Hip size: Keep EXACT same hip width
-- Overall physique: NO body slimming or reshaping
+STEP 1 - PRESERVE EVERYTHING ABOVE WAIST:
+- Face: EXACT same
+- Hair: EXACT same
+- Arms: EXACT same
+- Hands: EXACT same
+- Upper body clothing: EXACT same (color, pattern, wrinkles)
+- Torso: EXACT same shape
+- Objects: EXACT same positions
 
-STEP 3 - REPLACE PANTS ONLY (FROM WAIST DOWN):
-- Use the garment image's EXACT fit/style (loose, slim, wide-leg, baggy)
-- DO NOT change the fit - if garment is loose, make it loose; if slim, make it slim
-- Match garment's fabric texture and color exactly
-- Pants should follow person's leg shape (not change it)
+STEP 2 - REPLACE PANTS ONLY:
+- Copy garment image's EXACT fit/style (loose, slim, wide-leg, baggy)
+- DO NOT alter fit - apply exactly as shown in garment
+- Match fabric texture and color
+- Pants should wrap around person's EXISTING leg shape (not reshape legs)
 
-STEP 4 - NATURAL INTEGRATION:
-- Match original photo's lighting and shadows
-- Ensure pants drape naturally based on pose (sitting/standing)
-- Keep exact leg position and posture
+STEP 3 - NATURAL INTEGRATION:
+- Match lighting and shadows
+- Natural draping for pose
+- Keep exact leg position
 
-OUTPUT: Same person photo with ONLY pants replaced - everything else untouched."""
+OUTPUT: SAME person (identical body) with ONLY pants changed - ZERO body modification."""
 
             elif category == 'shoes':
                 prompt = """Generate a photorealistic image showing this person wearing these shoes.
@@ -135,19 +137,35 @@ CRITICAL REQUIREMENTS:
 OUTPUT: Same photo with ONLY the full outfit changed to the dress."""
 
             else:  # upper_body or default
-                prompt = """Generate a photorealistic image showing this person wearing this clothing item.
+                prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
 
-CRITICAL REQUIREMENTS:
-1. PRESERVE EXACT POSE: Keep person's exact body position, leg position, posture UNCHANGED
-2. PRESERVE ANATOMY: Person must have exactly TWO legs and TWO arms - no duplicates
-3. PRESERVE FACE & HANDS: Keep face, hands, fingers, skin tone EXACTLY as in original
-4. PRESERVE OBJECTS: Keep all objects (books, coffee cups, blankets) in exact positions
-5. REPLACE UPPER CLOTHING ONLY: Change ONLY the upper body clothing item
-6. PRESERVE LOWER BODY: Keep pants/skirt exactly as in original
-7. PRESERVE BACKGROUND: Keep background, furniture, environment identical
-8. NATURAL FIT: New clothing should fit naturally with realistic shadows
+CRITICAL BODY SHAPE PRESERVATION (MANDATORY):
+- Shoulder width: IDENTICAL to original (DO NOT broaden, DO NOT narrow)
+- Torso shape: IDENTICAL to original (DO NOT slim waist, DO NOT enlarge)
+- Arm thickness: IDENTICAL to original (DO NOT thin, DO NOT bulk)
+- Chest/bust: IDENTICAL to original (DO NOT modify size or shape)
+- Body proportions: IDENTICAL (DO NOT stretch, DO NOT compress)
+- Overall physique: ZERO body reshaping - must look EXACTLY same person
 
-OUTPUT: Same photo with ONLY the upper body clothing changed."""
+STEP 1 - PRESERVE EVERYTHING:
+- Face: EXACT same
+- Hands: EXACT same
+- Lower body: EXACT same (pants/skirt unchanged)
+- Legs: EXACT same
+- Pose: EXACT same
+- Objects: EXACT same positions
+- Background: EXACT same
+
+STEP 2 - REPLACE UPPER CLOTHING ONLY:
+- Copy garment image's EXACT fit/style
+- Clothing should wrap around person's EXISTING body shape (not reshape body)
+- Match fabric texture and color
+
+STEP 3 - NATURAL INTEGRATION:
+- Match lighting and shadows
+- Natural fabric draping
+
+OUTPUT: SAME person (identical body) with ONLY upper clothing changed - ZERO body modification."""
 
             print("Calling Gemini 2.5 Flash Image API...")
             
