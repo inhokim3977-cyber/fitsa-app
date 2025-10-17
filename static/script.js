@@ -69,10 +69,18 @@ function switchClothingMode(mode) {
 }
 
 // Setup all drop zones
+console.log('Setting up drop zones...');
+console.log('personDropZone:', personDropZone);
+console.log('topClothDropZone:', topClothDropZone);
+console.log('bottomClothDropZone:', bottomClothDropZone);
+console.log('dressDropZone:', dressDropZone);
+
 setupDropZone(personDropZone, personFileInput, 'person');
 setupDropZone(topClothDropZone, topClothFileInput, 'topCloth');
 setupDropZone(bottomClothDropZone, bottomClothFileInput, 'bottomCloth');
 setupDropZone(dressDropZone, dressFileInput, 'dress');
+
+console.log('Drop zones setup complete!');
 
 // Setup file inputs
 personFileInput.addEventListener('change', (e) => handleFileSelect(e, 'person'));
@@ -95,7 +103,11 @@ downloadBtn.addEventListener('click', () => downloadResult());
 resetAllBtn.addEventListener('click', () => resetAll());
 
 function setupDropZone(dropZone, fileInput, type) {
-    dropZone.addEventListener('click', () => fileInput.click());
+    console.log(`Setting up dropZone for ${type}:`, dropZone, fileInput);
+    dropZone.addEventListener('click', () => {
+        console.log(`Drop zone clicked for ${type}`);
+        fileInput.click();
+    });
     
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
