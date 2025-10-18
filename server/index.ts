@@ -21,8 +21,37 @@ flask.on("error", (err) => {
   console.error("Failed to start Flask:", err);
 });
 
-// Wait for Flask to start, then start Node.js proxy
-setTimeout(() => {
+// Wait for Flask to be ready
+async function waitForFlask(maxRetries = 30, delay = 500): Promise<boolean> {
+  const fetch = (await import('node-fetch')).default;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${FLASK_PORT}/`, { 
+        method: 'GET'
+      });
+      if (response.status === 200 || response.status === 404) {
+        console.log(`Flask is ready after ${i + 1} attempts`);
+        return true;
+      }
+    } catch (error) {
+      // Flask not ready yet, wait and retry
+    }
+    await new Promise(resolve => setTimeout(resolve, delay));
+  }
+  console.error("Flask failed to start after maximum retries");
+  return false;
+}
+
+// Start Node.js proxy after Flask is ready
+(async () => {
+  const flaskReady = await waitForFlask();
+  
+  if (!flaskReady) {
+    console.error("Cannot start proxy - Flask is not responding");
+    process.exit(1);
+  }
+
   // Proxy ALL requests to Flask
   app.use(async (req, res) => {
     const flaskUrl = `http://127.0.0.1:${FLASK_PORT}${req.url}`;
@@ -73,7 +102,7 @@ setTimeout(() => {
   httpServer.listen(NODE_PORT, "0.0.0.0", () => {
     console.log(`Node.js proxy server running on port ${NODE_PORT}, forwarding to Flask on ${FLASK_PORT}`);
   });
-}, 2000); // Give Flask 2 seconds to start
+})();
 
 process.on('SIGINT', () => {
   flask.kill();
