@@ -43,8 +43,8 @@ class SelfTester:
 
         # [2] 업로드 라우트 존재 여부
         try:
-            rule_exists = any(str(r.rule) == "/tryon" for r in self.app.url_map.iter_rules())
-            self.add("[테스트 2] 이미지 업로드 라우트", rule_exists, "/tryon 라우트 확인")
+            rule_exists = any(str(r.rule) in ("/tryon", "/api/virtual-fitting") for r in self.app.url_map.iter_rules())
+            self.add("[테스트 2] 이미지 업로드 라우트", rule_exists, "/tryon 또는 /api/virtual-fitting 라우트 확인")
         except Exception as e:
             self.add("[테스트 2] 이미지 업로드 라우트", False, f"라우트 탐색 오류: {e}")
 
@@ -74,8 +74,8 @@ class SelfTester:
 
         # [7] 업로드 없이 호출 시 예외 경로 존재(내부 규칙 점검)
         try:
-            tryon_exists = any(str(r.rule)=="/tryon" and "POST" in r.methods for r in self.app.url_map.iter_rules())
-            self.add("[테스트 7] 업로드 예외 처리 경로", tryon_exists, "POST /tryon 라우트 존재")
+            tryon_exists = any((str(r.rule) in ("/tryon", "/api/virtual-fitting")) and ("POST" in r.methods) for r in self.app.url_map.iter_rules())
+            self.add("[테스트 7] 업로드 예외 처리 경로", tryon_exists, "POST /tryon 또는 /api/virtual-fitting 라우트 존재")
         except Exception as e:
             self.add("[테스트 7] 업로드 예외 처리 경로", False, f"오류: {e}")
 
