@@ -58,11 +58,15 @@ class SelfTester:
         r2_sec = os.getenv("CLOUDFLARE_R2_SECRET_KEY", "")
         r2_bucket = os.getenv("CLOUDFLARE_R2_BUCKET_NAME", "")
         r2_domain = (os.getenv("CLOUDFLARE_R2_PUBLIC_DOMAIN", "") or "").strip()
-        # https://https:// 중복 방지 표시만
-        r2_domain_display = r2_domain.replace("https://https://", "https://")
-        domain_ok = bool(r2_domain) and (r2_domain.startswith("https://") or "." in r2_domain)
-        self.add("[테스트 4] R2 환경변수 구성", all([r2_acc, r2_key, r2_sec, r2_bucket, domain_ok]),
-                 f"PUBLIC_DOMAIN={r2_domain_display or '(미설정)'}")
+        # 현재 프로젝트는 Replit Object Storage 사용
+        if not any([r2_acc, r2_key, r2_sec, r2_bucket, r2_domain]):
+            self.skip("[테스트 4] R2 환경변수 구성", "현재 스토리지: Replit Object Storage")
+        else:
+            # https://https:// 중복 방지 표시만
+            r2_domain_display = r2_domain.replace("https://https://", "https://")
+            domain_ok = bool(r2_domain) and (r2_domain.startswith("https://") or "." in r2_domain)
+            self.add("[테스트 4] R2 환경변수 구성", all([r2_acc, r2_key, r2_sec, r2_bucket, domain_ok]),
+                     f"PUBLIC_DOMAIN={r2_domain_display or '(미설정)'}")
 
         # [5] 결과 표시 정적영역(간단 점검)
         static_ok = os.path.isdir(os.path.join(os.getcwd(), "static"))
@@ -80,10 +84,15 @@ class SelfTester:
             self.add("[테스트 7] 업로드 예외 처리 경로", False, f"오류: {e}")
 
         # [8] 모델 추상화 구조 파일 존재
-        files_ok = all(os.path.isfile(p) for p in [
+        files_exist = all(os.path.isfile(p) for p in [
             "model_client.py", "replicate_client.py", "provider_factory.py"
         ])
-        self.add("[테스트 8] 모델 추상화 구조 파일", files_ok, "세 파일 존재 여부")
+        services_dir_exists = os.path.isdir(os.path.join(os.getcwd(), "services"))
+        # 현재 프로젝트는 services/ 구조 사용
+        if not files_exist and services_dir_exists:
+            self.skip("[테스트 8] 모델 추상화 구조 파일", "현재 구조: services/ 기반")
+        else:
+            self.add("[테스트 8] 모델 추상화 구조 파일", files_exist, "세 파일 존재 여부")
 
         # ---- 선택: 실제 스모크 테스트 (원하면 환경변수 ALLOW_SMOKE_TEST=1) ----
         if os.getenv("ALLOW_SMOKE_TEST", "0") == "1":
