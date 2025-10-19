@@ -128,26 +128,52 @@ def virtual_fitting():
         # Support only: upper_body, lower_body, dress
         if category in ['upper_body', 'lower_body', 'dress']:
             
-            # 1st Priority: Gemini 2.5 Flash (Best quality, preserves body shape)
-            gemini_api_key = current_app.config.get('GEMINI_API_KEY')
-            if gemini_api_key:
-                print(f"\n=== {category}: Using Gemini 2.5 Flash (quality-first) ===")
+            # Special handling for DRESS category (use CatVTON-Flux first)
+            if category == 'dress':
+                print(f"\n=== {category}: Using CatVTON-Flux (2024 SOTA, dress length preservation) ===")
                 try:
-                    # Lazy import Gemini (heavy dependency)
-                    from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
-                    gemini_service = GeminiVirtualFittingService(gemini_api_key)
-                    stage1_result = gemini_service.virtual_try_on(
+                    from services.catvton_service import CatVTONService
+                    catvton_service = CatVTONService(current_app.config['REPLICATE_API_TOKEN'])
+                    catvton_category = 'overall'  # CatVTON uses "overall" for dresses
+                    stage1_result = catvton_service.virtual_try_on(
                         user_photo_bytes,
                         clothing_final_bytes,
-                        category=category
+                        category=catvton_category
                     )
                     if stage1_result:
-                        method_used = "Gemini 2.5 Flash Image"
-                        print(f"✓ Gemini succeeded for {category}")
+                        # CatVTON returns URL - download and convert to data URI
+                        import requests
+                        response = requests.get(stage1_result)
+                        result_bytes = response.content
+                        result_b64 = base64.b64encode(result_bytes).decode('utf-8')
+                        stage1_result = f"data:image/png;base64,{result_b64}"
+                        method_used = "CatVTON-Flux (2024 SOTA)"
+                        print(f"✓ CatVTON-Flux succeeded for dress")
                 except Exception as e:
-                    print(f"✗ Gemini failed: {str(e)}")
+                    print(f"✗ CatVTON-Flux failed: {str(e)}")
             
-            # 2nd Priority: IDM-VTON (Fallback)
+            # For upper_body/lower_body OR if dress/CatVTON failed:
+            # Try Gemini 2.5 Flash (Best quality, preserves body shape)
+            if not stage1_result:
+                gemini_api_key = current_app.config.get('GEMINI_API_KEY')
+                if gemini_api_key:
+                    print(f"\n=== {category}: Using Gemini 2.5 Flash (quality-first) ===")
+                    try:
+                        # Lazy import Gemini (heavy dependency)
+                        from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
+                        gemini_service = GeminiVirtualFittingService(gemini_api_key)
+                        stage1_result = gemini_service.virtual_try_on(
+                            user_photo_bytes,
+                            clothing_final_bytes,
+                            category=category
+                        )
+                        if stage1_result:
+                            method_used = "Gemini 2.5 Flash Image"
+                            print(f"✓ Gemini succeeded for {category}")
+                    except Exception as e:
+                        print(f"✗ Gemini failed: {str(e)}")
+            
+            # Last Resort: IDM-VTON (Fallback)
             if not stage1_result:
                 print(f"\n=== Fallback: IDM-VTON for {category} ===")
                 replicate_category = 'dresses' if category == 'dress' else category
