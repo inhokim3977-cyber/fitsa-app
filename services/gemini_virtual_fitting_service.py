@@ -125,39 +125,22 @@ CRITICAL REQUIREMENTS:
 OUTPUT: Same photo with ONLY the glasses added."""
 
             elif category == 'dress':
-                prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
+                prompt = """Create a virtual try-on image: Replace the person's clothing with the provided dress garment.
 
-CRITICAL BODY SHAPE PRESERVATION (MANDATORY):
-- Shoulder width: IDENTICAL to original (DO NOT broaden, DO NOT narrow)
-- Torso shape: IDENTICAL to original (DO NOT slim waist, DO NOT enlarge)
-- Leg thickness: IDENTICAL to original (DO NOT slim, DO NOT enlarge)
-- Body proportions: IDENTICAL (DO NOT stretch, DO NOT compress)
-- Overall physique: ZERO body reshaping - must look EXACTLY same person
+PRESERVE (DO NOT CHANGE):
+- Face, hands, arms (exact same)
+- Body shape and proportions (ZERO body modification)
+- Pose and position
+- Background
 
-STEP 1 - PRESERVE EVERYTHING:
-- Face: EXACT same
-- Hands: EXACT same
-- Legs: EXACT same (show bare legs or dress covers legs based on dress length)
-- Pose: EXACT same
-- Objects: EXACT same positions
-- Background: EXACT same
+REPLACE:
+- Put the dress on the person
+- Preserve dress length exactly as shown in garment image
+- If dress is short/above knee: show bare legs
+- If dress is long: dress covers legs
+- Natural draping and fabric folds
 
-STEP 2 - REPLACE WITH DRESS (REMOVE ALL OTHER CLOTHING):
-- REMOVE original top/shirt completely
-- REMOVE original pants/skirt completely (dress replaces them)
-- SHOW LEGS: If dress is above knee, show bare legs (NO pants visible)
-- Copy dress's EXACT style, length, sleeves, pattern, color
-- IF DRESS IS SHORT: Show bare legs from hem to feet
-- IF DRESS IS LONG: Dress covers legs completely
-- Dress wraps around person's EXISTING body shape (not reshape body)
-
-STEP 3 - NATURAL INTEGRATION:
-- Dress should drape naturally following body curves
-- Match lighting and shadows
-- Natural fabric wrinkles and folds
-- NO clothing visible under dress
-
-OUTPUT: SAME person (identical body) wearing ONLY the dress with bare legs visible if dress is short - ZERO body modification."""
+OUTPUT: Same person wearing the dress with preserved body proportions."""
 
             else:  # upper_body or default
                 prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
