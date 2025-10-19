@@ -1,8 +1,12 @@
 import express from "express";
 import { spawn } from "child_process";
 import { createServer } from "http";
+import compression from "compression";
 
 const app = express();
+
+// Enable compression for responses >= 1KB
+app.use(compression({ threshold: 1024 }));
 
 // Start Flask on port 5001
 const FLASK_PORT = 5001;
@@ -92,11 +96,16 @@ async function waitForFlask(maxRetries = 60, delay = 1000): Promise<boolean> {
 
       const response = await fetch(flaskUrl, options);
 
+      // Set status
       res.status(response.status);
-      Object.entries(response.headers.raw()).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
+      
+      // Set content type (let compression handle the rest)
+      const contentType = response.headers.get('content-type');
+      if (contentType) {
+        res.type(contentType);
+      }
 
+      // Get response as text/buffer and send (compression will intercept)
       const buffer = await response.buffer();
       res.send(buffer);
     } catch (error) {
