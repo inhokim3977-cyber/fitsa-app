@@ -408,13 +408,22 @@ async function generateFitting() {
             }
             
             // Update credits display after successful generation
+            console.log('📊 Dress response received:', dressData);
             if (dressData.credits_info) {
                 console.log('📊 Credits info:', dressData.credits_info);
+                console.log('📊 Refit count value:', dressData.credits_info.refit_count);
+                console.log('📊 Is refitting:', dressData.credits_info.is_refitting);
+                
                 updateCreditsDisplay(dressData.credits_info.remaining_free, dressData.credits_info.credits);
                 
-                // Update refit counter
-                console.log('🔢 Updating refit counter - is_refitting:', dressData.credits_info.is_refitting, 'count:', dressData.credits_info.refit_count);
-                updateRefitCounter(dressData.credits_info.is_refitting, dressData.credits_info.refit_count || 0);
+                // Update refit counter with explicit values
+                const refitCount = dressData.credits_info.refit_count || 0;
+                const isRefitting = dressData.credits_info.is_refitting || false;
+                console.log('🔢 Calling updateRefitCounter with:', isRefitting, refitCount);
+                updateRefitCounter(isRefitting, refitCount);
+                console.log('✅ updateRefitCounter called successfully');
+            } else {
+                console.warn('⚠️ No credits_info in response!');
             }
             
             const resultImage = document.getElementById('resultImage');
@@ -509,23 +518,32 @@ function updateCreditsDisplay(remainingFree, credits) {
 }
 
 function updateRefitCounter(isRefitting, refitCount) {
-    console.log('🔄 updateRefitCounter called - isRefitting:', isRefitting, 'refitCount:', refitCount);
+    console.log('🔄 updateRefitCounter STARTED - isRefitting:', isRefitting, 'refitCount:', refitCount);
     
     const refitCountSpan = document.getElementById('refitCount');
     const refitBtn = document.getElementById('refitBtn');
     
+    console.log('🔍 DOM elements found:', {
+        refitCountSpan: refitCountSpan ? 'YES' : 'NO',
+        refitBtn: refitBtn ? 'YES' : 'NO'
+    });
+    
     if (!refitCountSpan) {
         console.error('❌ refitCount span not found!');
+        alert('ERROR: refitCount 요소를 찾을 수 없습니다!');
         return;
     }
     if (!refitBtn) {
         console.error('❌ refitBtn button not found!');
+        alert('ERROR: refitBtn 버튼을 찾을 수 없습니다!');
         return;
     }
     
     // Always update the counter with the actual count from the backend
+    const oldValue = refitCountSpan.textContent;
     refitCountSpan.textContent = refitCount.toString();
-    console.log('✅ Counter updated to:', refitCount);
+    console.log('✅ Counter updated from', oldValue, 'to:', refitCount);
+    console.log('✅ New textContent:', refitCountSpan.textContent);
     
     // Disable button if limit reached (5 refits)
     if (refitCount >= 5) {
@@ -535,8 +553,10 @@ function updateRefitCounter(isRefitting, refitCount) {
     } else {
         refitBtn.disabled = false;
         refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        console.log('✅ Refit button ENABLED');
+        console.log('✅ Refit button ENABLED (count:', refitCount, ')');
     }
+    
+    console.log('🔄 updateRefitCounter COMPLETED');
 }
 
 async function purchaseCredits() {
