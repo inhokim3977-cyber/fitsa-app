@@ -17,29 +17,7 @@ def virtual_fitting():
     With monetization: 3 free tries/day, then paid credits
     """
     try:
-        # Import credits service
-        from services.credits_service import CreditsService
-        credits_service = CreditsService()
-        
-        # Check user's credit status
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = request.headers.get('User-Agent', '')
-        
-        allowed, info = credits_service.check_and_consume(ip, user_agent)
-        
-        if not allowed:
-            # User needs to purchase credits
-            return jsonify({
-                'error': 'No credits remaining',
-                'needs_payment': True,
-                'message': '무료 체험 3회를 모두 사용하셨습니다. 크레딧을 구매해주세요.',
-                'remaining_free': info['remaining_free'],
-                'credits': info['credits']
-            }), 402  # Payment Required
-        
-        print(f"✓ Credit consumed ({info['used_type']}): remaining_free={info['remaining_free']}, credits={info['credits']}")
-        
-        # Check if files are present
+        # Check if files are present (validate first before credit check)
         if 'userPhoto' not in request.files or 'clothingPhoto' not in request.files:
             return jsonify({'error': 'Both userPhoto and clothingPhoto are required'}), 400
         
@@ -55,6 +33,35 @@ def virtual_fitting():
         # Read image bytes
         user_photo_bytes = user_photo.read()
         clothing_photo_bytes = clothing_photo.read()
+        
+        # Import credits service
+        from services.credits_service import CreditsService
+        credits_service = CreditsService()
+        
+        # Calculate request hash for refitting detection
+        request_hash = credits_service.calculate_request_hash(user_photo_bytes, clothing_photo_bytes)
+        
+        # Check user's credit status with refitting detection
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        user_agent = request.headers.get('User-Agent', '')
+        
+        allowed, info = credits_service.check_and_consume(ip, user_agent, request_hash)
+        
+        if not allowed:
+            # User needs to purchase credits
+            return jsonify({
+                'error': 'No credits remaining',
+                'needs_payment': True,
+                'message': '무료 체험 3회를 모두 사용하셨습니다. 크레딧을 구매해주세요.',
+                'remaining_free': info['remaining_free'],
+                'credits': info['credits']
+            }), 402  # Payment Required
+        
+        # Log credit usage
+        if info.get('is_refitting'):
+            print(f"✓ REFITTING (no charge): remaining_free={info['remaining_free']}, credits={info['credits']}")
+        else:
+            print(f"✓ Credit consumed ({info['used_type']}): remaining_free={info['remaining_free']}, credits={info['credits']}")
         
         print(f"User photo size: {len(user_photo_bytes)} bytes")
         print(f"Clothing photo size: {len(clothing_photo_bytes)} bytes")
