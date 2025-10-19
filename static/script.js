@@ -114,7 +114,10 @@ function switchClothingMode(mode) {
     // Download, refit, and reset
     downloadBtn.addEventListener('click', () => downloadResult());
     const refitBtn = document.getElementById('refitBtn');
-    refitBtn.addEventListener('click', () => refitCurrentPhotos());
+    refitBtn.addEventListener('click', () => {
+        console.log('Refit button clicked!');
+        refitCurrentPhotos();
+    });
     resetAllBtn.addEventListener('click', () => resetAll());
 }
 
