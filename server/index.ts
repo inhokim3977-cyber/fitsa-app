@@ -5,15 +5,57 @@ import compression from "compression";
 
 const app = express();
 
-// Enable compression for responses >= 1KB
-app.use(compression({ threshold: 1024 }));
-
 // Start Flask on port 5001
 const FLASK_PORT = 5001;
 const NODE_PORT = 5000;
 
 // Flask readiness flag
 let flaskReady = false;
+
+// ========================================
+// STARTUP MIDDLEWARE (MUST BE FIRST!)
+// ========================================
+// Handles all requests while Flask is initializing
+app.use((req, res, next) => {
+  if (flaskReady) {
+    return next(); // Flask ready, continue to proxy
+  }
+
+  // Log warmup requests
+  console.log(`[warmup] ${req.method} ${req.path}`);
+
+  // 1) ALL HEAD requests → 200 immediate
+  if (req.method === 'HEAD') {
+    return res.status(200).set('Content-Type', 'text/plain').end();
+  }
+
+  // 2) GET "/" → 200 text/html
+  if (req.path === '/') {
+    return res.status(200).type('text/html').send('OK — starting');
+  }
+
+  // 3) GET "/health" → 200 application/json
+  if (req.path === '/health') {
+    return res.status(200).type('application/json').json({ status: 'ok' });
+  }
+
+  // 4) ALL .js files (with or without query strings) → 200 application/javascript
+  if (req.path.endsWith('.js')) {
+    return res.status(200)
+      .type('application/javascript')
+      .setHeader('Cache-Control', 'public, max-age=60')
+      .send('// warming up');
+  }
+
+  // 5) All other paths → 503
+  return res.status(503).json({
+    error: 'Service is starting, please wait...',
+    status: 'initializing'
+  });
+});
+
+// Enable compression for responses >= 1KB
+app.use(compression({ threshold: 1024 }));
 
 console.log(`Starting Flask application on port ${FLASK_PORT}...`);
 const flask = spawn("python", ["app.py"], {
@@ -60,46 +102,8 @@ async function checkFlaskReadiness() {
   console.error(`❌ Flask failed to start after ${maxRetries} attempts (${maxRetries * delay / 1000}s total)`);
 }
 
-// Proxy middleware - only proxy when Flask is ready
+// Proxy middleware - forwards all requests to Flask (only reached when Flask is ready)
 app.use(async (req, res) => {
-  // If Flask not ready yet, provide startup health responses
-  if (!flaskReady) {
-    // HEAD/GET "/" → 200 text/html (for deployment health check)
-    if (req.url === '/') {
-      res.status(200).type('text/html');
-      if (req.method === 'HEAD') {
-        return res.end();
-      }
-      return res.send('OK — starting');
-    }
-    
-    // HEAD/GET "/health" → 200 application/json (for health check)
-    if (req.url === '/health') {
-      res.status(200).type('application/json');
-      if (req.method === 'HEAD') {
-        return res.end();
-      }
-      return res.json({ status: 'ok' });
-    }
-    
-    // HEAD/GET "/script.js" → 200 application/javascript (temporary warming response)
-    if (req.url === '/script.js') {
-      res.status(200)
-         .type('application/javascript')
-         .setHeader('Cache-Control', 'public, max-age=60');
-      if (req.method === 'HEAD') {
-        return res.end();
-      }
-      return res.send('// warming up');
-    }
-    
-    // Other paths → 503 Service Unavailable
-    return res.status(503).json({ 
-      error: 'Service is starting, please wait...',
-      status: 'initializing'
-    });
-  }
-
   const flaskUrl = `http://127.0.0.1:${FLASK_PORT}${req.url}`;
   
   try {
