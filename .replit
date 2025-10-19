@@ -8,16 +8,12 @@ packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp
 
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["npm", "run", "build"]
+build = ["sh", "-c", "bash install_deps.sh && npm run build"]
 run = ["npm", "run", "start"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 34359
-externalPort = 3000
 
 [env]
 PORT = "5000"
