@@ -102,5 +102,6 @@ def selftest_run():
     return html
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False, threaded=True)
+    PORT = int(os.getenv('PORT', '5000'))
+    print(f"🚀 Starting Flask on 0.0.0.0:{PORT}")
+    app.run(host='0.0.0.0', port=PORT, debug=False, use_reloader=False, threaded=True)
