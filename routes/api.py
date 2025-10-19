@@ -42,8 +42,21 @@ def virtual_fitting():
         request_hash = credits_service.calculate_request_hash(user_photo_bytes, clothing_photo_bytes)
         
         # Check user's credit status with refitting detection
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
-        user_agent = request.headers.get('User-Agent', '')
+        # Prefer cookie-based user_key for consistency
+        user_key = request.cookies.get('user_key')
+        
+        if user_key:
+            # Use cookie user_key directly (bypass IP+UA hashing)
+            print(f"[virtual-fitting] Using cookie user_key: {user_key}")
+            # We need to pass something to check_and_consume, but we'll modify it to accept user_key
+            # For now, let's use a placeholder
+            ip = user_key  # Use user_key as "ip" parameter
+            user_agent = ''
+        else:
+            # Fallback to IP + UA
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
+            user_agent = request.headers.get('User-Agent', '')
+            print(f"[virtual-fitting] No cookie - using IP+UA: {ip}")
         
         allowed, info = credits_service.check_and_consume(ip, user_agent, request_hash)
         

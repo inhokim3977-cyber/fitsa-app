@@ -20,10 +20,14 @@ PRODUCT_NAME = "Virtual Try-On Credits"
 def create_checkout_session():
     """Create Stripe Checkout session for credit purchase"""
     try:
-        # Get user identification
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = request.headers.get('User-Agent', '')
-        user_key = credits_service.get_user_key(ip, user_agent)
+        # Get user identification (prefer cookie)
+        user_key = request.cookies.get('user_key')
+        
+        if not user_key:
+            # Fallback to IP + UA
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+            user_agent = request.headers.get('User-Agent', '')
+            user_key = credits_service.get_user_key(ip, user_agent)
         
         # Get current URL dynamically (works with Replit webview)
         # Use request.url_root which includes the protocol and host
@@ -104,17 +108,46 @@ def stripe_webhook():
 def get_user_status():
     """Get current user's credit status"""
     try:
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = request.headers.get('User-Agent', '')
-        user_key = credits_service.get_user_key(ip, user_agent)
+        # Check if user_key cookie exists
+        user_key_cookie = request.cookies.get('user_key')
         
-        print(f"[/stripe/user-status] IP: {ip}, UA: {user_agent[:50]}..., user_key: {user_key}")
+        if user_key_cookie:
+            # Use cookie-based user_key
+            user_key = user_key_cookie
+            print(f"[/stripe/user-status] Using cookie user_key: {user_key}")
+        else:
+            # Generate new user_key from IP + UA
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+            user_agent = request.headers.get('User-Agent', '')
+            user_key = credits_service.get_user_key(ip, user_agent)
+            print(f"[/stripe/user-status] New user - IP: {ip}, UA: {user_agent[:50]}..., user_key: {user_key}")
         
-        status = credits_service.get_user_status(ip, user_agent)
+        # Get status directly from DB using user_key
+        import sqlite3
+        conn = sqlite3.connect(credits_service.db_path)
+        c = conn.cursor()
+        c.execute('SELECT free_used_today, credits FROM users WHERE user_key = ?', (user_key,))
+        result = c.fetchone()
         
-        print(f"[/stripe/user-status] Returning status: {status}")
+        if result:
+            free_used, credits = result
+            remaining_free = max(0, 3 - free_used)
+            status = {'remaining_free': remaining_free, 'credits': credits}
+        else:
+            status = {'remaining_free': 3, 'credits': 0}
         
-        return jsonify(status)
+        conn.close()
+        
+        print(f"[/stripe/user-status] user_key={user_key}, status: {status}")
+        
+        # Create response with cookie
+        response = jsonify(status)
+        
+        # Set user_key cookie (30 days expiration)
+        if not user_key_cookie:
+            response.set_cookie('user_key', user_key, max_age=30*24*60*60, httponly=True, samesite='Lax')
+        
+        return response
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
