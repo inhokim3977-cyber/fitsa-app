@@ -61,7 +61,9 @@ Priority 2: IDM-VTON (fallback)
   - "CRITICAL: If person wears jeans/pants → COMPLETELY REMOVE THEM"
   - "ABSOLUTELY NO jeans/pants/leggings visible under dress"
   - "FINAL CHECK" 섹션으로 자가 검증
-- **테스트 결과:** ✅ 청바지 완전 제거 성공! 골드 패턴 드레스 자연스럽게 피팅됨
+- **테스트 결과:** 
+  - ✅ 청바지 완전 제거 성공! 골드 패턴 드레스 자연스럽게 피팅됨
+  - ✅ 복잡한 배경(카페) + 책 들고 있는 상의 피팅: 손/책/배경 완벽 보존
 - **결론:** 극강 프롬프트 효과 입증! 현재 버전 계속 사용
 
 **효과적인 프롬프트 패턴 (검증됨):**
