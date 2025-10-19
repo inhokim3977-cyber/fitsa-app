@@ -2,12 +2,6 @@ import os
 import base64
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
-from services.replicate_service import ReplicateService
-from services.nano_service import NanoService
-from services.background_removal_service import BackgroundRemovalService
-from services.object_storage_service import ObjectStorageService
-from services.openai_virtual_fitting_service import OpenAIVirtualFittingService
-from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
 
 api_bp = Blueprint('api', __name__)
 
@@ -43,13 +37,13 @@ def virtual_fitting():
         print(f"User photo size: {len(user_photo_bytes)} bytes")
         print(f"Clothing photo size: {len(clothing_photo_bytes)} bytes")
         
+        # Lazy import heavy AI packages (only when endpoint is called)
+        from services.replicate_service import ReplicateService
+        from services.background_removal_service import BackgroundRemovalService
+        
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
         background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
-        openai_fitting_service = OpenAIVirtualFittingService(
-            current_app.config['AI_INTEGRATIONS_OPENAI_API_KEY'],
-            current_app.config['AI_INTEGRATIONS_OPENAI_BASE_URL']
-        )
         
         # Check if background removal is requested
         remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
@@ -87,6 +81,8 @@ def virtual_fitting():
             if gemini_api_key:
                 print(f"\n=== {category}: Using Gemini 2.5 Flash (quality-first) ===")
                 try:
+                    # Lazy import Gemini (heavy dependency)
+                    from services.gemini_virtual_fitting_service import GeminiVirtualFittingService
                     gemini_service = GeminiVirtualFittingService(gemini_api_key)
                     stage1_result = gemini_service.virtual_try_on(
                         user_photo_bytes,
