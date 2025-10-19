@@ -114,6 +114,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ Mobile responsive layout - vertical stacking on portrait mode
 - ✅ Node.js proxy (5000) → Flask (5001) for Replit deployment
 - ✅ **Monetization MVP**: Free-to-paid conversion with Stripe integration
+- ✅ **Refitting Feature**: Unlimited free retries with same photos (no credit consumption)
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
@@ -150,10 +151,23 @@ Preferred communication style: Simple, everyday language.
   - Real-time credit updates after generation
   - Success page after payment completion
 
+**Refitting Feature** (October 2025)
+- **Smart Error Recovery**: Refit button allows unlimited retries with same photos
+- **Zero Cost**: Refitting does NOT consume free tries or paid credits
+- **How it works**: 
+  - Backend calculates SHA256 hash of uploaded photos
+  - Stores hash in DB `last_request_hash` column
+  - If new request has same hash → detected as refitting → no charge
+- **Use Cases**: 
+  - AI generation errors (wrong colors, artifacts, distortions)
+  - User wants different AI output with same inputs
+  - Improves customer satisfaction by allowing free retries
+- **Button**: "🔄 같은 사진으로 다시 피팅 (무료)" appears after generation
+
 **Testing**
 - Stripe test card: 4242 4242 4242 4242
 - Test endpoint: `/stripe/simulate-purchase` (adds 10 credits without payment)
-- E2E test verified: Free tries → 402 → Purchase → Credit consumption
+- E2E test verified: Free tries → 402 → Purchase → Credit consumption → Refitting (no consumption)
 
 ### Data Storage Solutions
 
