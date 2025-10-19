@@ -128,31 +128,6 @@ def virtual_fitting():
         # Support only: upper_body, lower_body, dress
         if category in ['upper_body', 'lower_body', 'dress']:
             
-            # Special handling for DRESS category (use CatVTON-Flux first)
-            if category == 'dress':
-                print(f"\n=== {category}: Using CatVTON-Flux (2024 SOTA, dress length preservation) ===")
-                try:
-                    from services.catvton_service import CatVTONService
-                    catvton_service = CatVTONService(current_app.config['REPLICATE_API_TOKEN'])
-                    catvton_category = 'overall'  # CatVTON uses "overall" for dresses
-                    stage1_result = catvton_service.virtual_try_on(
-                        user_photo_bytes,
-                        clothing_final_bytes,
-                        category=catvton_category
-                    )
-                    if stage1_result:
-                        # CatVTON returns URL - download and convert to data URI
-                        import requests
-                        response = requests.get(stage1_result)
-                        result_bytes = response.content
-                        result_b64 = base64.b64encode(result_bytes).decode('utf-8')
-                        stage1_result = f"data:image/png;base64,{result_b64}"
-                        method_used = "CatVTON-Flux (2024 SOTA)"
-                        print(f"✓ CatVTON-Flux succeeded for dress")
-                except Exception as e:
-                    print(f"✗ CatVTON-Flux failed: {str(e)}")
-            
-            # For upper_body/lower_body OR if dress/CatVTON failed:
             # Try Gemini 2.5 Flash (Best quality, preserves body shape)
             if not stage1_result:
                 gemini_api_key = current_app.config.get('GEMINI_API_KEY')

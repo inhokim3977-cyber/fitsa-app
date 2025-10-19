@@ -125,22 +125,25 @@ CRITICAL REQUIREMENTS:
 OUTPUT: Same photo with ONLY the glasses added."""
 
             elif category == 'dress':
-                prompt = """Create a virtual try-on image: Replace the person's clothing with the provided dress garment.
+                prompt = """Virtual try-on task: Replace ALL clothing (top AND bottom) with the provided dress.
 
-PRESERVE (DO NOT CHANGE):
-- Face, hands, arms (exact same)
-- Body shape and proportions (ZERO body modification)
-- Pose and position
-- Background
+MANDATORY STEPS:
+1. REMOVE: All original clothing (shirt, pants, skirt - everything)
+2. ADD: The dress garment only
+3. PRESERVE:
+   - Face (exact same)
+   - Hands and arms (exact same)
+   - Body shape (ZERO modification)
+   - Pose and position
+   - Background and objects
 
-REPLACE:
-- Put the dress on the person
-- Preserve dress length exactly as shown in garment image
-- If dress is short/above knee: show bare legs
-- If dress is long: dress covers legs
-- Natural draping and fabric folds
+DRESS REQUIREMENTS:
+- Match dress length from garment image (if knee-length → show bare legs below knee)
+- Match dress style, color, pattern exactly
+- Natural fabric draping
+- NO pants/skirt visible under dress
 
-OUTPUT: Same person wearing the dress with preserved body proportions."""
+OUTPUT: Same person wearing ONLY the dress (no other clothing visible) with bare legs if dress is short."""
 
             else:  # upper_body or default
                 prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
