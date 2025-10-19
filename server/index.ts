@@ -83,8 +83,69 @@ app.use((req, res, next) => {
 // Enable compression for responses >= 1KB
 app.use(compression({ threshold: 1024 }));
 
+// Ensure Python dependencies are installed
+async function ensurePythonDeps(): Promise<void> {
+  const projectRoot = join(__dirname, '..');
+  const requirementsPath = join(projectRoot, 'requirements.txt');
+  
+  console.log("🔍 Checking Python dependencies...");
+  
+  return new Promise((resolve, reject) => {
+    // Check if flask is installed
+    const checkFlask = spawn("python", ["-c", "import flask"], { cwd: projectRoot });
+    
+    checkFlask.on("close", (code) => {
+      if (code === 0) {
+        console.log("✅ Python dependencies already installed");
+        resolve();
+      } else {
+        console.log("📦 Installing Python dependencies from requirements.txt...");
+        
+        // Upgrade pip first
+        const upgradePip = spawn("python", ["-m", "pip", "install", "--upgrade", "pip"], {
+          cwd: projectRoot,
+          stdio: "inherit"
+        });
+        
+        upgradePip.on("close", () => {
+          // Install from requirements.txt
+          const installDeps = spawn("python", ["-m", "pip", "install", "-r", requirementsPath, "--no-cache-dir"], {
+            cwd: projectRoot,
+            stdio: "inherit"
+          });
+          
+          installDeps.on("close", (installCode) => {
+            if (installCode === 0) {
+              console.log("✅ Python dependencies installed successfully");
+              resolve();
+            } else {
+              console.error("❌ Failed to install Python dependencies");
+              reject(new Error("Failed to install Python dependencies"));
+            }
+          });
+          
+          installDeps.on("error", (err) => {
+            console.error("❌ Error installing dependencies:", err);
+            reject(err);
+          });
+        });
+        
+        upgradePip.on("error", (err) => {
+          console.error("❌ Error upgrading pip:", err);
+          reject(err);
+        });
+      }
+    });
+    
+    checkFlask.on("error", (err) => {
+      console.error("❌ Error checking Flask:", err);
+      reject(err);
+    });
+  });
+}
+
 // Flask process management with exponential backoff retry
-function startFlaskProcess() {
+async function startFlaskProcess() {
   // Prevent duplicate processes
   if (flaskProcess && !flaskProcess.killed) {
     console.log("⚠️ Flask process already running, skipping duplicate start");
@@ -135,13 +196,24 @@ function scheduleFlaskRestart() {
   flaskRestartAttempt++;
   
   console.log(`⏱️ Scheduling Flask restart in ${delay}ms...`);
-  setTimeout(() => {
-    startFlaskProcess();
+  setTimeout(async () => {
+    await startFlaskProcess();
   }, delay);
 }
 
-// Start Flask process
-startFlaskProcess();
+// Initialize Flask with dependencies
+async function initializeFlask() {
+  try {
+    await ensurePythonDeps();
+    await startFlaskProcess();
+  } catch (error) {
+    console.error("❌ Failed to initialize Flask:", error);
+    scheduleFlaskRestart();
+  }
+}
+
+// Start initialization
+initializeFlask();
 
 // Background task: continuously check Flask readiness
 async function checkFlaskReadiness() {
