@@ -271,6 +271,12 @@ async function generateFitting() {
                     return;
                 }
                 
+                if (topResponse.status === 429) {
+                    const topData = await topResponse.json();
+                    alert(topData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                    return;
+                }
+                
                 const topData = await topResponse.json();
                 if (topData.error) {
                     alert('상의 피팅 오류: ' + topData.error);
@@ -308,6 +314,12 @@ async function generateFitting() {
                     const bottomData = await bottomResponse.json();
                     alert(bottomData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
                     updateCreditsDisplay(bottomData.remaining_free, bottomData.credits);
+                    return;
+                }
+                
+                if (bottomResponse.status === 429) {
+                    const bottomData = await bottomResponse.json();
+                    alert(bottomData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
                     return;
                 }
                 
@@ -354,6 +366,12 @@ async function generateFitting() {
                 const dressData = await dressResponse.json();
                 alert(dressData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
                 updateCreditsDisplay(dressData.remaining_free, dressData.credits);
+                return;
+            }
+            
+            if (dressResponse.status === 429) {
+                const dressData = await dressResponse.json();
+                alert(dressData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
                 return;
             }
             
