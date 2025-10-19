@@ -93,16 +93,18 @@ function startFlaskProcess() {
 
   console.log(`Starting Flask application on port ${FLASK_PORT}... (attempt ${flaskRestartAttempt + 1}/${MAX_RESTART_ATTEMPTS})`);
   
-  // Determine app.py path based on environment
-  // In production (dist/index.js), go up one level to root
-  // In development (server/index.ts via tsx), also go up one level to root
-  const appPath = join(__dirname, '..', 'app.py');
+  // Determine app.py path and working directory
+  // In production (dist/index.js): __dirname = /workspace/dist, go up to /workspace
+  // In development (server/index.ts): __dirname = /workspace/server, go up to /workspace
+  const projectRoot = join(__dirname, '..');
+  const appPath = join(projectRoot, 'app.py');
   
   console.log(`Flask app path: ${appPath}`);
-  console.log(`Working directory: ${process.cwd()}`);
+  console.log(`Project root: ${projectRoot}`);
   
   flaskProcess = spawn("python", [appPath], {
     stdio: "inherit",
+    cwd: projectRoot,  // Ensure Python runs from project root to find routes/, services/
     env: { 
       ...process.env,
       PORT: FLASK_PORT.toString(),
