@@ -114,10 +114,21 @@ function switchClothingMode(mode) {
     // Download, refit, and reset
     downloadBtn.addEventListener('click', () => downloadResult());
     const refitBtn = document.getElementById('refitBtn');
-    refitBtn.addEventListener('click', () => {
-        console.log('Refit button clicked!');
-        refitCurrentPhotos();
-    });
+    if (refitBtn) {
+        console.log('✓ Refit button found and event listener attached');
+        refitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔄 Refit button clicked!');
+            refitCurrentPhotos();
+        });
+        // Test: Add visual feedback on hover
+        refitBtn.addEventListener('mouseenter', () => {
+            console.log('Mouse entered refit button');
+        });
+    } else {
+        console.error('❌ Refit button NOT found!');
+    }
     resetAllBtn.addEventListener('click', () => resetAll());
 }
 
@@ -415,9 +426,12 @@ async function generateFitting() {
 function refitCurrentPhotos() {
     // Simply call generateFitting again with the same photos
     // The backend will detect it's a refitting (same photo hash) and won't charge
-    console.log('Refitting with same photos (no charge)...');
+    console.log('🔄 Refitting with same photos (no charge)...');
     generateFitting();
 }
+
+// Expose to window for onclick fallback
+window.refitCurrentPhotos = refitCurrentPhotos;
 
 function downloadResult() {
     const resultImage = document.getElementById('resultImage');

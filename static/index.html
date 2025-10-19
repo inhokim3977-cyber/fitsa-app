@@ -325,7 +325,7 @@
                     <!-- Refit Button (Most Prominent) -->
                     <div class="text-center">
                         <div class="inline-block bg-white bg-opacity-10 backdrop-blur-md rounded-3xl p-6">
-                            <button id="refitBtn" class="px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-bold text-lg hover:from-blue-600 hover:to-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl">
+                            <button id="refitBtn" onclick="window.refitCurrentPhotos && window.refitCurrentPhotos(); console.log('Button onclick triggered');" class="px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-bold text-lg hover:from-blue-600 hover:to-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl cursor-pointer">
                                 🔄 같은 사진으로 다시 피팅 (무료)
                             </button>
                             <div id="refitCounter" class="text-white text-base mt-3 font-bold">
