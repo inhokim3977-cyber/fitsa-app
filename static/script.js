@@ -273,10 +273,15 @@ async function generateFitting() {
                 topFormData.append('category', 'upper_body');
                 topFormData.append('removeBackground', removeBg.toString());
                 
+                // Add timeout to prevent infinite loading
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds timeout
+                
                 const topResponse = await fetch('/api/virtual-fitting', {
                     method: 'POST',
-                    body: topFormData
-                });
+                    body: topFormData,
+                    signal: controller.signal
+                }).finally(() => clearTimeout(timeoutId));
                 
                 if (topResponse.status === 402) {
                     const topData = await topResponse.json();
@@ -325,10 +330,15 @@ async function generateFitting() {
                 bottomFormData.append('category', 'lower_body');
                 bottomFormData.append('removeBackground', removeBg.toString());
                 
+                // Add timeout to prevent infinite loading
+                const controller2 = new AbortController();
+                const timeoutId2 = setTimeout(() => controller2.abort(), 120000); // 120 seconds timeout
+                
                 const bottomResponse = await fetch('/api/virtual-fitting', {
                     method: 'POST',
-                    body: bottomFormData
-                });
+                    body: bottomFormData,
+                    signal: controller2.signal
+                }).finally(() => clearTimeout(timeoutId2));
                 
                 if (bottomResponse.status === 402) {
                     const bottomData = await bottomResponse.json();
@@ -383,10 +393,15 @@ async function generateFitting() {
             dressFormData.append('category', 'dress');
             dressFormData.append('removeBackground', removeBg.toString());
             
+            // Add timeout to prevent infinite loading
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds timeout
+            
             const dressResponse = await fetch('/api/virtual-fitting', {
                 method: 'POST',
-                body: dressFormData
-            });
+                body: dressFormData,
+                signal: controller.signal
+            }).finally(() => clearTimeout(timeoutId));
             
             if (dressResponse.status === 402) {
                 const dressData = await dressResponse.json();
@@ -433,7 +448,12 @@ async function generateFitting() {
         }
         
     } catch (error) {
-        alert('피팅 생성 중 오류가 발생했습니다: ' + error.message);
+        console.error('Error:', error);
+        if (error.name === 'AbortError') {
+            alert('⏱️ 요청 시간이 초과되었습니다 (120초). Gemini API가 응답하지 않습니다. 다시 시도해주세요.');
+        } else {
+            alert('피팅 생성 중 오류가 발생했습니다: ' + error.message);
+        }
     } finally {
         generateBtn.disabled = false;
         loadingIndicator.classList.add('hidden');
