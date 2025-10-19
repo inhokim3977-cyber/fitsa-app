@@ -48,6 +48,16 @@ def virtual_fitting():
         allowed, info = credits_service.check_and_consume(ip, user_agent, request_hash)
         
         if not allowed:
+            # Check if it's a refit limit error
+            if info.get('refit_limit_exceeded'):
+                return jsonify({
+                    'error': 'Refit limit exceeded',
+                    'refit_limit_exceeded': True,
+                    'message': info.get('error', '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.'),
+                    'remaining_free': info['remaining_free'],
+                    'credits': info['credits']
+                }), 429  # Too Many Requests
+            
             # User needs to purchase credits
             return jsonify({
                 'error': 'No credits remaining',
