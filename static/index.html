@@ -321,20 +321,25 @@
                         <img id="resultImage" src="" alt="Virtual Fitting Result" class="w-full h-auto max-h-[70vh] object-contain rounded-2xl">
                     </div>
                 </div>
-                <div class="text-center mt-8">
-                    <div class="flex justify-center items-start gap-4">
-                        <button id="downloadBtn" class="px-8 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition">
-                            💾 결과 다운로드
-                        </button>
-                        <div class="flex flex-col items-center">
-                            <button id="refitBtn" class="px-8 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="mt-8 space-y-6">
+                    <!-- Refit Button (Most Prominent) -->
+                    <div class="text-center">
+                        <div class="inline-block bg-white bg-opacity-10 backdrop-blur-md rounded-3xl p-6">
+                            <button id="refitBtn" class="px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-bold text-lg hover:from-blue-600 hover:to-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl">
                                 🔄 같은 사진으로 다시 피팅 (무료)
                             </button>
-                            <div id="refitCounter" class="text-white text-sm mt-2 font-medium">
-                                <span id="refitCount">0</span>/5 사용
+                            <div id="refitCounter" class="text-white text-base mt-3 font-bold">
+                                재피팅 횟수: <span id="refitCount" class="text-yellow-300 text-xl">0</span>/5
                             </div>
                         </div>
-                        <button id="resetAllBtn" class="px-8 py-3 bg-gray-600 text-white rounded-full font-semibold hover:bg-gray-700 transition">
+                    </div>
+                    
+                    <!-- Other Buttons -->
+                    <div class="flex justify-center items-center gap-4">
+                        <button id="downloadBtn" class="px-8 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition shadow-lg">
+                            💾 결과 다운로드
+                        </button>
+                        <button id="resetAllBtn" class="px-8 py-3 bg-gray-600 text-white rounded-full font-semibold hover:bg-gray-700 transition shadow-lg">
                             ✨ 새로운 피팅 시도
                         </button>
                     </div>
