@@ -18,16 +18,25 @@ class CreditsService:
                 free_used_today INTEGER DEFAULT 0,
                 credits INTEGER DEFAULT 0,
                 last_reset TEXT DEFAULT CURRENT_TIMESTAMP,
-                last_request_hash TEXT DEFAULT NULL
+                last_request_hash TEXT DEFAULT NULL,
+                refit_count INTEGER DEFAULT 0,
+                last_refit_reset TEXT DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         
-        # Add column if it doesn't exist (for migration)
-        try:
-            c.execute('ALTER TABLE users ADD COLUMN last_request_hash TEXT DEFAULT NULL')
-            print("Added last_request_hash column to database")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
+        # Add columns if they don't exist (for migration)
+        migrations = [
+            ('last_request_hash', 'TEXT DEFAULT NULL'),
+            ('refit_count', 'INTEGER DEFAULT 0'),
+            ('last_refit_reset', 'TEXT DEFAULT CURRENT_TIMESTAMP')
+        ]
+        
+        for column_name, column_type in migrations:
+            try:
+                c.execute(f'ALTER TABLE users ADD COLUMN {column_name} {column_type}')
+                print(f"Added {column_name} column to database")
+            except sqlite3.OperationalError:
+                pass  # Column already exists
         
         conn.commit()
         conn.close()
@@ -64,7 +73,7 @@ class CreditsService:
     def check_and_consume(self, ip: str, user_agent: str, request_hash: Optional[str] = None) -> Tuple[bool, dict]:
         """
         Check if user can make a try-on and consume 1 credit/free attempt
-        If request_hash matches last request, it's a refitting (no charge)
+        If request_hash matches last request, it's a refitting (no charge, max 5 per hour)
         
         Args:
             ip: User IP address
@@ -85,43 +94,83 @@ class CreditsService:
             c = conn.cursor()
             
             # Get or create user
-            c.execute('SELECT free_used_today, credits, last_request_hash FROM users WHERE user_key = ?', (user_key,))
+            c.execute('SELECT free_used_today, credits, last_request_hash, refit_count, last_refit_reset FROM users WHERE user_key = ?', (user_key,))
             result = c.fetchone()
             
             if not result:
                 # New user - create with 0 usage
+                now = datetime.now().isoformat()
                 c.execute(
-                    'INSERT INTO users (user_key, free_used_today, credits, last_request_hash) VALUES (?, 0, 0, ?)',
-                    (user_key, request_hash)
+                    'INSERT INTO users (user_key, free_used_today, credits, last_request_hash, refit_count, last_refit_reset) VALUES (?, 0, 0, ?, 0, ?)',
+                    (user_key, request_hash, now)
                 )
                 conn.commit()
                 free_used = 0
                 credits = 0
                 last_hash = None
+                refit_count = 0
+                last_refit_reset = now
             else:
-                free_used, credits, last_hash = result
+                free_used, credits, last_hash, refit_count, last_refit_reset = result
             
             # Check if this is a refitting (same photos as last request)
             is_refitting = (request_hash is not None and request_hash == last_hash)
             
             if is_refitting:
-                # Refitting - no charge, just return current status
-                print(f"Refitting detected for user {user_key} - no charge")
+                # Check if 1 hour has passed since last refit reset
+                last_reset_time = datetime.fromisoformat(last_refit_reset)
+                now = datetime.now()
+                hours_passed = (now - last_reset_time).total_seconds() / 3600
+                
+                if hours_passed >= 1.0:
+                    # Reset refit counter after 1 hour
+                    refit_count = 0
+                    c.execute(
+                        'UPDATE users SET refit_count = 0, last_refit_reset = ? WHERE user_key = ?',
+                        (now.isoformat(), user_key)
+                    )
+                    conn.commit()
+                    print(f"Refit counter reset for user {user_key} (1 hour passed)")
+                
+                # Check if refit limit exceeded (5 per hour)
+                if refit_count >= 5:
+                    print(f"Refit limit exceeded for user {user_key}: {refit_count}/5 per hour")
+                    remaining_free = max(0, 3 - free_used)
+                    return False, {
+                        'remaining_free': remaining_free,
+                        'credits': credits,
+                        'needs_payment': False,
+                        'is_refitting': True,
+                        'refit_limit_exceeded': True,
+                        'error': '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.'
+                    }
+                
+                # Refitting allowed - increment counter
+                c.execute(
+                    'UPDATE users SET refit_count = refit_count + 1 WHERE user_key = ?',
+                    (user_key,)
+                )
+                conn.commit()
+                
+                print(f"Refitting ({refit_count + 1}/5 per hour) for user {user_key} - no charge")
                 remaining_free = max(0, 3 - free_used)
                 return True, {
                     'remaining_free': remaining_free,
                     'credits': credits,
                     'needs_payment': False,
                     'is_refitting': True,
+                    'refit_count': refit_count + 1,
                     'used_type': 'refitting'
                 }
             
-            # Update last request hash for future refitting detection
+            # New generation (not a refit) - update hash and reset refit counter
             if request_hash:
+                now = datetime.now().isoformat()
                 c.execute(
-                    'UPDATE users SET last_request_hash = ? WHERE user_key = ?',
-                    (request_hash, user_key)
+                    'UPDATE users SET last_request_hash = ?, refit_count = 0, last_refit_reset = ? WHERE user_key = ?',
+                    (request_hash, now, user_key)
                 )
+                print(f"New generation for user {user_key} - refit counter reset")
             
             # Check if can proceed
             remaining_free = max(0, 3 - free_used)
