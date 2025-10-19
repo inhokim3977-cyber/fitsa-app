@@ -216,6 +216,25 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             
             print(f"✓ Gemini API call completed")
             
+            # Debug: Print full response structure
+            print(f"🔍 Response candidates: {len(response.candidates) if response.candidates else 0}")
+            if response.candidates and len(response.candidates) > 0:
+                candidate = response.candidates[0]
+                print(f"🔍 Candidate finish_reason: {candidate.finish_reason if hasattr(candidate, 'finish_reason') else 'N/A'}")
+                print(f"🔍 Has content: {candidate.content is not None}")
+                if candidate.content:
+                    print(f"🔍 Content parts: {len(candidate.content.parts) if candidate.content.parts else 0}")
+                    for idx, part in enumerate(candidate.content.parts):
+                        print(f"🔍 Part {idx}: has inline_data={hasattr(part, 'inline_data')}, has text={hasattr(part, 'text')}")
+                        if hasattr(part, 'text') and part.text:
+                            print(f"🔍 Part {idx} text: {part.text[:200]}...")
+                
+                # Check safety ratings
+                if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
+                    print(f"🔍 Safety ratings:")
+                    for rating in candidate.safety_ratings:
+                        print(f"  - {rating.category}: {rating.probability}")
+            
             # Extract image from response
             if response.candidates and len(response.candidates) > 0:
                 candidate = response.candidates[0]
