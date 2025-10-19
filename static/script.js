@@ -615,3 +615,28 @@ async function purchaseCredits() {
         alert('결제 처리 중 오류가 발생했습니다: ' + error.message);
     }
 }
+
+// Test tools
+async function testResetCredits() {
+    try {
+        const response = await fetch('/stripe/reset-credits', { method: 'POST' });
+        const data = await response.json();
+        alert('✅ ' + data.message);
+        // Refresh page to update credits display
+        location.reload();
+    } catch (error) {
+        alert('❌ 오류: ' + error.message);
+    }
+}
+
+async function testAddCredits() {
+    try {
+        const response = await fetch('/stripe/simulate-purchase', { method: 'POST' });
+        const data = await response.json();
+        alert(`✅ 10 크레딧이 추가되었습니다!\n\n새 잔액: ${data.new_balance.credits} 크레딧`);
+        // Refresh page to update credits display
+        location.reload();
+    } catch (error) {
+        alert('❌ 오류: ' + error.message);
+    }
+}

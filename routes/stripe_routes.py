@@ -144,3 +144,34 @@ def simulate_purchase():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@stripe_bp.route('/reset-credits', methods=['POST'])
+def reset_credits():
+    """Testing endpoint to reset user credits to zero (for testing payment flow)"""
+    try:
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        user_agent = request.headers.get('User-Agent', '')
+        user_key = credits_service.get_user_key(ip, user_agent)
+        
+        print(f"[/stripe/reset-credits] Resetting credits for user {user_key}")
+        
+        # Reset all credits and free tries
+        credits_service.db.execute("""
+            UPDATE users 
+            SET free_used_today = 3, credits = 0
+            WHERE user_key = ?
+        """, (user_key,))
+        credits_service.db.commit()
+        
+        status = credits_service.get_user_status(ip, user_agent)
+        
+        print(f"[/stripe/reset-credits] Reset complete, new status: {status}")
+        
+        return jsonify({
+            'success': True,
+            'message': '크레딧이 0으로 리셋되었습니다.',
+            'new_balance': status
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
