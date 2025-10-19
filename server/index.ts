@@ -105,6 +105,12 @@ async function waitForFlask(maxRetries = 60, delay = 1000): Promise<boolean> {
         res.type(contentType);
       }
 
+      // Apply long-term caching for static assets
+      const staticFilePattern = /\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2)$/i;
+      if (staticFilePattern.test(req.url)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+
       // Get response as text/buffer and send (compression will intercept)
       const buffer = await response.buffer();
       res.send(buffer);
