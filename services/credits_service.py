@@ -180,10 +180,13 @@ class CreditsService:
             result = c.fetchone()
             
             if not result:
+                print(f"[get_user_status] New user {user_key}: 3 free, 0 credits")
                 return {'remaining_free': 3, 'credits': 0}
             
             free_used, credits = result
             remaining_free = max(0, 3 - free_used)
+            
+            print(f"[get_user_status] user_key={user_key}: free_used={free_used}, credits={credits}, remaining_free={remaining_free}")
             
             return {
                 'remaining_free': remaining_free,

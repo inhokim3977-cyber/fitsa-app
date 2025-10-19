@@ -99,8 +99,13 @@ def get_user_status():
     try:
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         user_agent = request.headers.get('User-Agent', '')
+        user_key = credits_service.get_user_key(ip, user_agent)
+        
+        print(f"[/stripe/user-status] IP: {ip}, UA: {user_agent[:50]}..., user_key: {user_key}")
         
         status = credits_service.get_user_status(ip, user_agent)
+        
+        print(f"[/stripe/user-status] Returning status: {status}")
         
         return jsonify(status)
     
@@ -115,10 +120,14 @@ def simulate_purchase():
         user_agent = request.headers.get('User-Agent', '')
         user_key = credits_service.get_user_key(ip, user_agent)
         
+        print(f"[/stripe/simulate-purchase] IP: {ip}, UA: {user_agent[:50]}..., user_key: {user_key}")
+        
         # Add credits to user
         credits_service.add_credits(user_key, CREDITS_PER_PURCHASE)
         
         status = credits_service.get_user_status(ip, user_agent)
+        
+        print(f"[/stripe/simulate-purchase] Added {CREDITS_PER_PURCHASE} credits, new status: {status}")
         
         return jsonify({
             'success': True,
