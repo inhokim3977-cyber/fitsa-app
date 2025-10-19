@@ -168,7 +168,9 @@ def virtual_fitting():
             'status': 'completed',
             'credits_info': {
                 'remaining_free': info['remaining_free'],
-                'credits': info['credits']
+                'credits': info['credits'],
+                'is_refitting': info.get('is_refitting', False),
+                'refit_count': info.get('refit_count', 0)
             }
         })
     

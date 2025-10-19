@@ -325,9 +325,14 @@
                     <button id="downloadBtn" class="px-8 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition">
                         💾 결과 다운로드
                     </button>
-                    <button id="refitBtn" class="px-8 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition">
-                        🔄 같은 사진으로 다시 피팅 (무료)
-                    </button>
+                    <div class="inline-block">
+                        <button id="refitBtn" class="px-8 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            🔄 같은 사진으로 다시 피팅 (무료)
+                        </button>
+                        <div id="refitCounter" class="text-white text-sm mt-2 font-medium">
+                            <span id="refitCount">0</span>/5 사용
+                        </div>
+                    </div>
                     <button id="resetAllBtn" class="px-8 py-3 bg-gray-600 text-white rounded-full font-semibold hover:bg-gray-700 transition">
                         ✨ 새로운 피팅 시도
                     </button>

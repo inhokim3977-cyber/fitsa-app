@@ -288,6 +288,9 @@ async function generateFitting() {
                     updateCreditsDisplay(topData.credits_info.remaining_free, topData.credits_info.credits);
                 }
                 
+                // Update refit counter
+                updateRefitCounter(topData.credits_info?.is_refitting, topData.credits_info?.refit_count || 0);
+                
                 finalResultUrl = topData.resultUrl;
                 
                 // If bottom cloth also exists, use top result as input for bottom
@@ -333,6 +336,9 @@ async function generateFitting() {
                 if (bottomData.credits_info) {
                     updateCreditsDisplay(bottomData.credits_info.remaining_free, bottomData.credits_info.credits);
                 }
+                
+                // Update refit counter
+                updateRefitCounter(bottomData.credits_info?.is_refitting, bottomData.credits_info?.refit_count || 0);
                 
                 finalResultUrl = bottomData.resultUrl;
             }
@@ -386,6 +392,9 @@ async function generateFitting() {
                 updateCreditsDisplay(dressData.credits_info.remaining_free, dressData.credits_info.credits);
             }
             
+            // Update refit counter
+            updateRefitCounter(dressData.credits_info?.is_refitting, dressData.credits_info?.refit_count || 0);
+            
             const resultImage = document.getElementById('resultImage');
             resultImage.src = dressData.resultUrl;
             resultsSection.classList.remove('hidden');
@@ -438,6 +447,12 @@ function resetAll() {
     resultsSection.classList.add('hidden');
     generateBtn.disabled = true;
     
+    // Reset refit counter
+    document.getElementById('refitCount').textContent = '0';
+    const refitBtn = document.getElementById('refitBtn');
+    refitBtn.disabled = false;
+    refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -465,6 +480,28 @@ function updateCreditsDisplay(remainingFree, credits) {
         buyBtn.classList.remove('hidden');
     } else {
         buyBtn.classList.add('hidden');
+    }
+}
+
+function updateRefitCounter(isRefitting, refitCount) {
+    const refitCountSpan = document.getElementById('refitCount');
+    const refitBtn = document.getElementById('refitBtn');
+    
+    if (isRefitting) {
+        // This was a refit - show updated count
+        refitCountSpan.textContent = refitCount;
+    } else {
+        // This was a new generation - reset counter
+        refitCountSpan.textContent = '0';
+    }
+    
+    // Disable button if limit reached (5 refits)
+    if (refitCount >= 5) {
+        refitBtn.disabled = true;
+        refitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        refitBtn.disabled = false;
+        refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 }
 
