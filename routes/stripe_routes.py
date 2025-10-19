@@ -150,6 +150,7 @@ def reset_credits():
     """Testing endpoint to reset user credits to zero (for testing payment flow)"""
     try:
         import sqlite3
+        from datetime import datetime
         
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         user_agent = request.headers.get('User-Agent', '')
@@ -157,14 +158,19 @@ def reset_credits():
         
         print(f"[/stripe/reset-credits] Resetting credits for user {user_key}")
         
-        # Reset all credits and free tries
+        # Reset all credits and free tries (INSERT OR REPLACE for new users)
         conn = sqlite3.connect(credits_service.db_path)
         c = conn.cursor()
+        
+        now = datetime.now().isoformat()
+        
+        # Use INSERT OR REPLACE to handle both new and existing users
         c.execute("""
-            UPDATE users 
-            SET free_used_today = 3, credits = 0
-            WHERE user_key = ?
-        """, (user_key,))
+            INSERT OR REPLACE INTO users 
+            (user_key, free_used_today, credits, last_reset, last_request_hash, refit_count, last_refit_reset)
+            VALUES (?, 3, 0, ?, NULL, 0, ?)
+        """, (user_key, now, now))
+        
         conn.commit()
         conn.close()
         
@@ -174,7 +180,7 @@ def reset_credits():
         
         return jsonify({
             'success': True,
-            'message': '크레딧이 0으로 리셋되었습니다.',
+            'message': '크레딧이 0으로 리셋되었습니다. (무료 체험 0회)',
             'new_balance': status
         })
     
