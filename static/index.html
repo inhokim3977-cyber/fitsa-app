@@ -19,24 +19,48 @@
         }
         
         .drop-zone {
-            border: 3px dashed #D1D5DB;
+            border: 8px solid #8B6B47;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 
+                inset 0 0 0 2px #A0826D,
+                inset 0 0 0 4px #6B4E31,
+                0 4px 12px rgba(0, 0, 0, 0.15),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 2px solid #5C3D2E;
+            pointer-events: none;
         }
         
         .drop-zone:hover {
-            border-color: #F45B69;
-            background: #FFF5F7;
+            border-color: #A0826D;
+            background: #FFFEF9;
             transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(244, 91, 105, 0.15);
+            box-shadow: 
+                inset 0 0 0 2px #C9A581,
+                inset 0 0 0 4px #8B6B47,
+                0 6px 16px rgba(139, 107, 71, 0.2),
+                0 3px 6px rgba(0, 0, 0, 0.15);
         }
         
         .drop-zone.drag-over {
-            border-color: #F45B69;
-            background: #FFF0F2;
+            border-color: #C9A581;
+            background: #FFFCF5;
             transform: scale(1.05);
-            box-shadow: 0 8px 24px rgba(244, 91, 105, 0.25);
+            box-shadow: 
+                inset 0 0 0 2px #D4B896,
+                inset 0 0 0 4px #A0826D,
+                0 8px 24px rgba(139, 107, 71, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .center-drop {
@@ -44,6 +68,19 @@
             height: 280px;
             border-radius: 50%;
             position: relative;
+        }
+        
+        .center-drop::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            border-radius: 50%;
+            border: 3px solid #5C3D2E;
+            pointer-events: none;
+            box-shadow: 0 0 0 1px #3D2817;
         }
         
         .item-drop {
@@ -154,6 +191,43 @@
 
         .drop-zone:hover .delete-btn.show {
             display: flex;
+        }
+        
+        /* Wood Frame Mirror for Result Image */
+        .wood-frame-mirror {
+            border: 12px solid #8B6B47;
+            border-radius: 24px;
+            box-shadow: 
+                inset 0 0 0 3px #A0826D,
+                inset 0 0 0 6px #6B4E31,
+                0 6px 20px rgba(0, 0, 0, 0.2),
+                0 3px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+            background: white;
+        }
+        
+        .wood-frame-mirror::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            border-radius: 24px;
+            border: 3px solid #5C3D2E;
+            pointer-events: none;
+        }
+        
+        .wood-frame-mirror::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border-radius: 26px;
+            box-shadow: 0 0 0 1px #3D2817;
+            pointer-events: none;
         }
 
         /* Mobile Responsive Design */
@@ -356,9 +430,9 @@
             
             <!-- Results Section -->
             <div id="resultsSection" class="hidden fade-in">
-                <!-- Result Image - Full Focus -->
+                <!-- Result Image - Wood Frame Mirror -->
                 <div class="flex justify-center mb-8">
-                    <div class="bg-white rounded-3xl p-4 shadow-2xl" style="max-width: 900px; width: 100%;">
+                    <div class="wood-frame-mirror p-4" style="max-width: 900px; width: 100%;">
                         <img id="resultImage" src="" alt="Virtual Fitting Result" class="w-full h-auto max-h-[75vh] object-contain rounded-2xl">
                     </div>
                 </div>
