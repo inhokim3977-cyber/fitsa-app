@@ -163,11 +163,19 @@ def complete_purchase():
         
         if session_id in completed_sessions:
             print(f"✓ Session {session_id} already processed - skipping credit addition")
-            conn.close()
             
-            ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-            user_agent = request.headers.get('User-Agent', '')
-            status = credits_service.get_user_status(ip, user_agent)
+            # Get status directly from DB for THIS user
+            c.execute('SELECT free_used_today, credits FROM users WHERE user_key = ?', (user_key,))
+            result = c.fetchone()
+            
+            if result:
+                free_used, credits = result
+                remaining_free = max(0, 3 - free_used)
+                status = {'remaining_free': remaining_free, 'credits': credits}
+            else:
+                status = {'remaining_free': 3, 'credits': 0}
+            
+            conn.close()
             
             return jsonify({
                 'success': True,
@@ -187,14 +195,22 @@ def complete_purchase():
             WHERE user_key = ?
         ''', (','.join(completed_sessions), user_key))
         conn.commit()
+        
+        # Get updated status directly from DB for THIS user (not request IP/UA)
+        c.execute('SELECT free_used_today, credits FROM users WHERE user_key = ?', (user_key,))
+        result = c.fetchone()
+        
+        if result:
+            free_used, credits = result
+            remaining_free = max(0, 3 - free_used)
+            status = {'remaining_free': remaining_free, 'credits': credits}
+        else:
+            status = {'remaining_free': 3, 'credits': 0}
+        
         conn.close()
         
         print(f"✓ Added {CREDITS_PER_PURCHASE} credits for session {session_id}")
-        
-        # Get updated status
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        user_agent = request.headers.get('User-Agent', '')
-        status = credits_service.get_user_status(ip, user_agent)
+        print(f"✓ User {user_key} new balance: {status}")
         
         return jsonify({
             'success': True,
