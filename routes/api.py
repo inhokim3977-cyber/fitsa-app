@@ -14,9 +14,31 @@ def allowed_file(filename):
 def virtual_fitting():
     """
     Optimized AI pipeline for virtual fashion fitting
-    Uses CatVTON-Flux (2024 SOTA) for best clothing/shoes try-on results
+    With monetization: 3 free tries/day, then paid credits
     """
     try:
+        # Import credits service
+        from services.credits_service import CreditsService
+        credits_service = CreditsService()
+        
+        # Check user's credit status
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        user_agent = request.headers.get('User-Agent', '')
+        
+        allowed, info = credits_service.check_and_consume(ip, user_agent)
+        
+        if not allowed:
+            # User needs to purchase credits
+            return jsonify({
+                'error': 'No credits remaining',
+                'needs_payment': True,
+                'message': '무료 체험 3회를 모두 사용하셨습니다. 크레딧을 구매해주세요.',
+                'remaining_free': info['remaining_free'],
+                'credits': info['credits']
+            }), 402  # Payment Required
+        
+        print(f"✓ Credit consumed ({info['used_type']}): remaining_free={info['remaining_free']}, credits={info['credits']}")
+        
         # Check if files are present
         if 'userPhoto' not in request.files or 'clothingPhoto' not in request.files:
             return jsonify({'error': 'Both userPhoto and clothingPhoto are required'}), 400
@@ -126,7 +148,11 @@ def virtual_fitting():
             'resultUrl': final_result,
             'stage1_url': stage1_result,
             'method': method_used,
-            'status': 'completed'
+            'status': 'completed',
+            'credits_info': {
+                'remaining_free': info['remaining_free'],
+                'credits': info['credits']
+            }
         })
     
     except Exception as e:

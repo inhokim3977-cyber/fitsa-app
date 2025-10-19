@@ -41,6 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeApp() {
     console.log('Initializing app...');
 
+    // Fetch initial credit status
+    fetchCreditStatus();
+
+    // Setup buy credits button
+    const buyCreditsBtn = document.getElementById('buyCreditsBtn');
+    buyCreditsBtn.addEventListener('click', () => purchaseCredits());
+
     // Setup clothing type switching
     clothTypeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -255,10 +262,22 @@ async function generateFitting() {
                     body: topFormData
                 });
                 
+                if (topResponse.status === 402) {
+                    const topData = await topResponse.json();
+                    alert(topData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                    updateCreditsDisplay(topData.remaining_free, topData.credits);
+                    return;
+                }
+                
                 const topData = await topResponse.json();
                 if (topData.error) {
                     alert('상의 피팅 오류: ' + topData.error);
                     return;
+                }
+                
+                // Update credits display after successful generation
+                if (topData.credits_info) {
+                    updateCreditsDisplay(topData.credits_info.remaining_free, topData.credits_info.credits);
                 }
                 
                 finalResultUrl = topData.resultUrl;
@@ -283,10 +302,22 @@ async function generateFitting() {
                     body: bottomFormData
                 });
                 
+                if (bottomResponse.status === 402) {
+                    const bottomData = await bottomResponse.json();
+                    alert(bottomData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                    updateCreditsDisplay(bottomData.remaining_free, bottomData.credits);
+                    return;
+                }
+                
                 const bottomData = await bottomResponse.json();
                 if (bottomData.error) {
                     alert('하의 피팅 오류: ' + bottomData.error);
                     return;
+                }
+                
+                // Update credits display after successful generation
+                if (bottomData.credits_info) {
+                    updateCreditsDisplay(bottomData.credits_info.remaining_free, bottomData.credits_info.credits);
                 }
                 
                 finalResultUrl = bottomData.resultUrl;
@@ -317,10 +348,22 @@ async function generateFitting() {
                 body: dressFormData
             });
             
+            if (dressResponse.status === 402) {
+                const dressData = await dressResponse.json();
+                alert(dressData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                updateCreditsDisplay(dressData.remaining_free, dressData.credits);
+                return;
+            }
+            
             const dressData = await dressResponse.json();
             if (dressData.error) {
                 alert('원피스 피팅 오류: ' + dressData.error);
                 return;
+            }
+            
+            // Update credits display after successful generation
+            if (dressData.credits_info) {
+                updateCreditsDisplay(dressData.credits_info.remaining_free, dressData.credits_info.credits);
             }
             
             const resultImage = document.getElementById('resultImage');
@@ -369,4 +412,51 @@ function resetAll() {
     generateBtn.disabled = true;
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Monetization functions
+async function fetchCreditStatus() {
+    try {
+        const response = await fetch('/stripe/user-status');
+        const data = await response.json();
+        
+        updateCreditsDisplay(data.remaining_free, data.credits);
+    } catch (error) {
+        console.error('Failed to fetch credit status:', error);
+    }
+}
+
+function updateCreditsDisplay(remainingFree, credits) {
+    document.getElementById('freeRemaining').textContent = remainingFree;
+    document.getElementById('creditsCount').textContent = credits;
+    
+    // Show buy button if no credits left
+    const buyBtn = document.getElementById('buyCreditsBtn');
+    if (remainingFree === 0 && credits === 0) {
+        buyBtn.classList.remove('hidden');
+    } else {
+        buyBtn.classList.add('hidden');
+    }
+}
+
+async function purchaseCredits() {
+    try {
+        const response = await fetch('/stripe/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.url) {
+            // Redirect to Stripe Checkout
+            window.location.href = data.url;
+        } else {
+            alert('결제 세션 생성에 실패했습니다.');
+        }
+    } catch (error) {
+        alert('결제 처리 중 오류가 발생했습니다: ' + error.message);
+    }
 }
