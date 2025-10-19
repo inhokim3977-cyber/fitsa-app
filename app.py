@@ -39,6 +39,10 @@ def health():
 def index():
     return send_from_directory('static', 'index.html')
 
+@app.route('/success')
+def success():
+    return send_from_directory('static', 'success.html')
+
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('static', path)
