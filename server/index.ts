@@ -2,6 +2,12 @@ import express from "express";
 import { spawn } from "child_process";
 import { createServer } from "http";
 import compression from "compression";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -9,8 +15,11 @@ const app = express();
 const FLASK_PORT = 5001;
 const NODE_PORT = 5000;
 
-// Flask readiness flag
+// Flask readiness flag and process management
 let flaskReady = false;
+let flaskProcess: any = null;
+let flaskRestartAttempt = 0;
+const MAX_RESTART_ATTEMPTS = 5;
 
 // ========================================
 // STARTUP MIDDLEWARE (MUST BE FIRST!)
@@ -74,18 +83,63 @@ app.use((req, res, next) => {
 // Enable compression for responses >= 1KB
 app.use(compression({ threshold: 1024 }));
 
-console.log(`Starting Flask application on port ${FLASK_PORT}...`);
-const flask = spawn("python", ["app.py"], {
-  stdio: "inherit",
-  env: { 
-    ...process.env,
-    PORT: FLASK_PORT.toString()
+// Flask process management with exponential backoff retry
+function startFlaskProcess() {
+  // Prevent duplicate processes
+  if (flaskProcess && !flaskProcess.killed) {
+    console.log("⚠️ Flask process already running, skipping duplicate start");
+    return;
   }
-});
 
-flask.on("error", (err) => {
-  console.error("Failed to start Flask:", err);
-});
+  console.log(`Starting Flask application on port ${FLASK_PORT}... (attempt ${flaskRestartAttempt + 1}/${MAX_RESTART_ATTEMPTS})`);
+  
+  // Determine app.py path based on environment
+  // In production (dist/index.js), go up one level to root
+  // In development (server/index.ts via tsx), also go up one level to root
+  const appPath = join(__dirname, '..', 'app.py');
+  
+  console.log(`Flask app path: ${appPath}`);
+  console.log(`Working directory: ${process.cwd()}`);
+  
+  flaskProcess = spawn("python", [appPath], {
+    stdio: "inherit",
+    env: { 
+      ...process.env,
+      PORT: FLASK_PORT.toString(),
+      PYTHONUNBUFFERED: "1"  // Force Python output to be unbuffered
+    }
+  });
+
+  flaskProcess.on("error", (err: Error) => {
+    console.error("❌ Failed to start Flask:", err);
+    scheduleFlaskRestart();
+  });
+
+  flaskProcess.on("exit", (code: number | null, signal: string | null) => {
+    console.error(`❌ Flask process exited with code ${code}, signal ${signal}`);
+    flaskReady = false;
+    scheduleFlaskRestart();
+  });
+}
+
+function scheduleFlaskRestart() {
+  if (flaskRestartAttempt >= MAX_RESTART_ATTEMPTS) {
+    console.error(`❌ Max Flask restart attempts (${MAX_RESTART_ATTEMPTS}) reached. Staying in warmup mode.`);
+    return;
+  }
+
+  // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+  const delay = Math.min(1000 * Math.pow(2, flaskRestartAttempt), 16000);
+  flaskRestartAttempt++;
+  
+  console.log(`⏱️ Scheduling Flask restart in ${delay}ms...`);
+  setTimeout(() => {
+    startFlaskProcess();
+  }, delay);
+}
+
+// Start Flask process
+startFlaskProcess();
 
 // Background task: continuously check Flask readiness
 async function checkFlaskReadiness() {
@@ -189,6 +243,8 @@ checkFlaskReadiness().catch(err => {
 });
 
 process.on('SIGINT', () => {
-  flask.kill();
+  if (flaskProcess && !flaskProcess.killed) {
+    flaskProcess.kill();
+  }
   process.exit(0);
 });
