@@ -48,11 +48,14 @@ Preferred communication style: Simple, everyday language.
 - Background removal checkbox (checked by default)
 
 **Design**
-- Artistic circular layout with glassmorphism effects
-- Gradient background (purple to violet)
-- Floating animations and smooth transitions
-- Korean language interface
-- Two clothing modes for flexible styling
+- Minimal, clean aesthetic with light gray background (#F7F7F7)
+- Rose pink accent color (#F45B69) for buttons and highlights
+- Navy blue (#1E2A78) for secondary actions
+- Noto Sans KR font for Korean language interface
+- White cards with subtle shadows for depth
+- Smooth cubic-bezier transitions (0.4, 0, 0.2, 1)
+- Natural fade-in animations for results
+- Two clothing modes for flexible styling (상의+하의 / 원피스)
 
 **Mobile Responsive** ✅
 - @media (max-width: 768px) for mobile devices
@@ -115,6 +118,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ Node.js proxy (5000) → Flask (5001) for Replit deployment
 - ✅ **Monetization MVP**: Free-to-paid conversion with Stripe integration
 - ✅ **Refitting Feature**: Unlimited free retries with same photos (no credit consumption)
+- ✅ **Cookie-based User Tracking**: 30-day persistent identification (replaces IP+UA)
+- ✅ **Design Overhaul**: Light gray background (#F7F7F7), rose pink buttons (#F45B69), Noto Sans KR font, natural fade/slide transitions
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
