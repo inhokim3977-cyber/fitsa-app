@@ -200,15 +200,17 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             size_instruction = f"\n\nCRITICAL: Output image MUST be EXACTLY {original_size[0]}x{original_size[1]} pixels (width x height). DO NOT change dimensions - this will distort body proportions."
             final_prompt = prompt + size_instruction
             
-            # Configure generation parameters for better quality
-            # Very low temperature for maximum preservation of original photo
+            # Configure generation parameters for IMAGE GENERATION
+            # CRITICAL: response_modalities must include "IMAGE"
             generation_config = {
                 'temperature': 0.1,  # Minimal creativity, maximum preservation
                 'top_p': 0.7,        # Reduced randomness
                 'top_k': 20,         # Fewer options for more consistency
+                'response_modalities': ['IMAGE'],  # ← KEY: Request image output!
             }
             
             # Generate with Gemini
+            print("📸 Requesting IMAGE generation from Gemini...")
             response = self.model.generate_content(
                 [final_prompt, person_img, clothing_img],
                 generation_config=generation_config
