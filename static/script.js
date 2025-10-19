@@ -111,8 +111,10 @@ function switchClothingMode(mode) {
     // Generate button
     generateBtn.addEventListener('click', () => generateFitting());
 
-    // Download and reset
+    // Download, refit, and reset
     downloadBtn.addEventListener('click', () => downloadResult());
+    const refitBtn = document.getElementById('refitBtn');
+    refitBtn.addEventListener('click', () => refitCurrentPhotos());
     resetAllBtn.addEventListener('click', () => resetAll());
 }
 
@@ -378,6 +380,13 @@ async function generateFitting() {
         generateBtn.disabled = false;
         loadingIndicator.classList.add('hidden');
     }
+}
+
+function refitCurrentPhotos() {
+    // Simply call generateFitting again with the same photos
+    // The backend will detect it's a refitting (same photo hash) and won't charge
+    console.log('Refitting with same photos (no charge)...');
+    generateFitting();
 }
 
 function downloadResult() {
