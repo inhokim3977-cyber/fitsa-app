@@ -71,14 +71,14 @@ class CreditsService:
                 conn.commit()
                 print(f"Daily reset applied for user {user_key}")
     
-    def check_and_consume(self, ip: str, user_agent: str, request_hash: Optional[str] = None) -> Tuple[bool, dict]:
+    def check_and_consume(self, ip_or_user_key: str, user_agent: str = '', request_hash: Optional[str] = None) -> Tuple[bool, dict]:
         """
         Check if user can make a try-on and consume 1 credit/free attempt
         If request_hash matches last request, it's a refitting (no charge, max 5 per hour)
         
         Args:
-            ip: User IP address
-            user_agent: User agent string
+            ip_or_user_key: User IP address OR pre-computed user_key (if user_agent is empty, treated as user_key)
+            user_agent: User agent string (empty string means ip_or_user_key is already a user_key)
             request_hash: Hash of the photos (for refitting detection)
         
         Returns:
@@ -86,7 +86,11 @@ class CreditsService:
             - allowed: True if user can proceed
             - info: {remaining_free: int, credits: int, needs_payment: bool, is_refitting: bool}
         """
-        user_key = self.get_user_key(ip, user_agent)
+        # If user_agent is empty, ip_or_user_key is already a computed user_key
+        if user_agent == '':
+            user_key = ip_or_user_key
+        else:
+            user_key = self.get_user_key(ip_or_user_key, user_agent)
         conn = sqlite3.connect(self.db_path)
         
         try:
