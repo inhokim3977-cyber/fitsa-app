@@ -9,7 +9,7 @@ let clothingMode = 'separate'; // 'separate' or 'dress'
 let personDropZone, topClothDropZone, bottomClothDropZone, dressDropZone;
 let personFileInput, topClothFileInput, bottomClothFileInput, dressFileInput;
 let generateBtn, loadingIndicator, resultsSection;
-let downloadBtn, resetAllBtn;
+let downloadBtn, resetAllBtn, shareBtn;
 let clothTypeButtons;
 
 // Initialize everything after DOM is loaded
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resultsSection = document.getElementById('resultsSection');
     downloadBtn = document.getElementById('downloadBtn');
     resetAllBtn = document.getElementById('resetAllBtn');
+    shareBtn = document.getElementById('shareBtn');
     
     clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
     
@@ -111,8 +112,9 @@ function switchClothingMode(mode) {
     // Generate button
     generateBtn.addEventListener('click', () => generateFitting());
 
-    // Download, refit, and reset
+    // Download, share, refit, and reset
     downloadBtn.addEventListener('click', () => downloadResult());
+    shareBtn.addEventListener('click', () => shareResult());
     const refitBtn = document.getElementById('refitBtn');
     if (refitBtn) {
         console.log('✓ Refit button found and event listener attached');
@@ -474,8 +476,47 @@ function downloadResult() {
     const resultImage = document.getElementById('resultImage');
     const link = document.createElement('a');
     link.href = resultImage.src;
-    link.download = `ai-virtual-fitting-${Date.now()}.png`;
+    link.download = `가상피팅-${Date.now()}.png`;
     link.click();
+}
+
+async function shareResult() {
+    const resultImage = document.getElementById('resultImage');
+    
+    try {
+        // Try Web Share API first (works on mobile)
+        if (navigator.share && navigator.canShare) {
+            // Convert base64 to blob
+            const response = await fetch(resultImage.src);
+            const blob = await response.blob();
+            const file = new File([blob], '가상피팅.png', { type: 'image/png' });
+            
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: '가상 피팅 결과',
+                    text: '나의 가상 피팅 결과를 확인해보세요!'
+                });
+                return;
+            }
+        }
+        
+        // Fallback: Copy image to clipboard (desktop)
+        const response = await fetch(resultImage.src);
+        const blob = await response.blob();
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                [blob.type]: blob
+            })
+        ]);
+        
+        // Show success message
+        alert('이미지가 클립보드에 복사되었습니다!\n원하는 곳에 붙여넣기(Ctrl+V)하세요.');
+    } catch (error) {
+        console.error('Share failed:', error);
+        // Final fallback: Download
+        downloadResult();
+    }
 }
 
 function resetAll() {
