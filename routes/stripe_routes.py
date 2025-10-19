@@ -25,8 +25,11 @@ def create_checkout_session():
         user_agent = request.headers.get('User-Agent', '')
         user_key = credits_service.get_user_key(ip, user_agent)
         
-        # Get deployment URL from environment
-        domain = os.getenv('PUBLIC_DOMAIN', 'https://virtual-fit.replit.app')
+        # Get current URL dynamically (works with Replit webview)
+        # Use request.url_root which includes the protocol and host
+        domain = request.url_root.rstrip('/')  # Remove trailing slash
+        
+        print(f"[Stripe] Using domain: {domain}")
         
         # Create Stripe Checkout Session
         session = stripe.checkout.Session.create(
@@ -47,6 +50,10 @@ def create_checkout_session():
             cancel_url=f'{domain}/',
             client_reference_id=user_key,  # Store user_key for webhook
         )
+        
+        print(f"[Stripe] Session created: {session.id}")
+        print(f"[Stripe] Success URL: {domain}/success")
+        print(f"[Stripe] Cancel URL: {domain}/")
         
         return jsonify({
             'sessionId': session.id,
