@@ -640,3 +640,10 @@ async function testAddCredits() {
         alert('❌ 오류: ' + error.message);
     }
 }
+
+// Clear cookie and reload (for testing)
+function testClearCookie() {
+    document.cookie = 'user_key=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    alert('✅ 쿠키가 삭제되었습니다. 페이지를 새로고침합니다.');
+    location.reload();
+}
