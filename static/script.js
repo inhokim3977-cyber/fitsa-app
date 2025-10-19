@@ -545,6 +545,16 @@ function updateRefitCounter(isRefitting, refitCount) {
     console.log('✅ Counter updated from', oldValue, 'to:', refitCount);
     console.log('✅ New textContent:', refitCountSpan.textContent);
     
+    // Add visual flash effect to make the update noticeable
+    refitCountSpan.style.transition = 'none';
+    refitCountSpan.style.transform = 'scale(1.5)';
+    refitCountSpan.style.color = '#fbbf24'; // yellow-400
+    setTimeout(() => {
+        refitCountSpan.style.transition = 'all 0.3s ease';
+        refitCountSpan.style.transform = 'scale(1)';
+        refitCountSpan.style.color = '#fcd34d'; // yellow-300
+    }, 200);
+    
     // Disable button if limit reached (5 refits)
     if (refitCount >= 5) {
         refitBtn.disabled = true;
