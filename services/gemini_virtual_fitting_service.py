@@ -2,13 +2,13 @@ import os
 import base64
 import requests
 from typing import Optional
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 class GeminiVirtualFittingService:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash-image')
+        self.client = genai.Client(api_key=api_key)
     
     def virtual_try_on(self, person_image_bytes: bytes, clothing_image_bytes: bytes, category: str = 'upper_body') -> Optional[str]:
         """
@@ -200,72 +200,49 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             size_instruction = f"\n\nCRITICAL: Output image MUST be EXACTLY {original_size[0]}x{original_size[1]} pixels (width x height). DO NOT change dimensions - this will distort body proportions."
             final_prompt = prompt + size_instruction
             
-            # Configure generation parameters for IMAGE GENERATION
-            # CRITICAL: response_modalities must include "IMAGE"
-            generation_config = {
-                'temperature': 0.1,  # Minimal creativity, maximum preservation
-                'top_p': 0.7,        # Reduced randomness
-                'top_k': 20,         # Fewer options for more consistency
-                'response_modalities': ['IMAGE'],  # ← KEY: Request image output!
-            }
+            # Configure for IMAGE generation with new API
+            print("📸 Requesting IMAGE generation from Gemini (new API)...")
             
-            # Generate with Gemini
-            print("📸 Requesting IMAGE generation from Gemini...")
-            response = self.model.generate_content(
-                [final_prompt, person_img, clothing_img],
-                generation_config=generation_config
+            config = types.GenerateContentConfig(
+                temperature=0.1,  # Minimal creativity, maximum preservation
+                top_p=0.7,        # Reduced randomness
+                top_k=20,         # Fewer options for more consistency
+                response_modalities=["IMAGE"],  # ← KEY: Request image output!
             )
             
-            print(f"✓ Gemini API call completed")
+            # Generate with Gemini using new API
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash-image",
+                contents=[final_prompt, person_img, clothing_img],
+                config=config
+            )
             
-            # Debug: Print full response structure
-            print(f"🔍 Response candidates: {len(response.candidates) if response.candidates else 0}")
-            if response.candidates and len(response.candidates) > 0:
-                candidate = response.candidates[0]
-                print(f"🔍 Candidate finish_reason: {candidate.finish_reason if hasattr(candidate, 'finish_reason') else 'N/A'}")
-                print(f"🔍 Has content: {candidate.content is not None}")
-                if candidate.content:
-                    print(f"🔍 Content parts: {len(candidate.content.parts) if candidate.content.parts else 0}")
-                    for idx, part in enumerate(candidate.content.parts):
-                        print(f"🔍 Part {idx}: has inline_data={hasattr(part, 'inline_data')}, has text={hasattr(part, 'text')}")
-                        if hasattr(part, 'text') and part.text:
-                            print(f"🔍 Part {idx} text: {part.text[:200]}...")
-                
-                # Check safety ratings
-                if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
-                    print(f"🔍 Safety ratings:")
-                    for rating in candidate.safety_ratings:
-                        print(f"  - {rating.category}: {rating.probability}")
+            print(f"✓ Gemini API call completed (new API)")
+            print(f"🔍 Response has {len(response.parts) if response.parts else 0} parts")
             
-            # Extract image from response
-            if response.candidates and len(response.candidates) > 0:
-                candidate = response.candidates[0]
-                if candidate.content and candidate.content.parts:
-                    for part in candidate.content.parts:
-                        if hasattr(part, 'inline_data') and part.inline_data:
-                            image_data = part.inline_data.data
-                            mime_type = part.inline_data.mime_type or 'image/png'
-                            
-                            # Check generated size (DO NOT RESIZE - preserves body proportions)
-                            result_img = Image.open(BytesIO(image_data))
-                            generated_size = result_img.size
-                            print(f"Generated image size: {generated_size}, Original: {original_size}")
-                            
-                            if generated_size != original_size:
-                                print(f"⚠️ WARNING: Size mismatch detected - this may distort body proportions")
-                                print(f"⚠️ Using generated size AS-IS to preserve body shape")
-                            
-                            # Use image AS-IS without resizing (prevents body distortion)
-                            output_buffer = BytesIO()
-                            result_img.save(output_buffer, format='PNG')
-                            final_data = output_buffer.getvalue()
-                            
-                            # Convert to base64 data URI
-                            b64_data = base64.b64encode(final_data).decode('utf-8')
-                            data_uri = f"data:image/png;base64,{b64_data}"
-                            
-                            print(f"✓ Generated image: {len(final_data)} bytes (size: {generated_size})")
-                            return data_uri
+            # Extract image from response (new API format)
+            if response.parts:
+                for part in response.parts:
+                    if part.inline_data is not None:
+                        # New API provides PIL Image directly
+                        result_img = part.as_image()
+                        generated_size = result_img.size
+                        print(f"Generated image size: {generated_size}, Original: {original_size}")
+                        
+                        if generated_size != original_size:
+                            print(f"⚠️ WARNING: Size mismatch detected - this may distort body proportions")
+                            print(f"⚠️ Using generated size AS-IS to preserve body shape")
+                        
+                        # Convert PIL image to base64 data URI
+                        output_buffer = BytesIO()
+                        result_img.save(output_buffer, format='PNG')
+                        final_data = output_buffer.getvalue()
+                        
+                        b64_data = base64.b64encode(final_data).decode('utf-8')
+                        data_uri = f"data:image/png;base64,{b64_data}"
+                        
+                        print(f"✓ Generated image: {len(final_data)} bytes (size: {generated_size})")
+                        return data_uri
             
             print("✗ No image data in response")
             return None
