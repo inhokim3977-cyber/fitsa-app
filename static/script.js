@@ -417,8 +417,10 @@ function resetAll() {
 // Monetization functions
 async function fetchCreditStatus() {
     try {
+        console.log('Fetching credit status...');
         const response = await fetch('/stripe/user-status');
         const data = await response.json();
+        console.log('Credit status response:', data);
         
         updateCreditsDisplay(data.remaining_free, data.credits);
     } catch (error) {

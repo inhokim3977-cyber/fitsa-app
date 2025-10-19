@@ -106,3 +106,25 @@ def get_user_status():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@stripe_bp.route('/simulate-purchase', methods=['POST'])
+def simulate_purchase():
+    """Testing endpoint to simulate successful credit purchase (bypasses Stripe)"""
+    try:
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        user_agent = request.headers.get('User-Agent', '')
+        user_key = credits_service.get_user_key(ip, user_agent)
+        
+        # Add credits to user
+        credits_service.add_credits(user_key, CREDITS_PER_PURCHASE)
+        
+        status = credits_service.get_user_status(ip, user_agent)
+        
+        return jsonify({
+            'success': True,
+            'credits_added': CREDITS_PER_PURCHASE,
+            'new_balance': status
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
