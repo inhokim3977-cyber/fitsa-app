@@ -207,8 +207,11 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             if response.parts:
                 for part in response.parts:
                     if part.inline_data is not None:
-                        # New API provides PIL Image directly
-                        result_img = part.as_image()
+                        # Get image bytes directly from inline_data
+                        image_bytes = part.inline_data.data
+                        
+                        # Convert to PIL Image to check size
+                        result_img = Image.open(BytesIO(image_bytes))
                         generated_size = result_img.size
                         print(f"Generated image size: {generated_size}, Original: {original_size}")
                         
@@ -216,15 +219,11 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
                             print(f"⚠️ WARNING: Size mismatch detected - this may distort body proportions")
                             print(f"⚠️ Using generated size AS-IS to preserve body shape")
                         
-                        # Convert PIL image to base64 data URI
-                        output_buffer = BytesIO()
-                        result_img.save(output_buffer, format='PNG')
-                        final_data = output_buffer.getvalue()
-                        
-                        b64_data = base64.b64encode(final_data).decode('utf-8')
+                        # Convert to base64 data URI
+                        b64_data = base64.b64encode(image_bytes).decode('utf-8')
                         data_uri = f"data:image/png;base64,{b64_data}"
                         
-                        print(f"✓ Generated image: {len(final_data)} bytes (size: {generated_size})")
+                        print(f"✓ Generated image: {len(image_bytes)} bytes (size: {generated_size})")
                         return data_uri
             
             print("✗ No image data in response")
