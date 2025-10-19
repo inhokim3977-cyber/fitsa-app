@@ -44,14 +44,25 @@ class ReplicateService:
             
             print("Using base64 data URIs with optimized parameters...")
             
-            # Optimized parameters for preserving hands and background
+            # Category-specific garment descriptions for accurate fitting
+            # CRITICAL: Preserve clothing length and proportions
+            garment_descriptions = {
+                "upper_body": "upper body clothing only. Preserve exact garment length from shoulders to waist. Keep hands, face, and background unchanged.",
+                "lower_body": "lower body clothing only. Preserve exact garment length from waist to hem. Do not crop or shorten. Keep upper body, hands, and background unchanged.",
+                "dresses": "full-length dress. CRITICAL: Preserve EXACT dress length from shoulders to original hemline. If dress reaches knees, keep it at knees. If dress is long, keep it long. Do NOT shorten the dress. Maintain dress proportions and length precisely. Keep hands, face, and background unchanged."
+            }
+            
+            garment_des = garment_descriptions.get(category, garment_descriptions["upper_body"])
+            print(f"Using garment description: {garment_des[:80]}...")
+            
+            # Optimized parameters for preserving hands, background, and CLOTHING LENGTH
             # Higher steps = more accurate clothing region detection
             # Lower guidance = preserve more of original image
             input_params = {
                 "human_img": person_data_uri,
                 "garm_img": clothing_data_uri,
                 "category": category,
-                "garment_des": "clothing item only, preserve hands and background",
+                "garment_des": garment_des,
                 "n_steps": 40,  # Increased for better accuracy
                 "guidance_scale": 1.5,  # Reduced to preserve more original
                 "seed": 42  # Consistent results
