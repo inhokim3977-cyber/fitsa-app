@@ -64,13 +64,13 @@ async function checkFlaskReadiness() {
 app.use(async (req, res) => {
   // If Flask not ready yet, provide startup health responses
   if (!flaskReady) {
-    // GET "/" → 200 text/html (for deployment health check)
-    if (req.method === 'GET' && req.url === '/') {
+    // GET/HEAD "/" → 200 text/html (for deployment health check)
+    if ((req.method === 'GET' || req.method === 'HEAD') && req.url === '/') {
       return res.status(200).type('text/html').send('OK — starting');
     }
     
-    // GET "/health" → 200 application/json (for health check)
-    if (req.method === 'GET' && req.url === '/health') {
+    // GET/HEAD "/health" → 200 application/json (for health check)
+    if ((req.method === 'GET' || req.method === 'HEAD') && req.url === '/health') {
       return res.status(200).json({ status: 'ok' });
     }
     
