@@ -601,8 +601,13 @@ async function purchaseCredits() {
         const data = await response.json();
         
         if (data.url) {
-            // Redirect to Stripe Checkout
-            window.location.href = data.url;
+            // Open Stripe Checkout in a new tab (iframe blocks it)
+            const stripeWindow = window.open(data.url, '_blank');
+            if (!stripeWindow) {
+                alert('❌ 팝업이 차단되었습니다. 브라우저 설정에서 팝업 허용을 활성화해주세요.\n\n또는 아래 링크를 복사해서 새 탭에서 열어주세요:\n' + data.url);
+            } else {
+                alert('💳 Stripe 결제 페이지가 새 탭에서 열렸습니다. 결제 완료 후 이 페이지로 돌아와주세요!');
+            }
         } else {
             alert('결제 세션 생성에 실패했습니다.');
         }
