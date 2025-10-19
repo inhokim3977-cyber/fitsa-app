@@ -4,13 +4,14 @@
 
 This is a Virtual Fitting application that allows users to virtually try on clothing items using AI technology. Users upload a photo of themselves and a photo of a clothing item, and the app generates a composite image showing how the clothing would look when worn. 
 
-**Current Implementation: Flask Backend (Following AIFurnish Interior App Structure)** ✅
+**Current Implementation: Flask Backend with Monetization MVP** ✅
 
 The app uses:
 - **Node.js Proxy (5000)**: Opens port for Autoscale deployment, proxies to Flask ✅
 - **Flask Backend (5001)**: AI pipeline with Gemini 2.5 Flash + background removal
 - **Static HTML/CSS/JS Frontend**: Artistic circular layout with glassmorphism
 - **Mobile Responsive**: Vertical layout for portrait mode (all inputs visible)
+- **Monetization System**: 3 free tries/day → Stripe Checkout ($2 = 10 credits) ✅
 
 ## How to Run
 
@@ -112,11 +113,47 @@ Preferred communication style: Simple, everyday language.
 - ✅ Preserves hands/objects for upper body & dress (Gemini)
 - ✅ Mobile responsive layout - vertical stacking on portrait mode
 - ✅ Node.js proxy (5000) → Flask (5001) for Replit deployment
+- ✅ **Monetization MVP**: Free-to-paid conversion with Stripe integration
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)
 - Bottom (하의): lower_body - ✅ Gemini (preserves full body, may affect hands)
 - Dress (원피스): dress - ✅ Gemini (full body preservation)
+
+### Monetization System ✅
+
+**Business Model**
+- Free tier: 3 virtual try-ons per day per user
+- Paid tier: $2 USD = 10 credits (credits never expire)
+- User identification: IP + User-Agent hash (no signup required)
+
+**Implementation**
+- **Database**: SQLite (`credits.db`) with users table
+  - Schema: `user_key, free_used_today, credits, last_reset`
+  - Daily reset logic: Free tries reset at midnight UTC
+- **Payment Processing**: Stripe Checkout (test mode)
+  - Product: "Virtual Try-On Credits"
+  - Price: $2.00 USD
+  - Credits awarded: 10 per purchase
+- **API Endpoints**:
+  - `GET /stripe/user-status` - Get current credit balance
+  - `POST /stripe/create-checkout-session` - Initiate payment
+  - `POST /stripe/webhook` - Handle payment completion
+  - `POST /stripe/simulate-purchase` - Testing endpoint (bypass Stripe)
+- **Credit Consumption**:
+  - Priority: Free tries consumed first, then paid credits
+  - 1 credit = 1 virtual try-on request
+  - 402 Payment Required response when no credits available
+- **Frontend Integration**:
+  - Credit status display on homepage
+  - Buy credits button (shown when balance is 0)
+  - Real-time credit updates after generation
+  - Success page after payment completion
+
+**Testing**
+- Stripe test card: 4242 4242 4242 4242
+- Test endpoint: `/stripe/simulate-purchase` (adds 10 credits without payment)
+- E2E test verified: Free tries → 402 → Purchase → Credit consumption
 
 ### Data Storage Solutions
 
