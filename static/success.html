@@ -123,6 +123,32 @@
     </div>
     
     <script>
+        // Extract session_id from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        if (sessionId) {
+            // Call backend to complete purchase and add credits
+            fetch('/stripe/complete-purchase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ session_id: sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('✓ Credits added:', data);
+                } else {
+                    console.error('Failed to add credits:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        
         // Auto redirect after 5 seconds
         setTimeout(() => {
             window.location.href = '/';

@@ -28,7 +28,8 @@ class CreditsService:
         migrations = [
             ('last_request_hash', 'TEXT DEFAULT NULL'),
             ('refit_count', 'INTEGER DEFAULT 0'),
-            ('last_refit_reset', 'TEXT DEFAULT CURRENT_TIMESTAMP')
+            ('last_refit_reset', 'TEXT DEFAULT CURRENT_TIMESTAMP'),
+            ('completed_sessions', 'TEXT DEFAULT NULL')
         ]
         
         for column_name, column_type in migrations:

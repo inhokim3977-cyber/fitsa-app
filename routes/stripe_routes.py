@@ -119,6 +119,96 @@ def get_user_status():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@stripe_bp.route('/complete-purchase', methods=['POST'])
+def complete_purchase():
+    """Complete purchase after Stripe checkout (called from /success page)"""
+    try:
+        import sqlite3
+        
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        if not session_id:
+            return jsonify({'error': 'No session_id provided'}), 400
+        
+        print(f"[/stripe/complete-purchase] Processing session: {session_id}")
+        
+        # Retrieve the session from Stripe
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        print(f"[/stripe/complete-purchase] Payment status: {session.payment_status}")
+        
+        # Check if payment was successful
+        if session.payment_status != 'paid':
+            return jsonify({'error': 'Payment not completed'}), 400
+        
+        # Get user_key from session metadata
+        user_key = session.client_reference_id
+        
+        if not user_key:
+            return jsonify({'error': 'No user_key in session'}), 400
+        
+        print(f"[/stripe/complete-purchase] User key: {user_key}")
+        
+        # Check if credits were already added for this session
+        # (to prevent double-adding if user refreshes /success page)
+        conn = sqlite3.connect(credits_service.db_path)
+        c = conn.cursor()
+        c.execute('SELECT completed_sessions FROM users WHERE user_key = ?', (user_key,))
+        result = c.fetchone()
+        
+        completed_sessions = set()
+        if result and result[0]:
+            completed_sessions = set(result[0].split(','))
+        
+        if session_id in completed_sessions:
+            print(f"✓ Session {session_id} already processed - skipping credit addition")
+            conn.close()
+            
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+            user_agent = request.headers.get('User-Agent', '')
+            status = credits_service.get_user_status(ip, user_agent)
+            
+            return jsonify({
+                'success': True,
+                'message': '크레딧이 이미 추가되었습니다',
+                'credits_added': 0,
+                'new_balance': status
+            })
+        
+        # Add credits
+        credits_service.add_credits(user_key, CREDITS_PER_PURCHASE)
+        
+        # Mark session as completed
+        completed_sessions.add(session_id)
+        c.execute('''
+            UPDATE users 
+            SET completed_sessions = ? 
+            WHERE user_key = ?
+        ''', (','.join(completed_sessions), user_key))
+        conn.commit()
+        conn.close()
+        
+        print(f"✓ Added {CREDITS_PER_PURCHASE} credits for session {session_id}")
+        
+        # Get updated status
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        user_agent = request.headers.get('User-Agent', '')
+        status = credits_service.get_user_status(ip, user_agent)
+        
+        return jsonify({
+            'success': True,
+            'message': f'{CREDITS_PER_PURCHASE} 크레딧이 추가되었습니다!',
+            'credits_added': CREDITS_PER_PURCHASE,
+            'new_balance': status
+        })
+    
+    except Exception as e:
+        print(f"❌ Error completing purchase: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @stripe_bp.route('/simulate-purchase', methods=['POST'])
 def simulate_purchase():
     """Testing endpoint to simulate successful credit purchase (bypasses Stripe)"""
