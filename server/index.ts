@@ -33,7 +33,7 @@ async function waitForFlask(maxRetries = 60, delay = 1000): Promise<boolean> {
         method: 'GET'
       });
       if (response.status === 200) {
-        const data = await response.json();
+        const data = await response.json() as { status: string };
         if (data.status === 'ok') {
           console.log(`✅ Flask health check passed after ${i + 1} attempts (${(i + 1) * delay / 1000}s)`);
           return true;
