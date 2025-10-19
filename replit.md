@@ -152,16 +152,23 @@ Preferred communication style: Simple, everyday language.
   - Success page after payment completion
 
 **Refitting Feature** (October 2025)
-- **Smart Error Recovery**: Refit button allows unlimited retries with same photos
+- **Smart Error Recovery**: Refit button allows up to 5 retries per hour with same photos
 - **Zero Cost**: Refitting does NOT consume free tries or paid credits
+- **Rate Limit**: Maximum 5 refits per hour per photo set (prevents API cost abuse)
 - **How it works**: 
   - Backend calculates SHA256 hash of uploaded photos
   - Stores hash in DB `last_request_hash` column
   - If new request has same hash → detected as refitting → no charge
+  - Tracks `refit_count` and `last_refit_reset` in DB
+  - Counter resets after 1 hour OR when photos change
 - **Use Cases**: 
   - AI generation errors (wrong colors, artifacts, distortions)
   - User wants different AI output with same inputs
   - Improves customer satisfaction by allowing free retries
+- **Protection**: 
+  - 6th refit attempt returns 429 (Too Many Requests)
+  - Error message: "재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다."
+  - Applies to both free and paid users
 - **Button**: "🔄 같은 사진으로 다시 피팅 (무료)" appears after generation
 
 **Testing**
