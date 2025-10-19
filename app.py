@@ -41,6 +41,11 @@ def serve_object(object_path):
         print(f"Error proxying object: {e}")
         return "Object not found", 404
 
+# Health check endpoint
+@app.route('/health')
+def health():
+    return {'status': 'ok'}, 200
+
 # Serve frontend
 @app.route('/')
 def index():
@@ -98,4 +103,4 @@ def selftest_run():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False, threaded=True)

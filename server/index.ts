@@ -22,24 +22,32 @@ flask.on("error", (err) => {
 });
 
 // Wait for Flask to be ready
-async function waitForFlask(maxRetries = 30, delay = 500): Promise<boolean> {
+async function waitForFlask(maxRetries = 60, delay = 1000): Promise<boolean> {
   const fetch = (await import('node-fetch')).default;
+  
+  console.log(`Waiting for Flask health check (max ${maxRetries} retries, ${delay}ms delay)...`);
   
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await fetch(`http://127.0.0.1:${FLASK_PORT}/`, { 
+      const response = await fetch(`http://127.0.0.1:${FLASK_PORT}/health`, { 
         method: 'GET'
       });
-      if (response.status === 200 || response.status === 404) {
-        console.log(`Flask is ready after ${i + 1} attempts`);
-        return true;
+      if (response.status === 200) {
+        const data = await response.json();
+        if (data.status === 'ok') {
+          console.log(`✅ Flask health check passed after ${i + 1} attempts (${(i + 1) * delay / 1000}s)`);
+          return true;
+        }
       }
     } catch (error) {
       // Flask not ready yet, wait and retry
+      if (i % 5 === 0) {
+        console.log(`Waiting for Flask... attempt ${i + 1}/${maxRetries}`);
+      }
     }
     await new Promise(resolve => setTimeout(resolve, delay));
   }
-  console.error("Flask failed to start after maximum retries");
+  console.error(`❌ Flask failed to start after ${maxRetries} attempts (${maxRetries * delay / 1000}s total)`);
   return false;
 }
 
