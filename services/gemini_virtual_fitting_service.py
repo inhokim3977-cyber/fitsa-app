@@ -125,25 +125,40 @@ CRITICAL REQUIREMENTS:
 OUTPUT: Same photo with ONLY the glasses added."""
 
             elif category == 'dress':
-                prompt = """Virtual try-on task: Replace ALL clothing (top AND bottom) with the provided dress.
+                prompt = """CRITICAL VIRTUAL TRY-ON TASK: Person must wear ONLY the dress garment - NOTHING ELSE.
 
-MANDATORY STEPS:
-1. REMOVE: All original clothing (shirt, pants, skirt - everything)
-2. ADD: The dress garment only
-3. PRESERVE:
-   - Face (exact same)
-   - Hands and arms (exact same)
-   - Body shape (ZERO modification)
-   - Pose and position
-   - Background and objects
+STEP 1 - COMPLETE CLOTHING REMOVAL (MANDATORY):
+- DELETE all original top clothing (shirt, blouse, jacket - REMOVE EVERYTHING from upper body)
+- DELETE all original bottom clothing (pants, jeans, skirt, shorts - REMOVE EVERYTHING from lower body)
+- Person should be NAKED before putting on dress
+- CRITICAL: If person wears jeans/pants in original photo → COMPLETELY REMOVE THEM
+- CRITICAL: If person wears shirt/top in original photo → COMPLETELY REMOVE IT
 
-DRESS REQUIREMENTS:
-- Match dress length from garment image (if knee-length → show bare legs below knee)
-- Match dress style, color, pattern exactly
-- Natural fabric draping
-- NO pants/skirt visible under dress
+STEP 2 - ADD DRESS ONLY:
+- Put ONLY the dress on the person
+- Match exact dress length from garment image
+- Match exact dress style, color, pattern
+- Natural fabric draping and folds
 
-OUTPUT: Same person wearing ONLY the dress (no other clothing visible) with bare legs if dress is short."""
+STEP 3 - LEG VISIBILITY (CRITICAL):
+- IF dress is SHORT (above knee, mini dress, knee-length): Show BARE LEGS from hemline to feet
+- IF dress is LONG (below knee, maxi dress): Dress covers legs
+- ABSOLUTELY NO jeans/pants/leggings visible under dress
+- ABSOLUTELY NO original bottom clothing visible
+
+STEP 4 - PRESERVE:
+- Face: EXACT same
+- Hands and arms: EXACT same  
+- Body shape: ZERO modification
+- Pose: EXACT same
+- Background and objects: EXACT same
+
+FINAL CHECK:
+- Is person wearing ONLY the dress? YES/NO
+- Are jeans/pants COMPLETELY GONE? YES/NO
+- Are bare legs visible if dress is short? YES/NO
+
+OUTPUT: Same person wearing ONLY THE DRESS with no other clothing. If dress is short, bare legs must be visible."""
 
             else:  # upper_body or default
                 prompt = """ABSOLUTE PRIORITY: PRESERVE PERSON'S EXACT BODY SHAPE - NO ALTERATIONS WHATSOEVER
