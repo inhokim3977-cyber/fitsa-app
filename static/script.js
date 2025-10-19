@@ -298,12 +298,15 @@ async function generateFitting() {
                 }
                 
                 // Update credits display after successful generation
+                console.log('📊 Top data response:', topData);
                 if (topData.credits_info) {
+                    console.log('📊 Top credits info:', topData.credits_info);
                     updateCreditsDisplay(topData.credits_info.remaining_free, topData.credits_info.credits);
+                    
+                    // Update refit counter
+                    console.log('🔢 Updating refit counter (TOP) - is_refitting:', topData.credits_info.is_refitting, 'count:', topData.credits_info.refit_count);
+                    updateRefitCounter(topData.credits_info.is_refitting, topData.credits_info.refit_count || 0);
                 }
-                
-                // Update refit counter
-                updateRefitCounter(topData.credits_info?.is_refitting, topData.credits_info?.refit_count || 0);
                 
                 finalResultUrl = topData.resultUrl;
                 
@@ -347,12 +350,15 @@ async function generateFitting() {
                 }
                 
                 // Update credits display after successful generation
+                console.log('📊 Bottom data response:', bottomData);
                 if (bottomData.credits_info) {
+                    console.log('📊 Bottom credits info:', bottomData.credits_info);
                     updateCreditsDisplay(bottomData.credits_info.remaining_free, bottomData.credits_info.credits);
+                    
+                    // Update refit counter
+                    console.log('🔢 Updating refit counter (BOTTOM) - is_refitting:', bottomData.credits_info.is_refitting, 'count:', bottomData.credits_info.refit_count);
+                    updateRefitCounter(bottomData.credits_info.is_refitting, bottomData.credits_info.refit_count || 0);
                 }
-                
-                // Update refit counter
-                updateRefitCounter(bottomData.credits_info?.is_refitting, bottomData.credits_info?.refit_count || 0);
                 
                 finalResultUrl = bottomData.resultUrl;
             }
