@@ -1,8 +1,8 @@
-# Virtual Fitting App
+# 입사 (입어보고 사자)
 
 ## Overview
 
-This is a Virtual Fitting application that allows users to virtually try on clothing items using AI technology. Users upload a photo of themselves and a photo of a clothing item, and the app generates a composite image showing how the clothing would look when worn. 
+"입사"는 AI 기술을 활용한 가상 피팅 앱입니다. 사용자는 자신의 사진과 옷 사진을 업로드하면, AI가 자연스럽게 합성된 이미지를 생성합니다. "거울처럼 자연스럽게" - 기술이 아닌 결과 중심의 경험을 제공합니다. 
 
 **Current Implementation: Flask Backend with Monetization MVP** ✅
 
@@ -47,15 +47,14 @@ Preferred communication style: Simple, everyday language.
 - Download functionality for final images
 - Background removal checkbox (checked by default)
 
-**Design**
-- Minimal, clean aesthetic with light gray background (#F7F7F7)
-- Rose pink accent color (#F45B69) for buttons and highlights
-- Navy blue (#1E2A78) for secondary actions
-- Noto Sans KR font for Korean language interface
-- White cards with subtle shadows for depth
-- Smooth cubic-bezier transitions (0.4, 0, 0.2, 1)
-- Natural fade-in animations for results
-- Two clothing modes for flexible styling (상의+하의 / 원피스)
+**Design Philosophy: "거울처럼 자연스럽게"**
+- **결과 중심**: 큰 이미지, 여백 최소화, 기술 용어 제거
+- **재시도 중심**: "다시 입어보기" 메인 버튼, 원클릭 재시도
+- **공유 중심**: 모바일/데스크톱 최적화된 공유 기능
+- **색상**: Light gray (#F7F7F7) 배경, Rose pink (#F45B69) 메인 액션
+- **타이포그래피**: Noto Sans KR - 한글 최적화
+- **피드백**: "패브릭 입히는 중..." 같은 감성적 메시지
+- **게이지**: 재피팅 횟수 색상 시각화 (초록→노랑→빨강)
 
 **Mobile Responsive** ✅
 - @media (max-width: 768px) for mobile devices
@@ -108,18 +107,21 @@ Preferred communication style: Simple, everyday language.
 - `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-provided by Replit
 
 **Recent Improvements (October 2025)**
+- ✅ **브랜딩**: "입사" (입어보고 사자) - 명확한 앱 정체성
+- ✅ **거울 경험 UX**: 기술 과시 → 자연스러운 결과 중심 설계
+- ✅ **재피팅 게이지**: 5-4회(초록) / 3-2회(노랑) / 1-0회(빨강) 색상 시각화
+- ✅ **감성적 피드백**: "패브릭 입히는 중..." 로딩 텍스트
+- ✅ **공유 중심**: 모바일 SNS 공유 + 데스크톱 클립보드 복사
+- ✅ **5회 소진 안내**: "1시간 후 재시도 / 크레딧 사용" 명확한 안내
 - ✅ Simplified to 3 categories: upper_body, lower_body, dress
-- ✅ Removed hat, glasses, and shoes - focus on clothing only
 - ✅ Local rembg background removal (faster than Replicate)
 - ✅ Smart category-based AI routing for best results
-- ✅ Image format validation (PNG/JPG only)
 - ✅ Preserves hands/objects for upper body & dress (Gemini)
 - ✅ Mobile responsive layout - vertical stacking on portrait mode
-- ✅ Node.js proxy (5000) → Flask (5001) for Replit deployment
 - ✅ **Monetization MVP**: Free-to-paid conversion with Stripe integration
-- ✅ **Refitting Feature**: Unlimited free retries with same photos (no credit consumption)
-- ✅ **Cookie-based User Tracking**: 30-day persistent identification (replaces IP+UA)
-- ✅ **Design Overhaul**: Light gray background (#F7F7F7), rose pink buttons (#F45B69), Noto Sans KR font, natural fade/slide transitions
+- ✅ **Refitting Feature**: 5회/시간 무료 재시도 (크레딧 소모 없음)
+- ✅ **Cookie-based User Tracking**: 30-day persistent identification
+- ✅ **Design**: Light gray (#F7F7F7), rose pink (#F45B69), Noto Sans KR, natural transitions
 
 **Supported Categories:**
 - Top (상의): upper_body - ✅ Gemini (preserves hands/books/objects)

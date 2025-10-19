@@ -543,10 +543,20 @@ function resetAll() {
     generateBtn.disabled = true;
     
     // Reset refit counter
-    document.getElementById('refitCount').textContent = '0';
+    document.getElementById('refitCount').textContent = '5';
+    const refitBadge = document.getElementById('refitBadge');
+    if (refitBadge) {
+        refitBadge.className = 'px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200';
+    }
     const refitBtn = document.getElementById('refitBtn');
-    refitBtn.disabled = false;
-    refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    if (refitBtn) {
+        refitBtn.disabled = false;
+        refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    
+    // Remove limit message if exists
+    const limitMsg = document.getElementById('refitLimitMessage');
+    if (limitMsg) limitMsg.remove();
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -582,52 +592,80 @@ function updateRefitCounter(isRefitting, refitCount) {
     console.log('🔄 updateRefitCounter STARTED - isRefitting:', isRefitting, 'refitCount:', refitCount);
     
     const refitCountSpan = document.getElementById('refitCount');
+    const refitBadge = document.getElementById('refitBadge');
     const refitBtn = document.getElementById('refitBtn');
     
     console.log('🔍 DOM elements found:', {
         refitCountSpan: refitCountSpan ? 'YES' : 'NO',
+        refitBadge: refitBadge ? 'YES' : 'NO',
         refitBtn: refitBtn ? 'YES' : 'NO'
     });
     
-    if (!refitCountSpan) {
-        console.error('❌ refitCount span not found!');
-        alert('ERROR: refitCount 요소를 찾을 수 없습니다!');
-        return;
-    }
-    if (!refitBtn) {
-        console.error('❌ refitBtn button not found!');
-        alert('ERROR: refitBtn 버튼을 찾을 수 없습니다!');
+    if (!refitCountSpan || !refitBadge) {
+        console.error('❌ Refit counter elements not found!');
         return;
     }
     
-    // Always update the counter with the actual count from the backend
-    const oldValue = refitCountSpan.textContent;
-    refitCountSpan.textContent = refitCount.toString();
-    console.log('✅ Counter updated from', oldValue, 'to:', refitCount);
-    console.log('✅ New textContent:', refitCountSpan.textContent);
+    // Calculate remaining tries (5 - used)
+    const remaining = Math.max(0, 5 - refitCount);
     
-    // Add visual flash effect to make the update noticeable
-    refitCountSpan.style.transition = 'none';
-    refitCountSpan.style.transform = 'scale(1.5)';
-    refitCountSpan.style.color = '#fbbf24'; // yellow-400
-    setTimeout(() => {
-        refitCountSpan.style.transition = 'all 0.3s ease';
-        refitCountSpan.style.transform = 'scale(1)';
-        refitCountSpan.style.color = '#fcd34d'; // yellow-300
-    }, 200);
+    // Update counter text
+    refitCountSpan.textContent = remaining.toString();
+    console.log('✅ Counter updated - remaining:', remaining, '(used:', refitCount, ')');
     
-    // Disable button if limit reached (5 refits)
-    if (refitCount >= 5) {
-        refitBtn.disabled = true;
-        refitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        console.log('🚫 Refit button DISABLED (limit reached)');
+    // Update badge color based on remaining tries
+    // Remove all color classes first
+    refitBadge.className = 'px-4 py-2 rounded-full text-sm font-medium transition-all';
+    
+    if (remaining >= 4) {
+        // Green: 5-4 remaining
+        refitBadge.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+    } else if (remaining >= 2) {
+        // Yellow: 3-2 remaining
+        refitBadge.classList.add('bg-yellow-50', 'text-yellow-700', 'border', 'border-yellow-200');
     } else {
-        refitBtn.disabled = false;
-        refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        console.log('✅ Refit button ENABLED (count:', refitCount, ')');
+        // Red: 1-0 remaining
+        refitBadge.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+    }
+    
+    // Handle 0 remaining (limit reached)
+    if (remaining === 0) {
+        if (refitBtn) {
+            refitBtn.disabled = true;
+            refitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        
+        // Show limit reached message
+        showRefitLimitMessage();
+        console.log('🚫 Refit limit reached (5/5 used)');
+    } else {
+        if (refitBtn) {
+            refitBtn.disabled = false;
+            refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        console.log('✅ Refit button ENABLED (remaining:', remaining, ')');
     }
     
     console.log('🔄 updateRefitCounter COMPLETED');
+}
+
+function showRefitLimitMessage() {
+    // Check if message already exists
+    if (document.getElementById('refitLimitMessage')) return;
+    
+    const refitCounter = document.getElementById('refitCounter');
+    const message = document.createElement('div');
+    message.id = 'refitLimitMessage';
+    message.className = 'mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800';
+    message.innerHTML = `
+        <p class="font-semibold mb-2">재피팅 한도에 도달했어요!</p>
+        <p class="text-xs opacity-90">
+            • 1시간 후 다시 무료로 재시도하거나<br>
+            • 지금 다른 옷으로 새 피팅을 해보세요 (크레딧 1회 사용)
+        </p>
+    `;
+    
+    refitCounter.parentElement.appendChild(message);
 }
 
 async function purchaseCredits() {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 가상 피팅 - 스타일 믹스</title>
+    <title>입사 - 입어보고 사자</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -216,8 +216,8 @@
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-8">
-                <h1 class="text-5xl font-bold text-gray-800 mb-4">가상 피팅</h1>
-                <p class="text-gray-600 text-lg">내 사진에 어울리는 스타일을 찾아보세요</p>
+                <h1 class="text-5xl font-bold text-gray-800 mb-4">입사</h1>
+                <p class="text-gray-600 text-lg">입어보고 사자 - 내 사진에 어울리는 스타일 찾기</p>
             </div>
 
             <!-- Credits Display -->
@@ -349,7 +349,8 @@
                 </button>
                 <div id="loadingIndicator" class="hidden mt-6">
                     <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
-                    <p class="text-gray-700 mt-4 font-semibold">잠시만 기다려주세요</p>
+                    <p class="text-gray-700 mt-4 font-semibold">패브릭 입히는 중...</p>
+                    <p class="text-gray-500 text-sm mt-2">완성까지 약 30초 소요됩니다</p>
                 </div>
             </div>
             
@@ -384,9 +385,20 @@
                         </button>
                     </div>
                     
-                    <!-- Refit Counter (Subtle) -->
-                    <div id="refitCounter" class="text-center text-gray-400 text-xs hidden">
-                        재시도 <span id="refitCount">0</span>/5
+                    <!-- Refit Info & Counter -->
+                    <div class="text-center space-y-3 mt-6">
+                        <!-- Refit Counter Badge -->
+                        <div id="refitCounter" class="inline-block">
+                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200">
+                                재피팅 <span id="refitCount">5</span>/5회 남음
+                                <span id="refitTimer" class="text-xs opacity-75"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Help Text -->
+                        <p class="text-gray-500 text-xs">
+                            💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)
+                        </p>
                     </div>
                 </div>
             </div>
