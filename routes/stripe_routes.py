@@ -149,6 +149,8 @@ def simulate_purchase():
 def reset_credits():
     """Testing endpoint to reset user credits to zero (for testing payment flow)"""
     try:
+        import sqlite3
+        
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         user_agent = request.headers.get('User-Agent', '')
         user_key = credits_service.get_user_key(ip, user_agent)
@@ -156,12 +158,15 @@ def reset_credits():
         print(f"[/stripe/reset-credits] Resetting credits for user {user_key}")
         
         # Reset all credits and free tries
-        credits_service.db.execute("""
+        conn = sqlite3.connect(credits_service.db_path)
+        c = conn.cursor()
+        c.execute("""
             UPDATE users 
             SET free_used_today = 3, credits = 0
             WHERE user_key = ?
         """, (user_key,))
-        credits_service.db.commit()
+        conn.commit()
+        conn.close()
         
         status = credits_service.get_user_status(ip, user_agent)
         
