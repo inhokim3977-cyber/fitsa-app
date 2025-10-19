@@ -403,11 +403,13 @@ async function generateFitting() {
             
             // Update credits display after successful generation
             if (dressData.credits_info) {
+                console.log('📊 Credits info:', dressData.credits_info);
                 updateCreditsDisplay(dressData.credits_info.remaining_free, dressData.credits_info.credits);
+                
+                // Update refit counter
+                console.log('🔢 Updating refit counter - is_refitting:', dressData.credits_info.is_refitting, 'count:', dressData.credits_info.refit_count);
+                updateRefitCounter(dressData.credits_info.is_refitting, dressData.credits_info.refit_count || 0);
             }
-            
-            // Update refit counter
-            updateRefitCounter(dressData.credits_info?.is_refitting, dressData.credits_info?.refit_count || 0);
             
             const resultImage = document.getElementById('resultImage');
             resultImage.src = dressData.resultUrl;
@@ -501,24 +503,33 @@ function updateCreditsDisplay(remainingFree, credits) {
 }
 
 function updateRefitCounter(isRefitting, refitCount) {
+    console.log('🔄 updateRefitCounter called - isRefitting:', isRefitting, 'refitCount:', refitCount);
+    
     const refitCountSpan = document.getElementById('refitCount');
     const refitBtn = document.getElementById('refitBtn');
     
-    if (isRefitting) {
-        // This was a refit - show updated count
-        refitCountSpan.textContent = refitCount;
-    } else {
-        // This was a new generation - reset counter
-        refitCountSpan.textContent = '0';
+    if (!refitCountSpan) {
+        console.error('❌ refitCount span not found!');
+        return;
     }
+    if (!refitBtn) {
+        console.error('❌ refitBtn button not found!');
+        return;
+    }
+    
+    // Always update the counter with the actual count from the backend
+    refitCountSpan.textContent = refitCount.toString();
+    console.log('✅ Counter updated to:', refitCount);
     
     // Disable button if limit reached (5 refits)
     if (refitCount >= 5) {
         refitBtn.disabled = true;
         refitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        console.log('🚫 Refit button DISABLED (limit reached)');
     } else {
         refitBtn.disabled = false;
         refitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        console.log('✅ Refit button ENABLED');
     }
 }
 
