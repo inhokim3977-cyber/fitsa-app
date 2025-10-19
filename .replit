@@ -15,10 +15,6 @@ run = ["sh", "-c", "python app.py"]
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 35775
-externalPort = 3000
-
 [env]
 PORT = "5000"
 
