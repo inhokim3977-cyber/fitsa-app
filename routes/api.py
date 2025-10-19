@@ -42,7 +42,7 @@ def virtual_fitting():
         request_hash = credits_service.calculate_request_hash(user_photo_bytes, clothing_photo_bytes)
         
         # Check user's credit status with refitting detection
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
         user_agent = request.headers.get('User-Agent', '')
         
         allowed, info = credits_service.check_and_consume(ip, user_agent, request_hash)
