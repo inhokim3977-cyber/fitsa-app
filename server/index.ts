@@ -31,10 +31,10 @@ flask.on("error", (err) => {
 // Background task: continuously check Flask readiness
 async function checkFlaskReadiness() {
   const fetch = (await import('node-fetch')).default;
-  const maxRetries = 60;
-  const delay = 1000;
+  const maxRetries = 120; // Increased from 60
+  const delay = 500; // Decreased from 1000ms to 500ms
   
-  console.log(`Background task: checking Flask health (max ${maxRetries} retries, ${delay}ms delay)...`);
+  console.log(`Background task: checking Flask health (max ${maxRetries} retries, ${delay}ms delay, total ${maxRetries * delay / 1000}s)...`);
   
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -51,7 +51,7 @@ async function checkFlaskReadiness() {
       }
     } catch (error) {
       // Flask not ready yet, wait and retry
-      if (i % 5 === 0) {
+      if (i % 10 === 0) {
         console.log(`Flask not ready... attempt ${i + 1}/${maxRetries}`);
       }
     }
@@ -64,14 +64,33 @@ async function checkFlaskReadiness() {
 app.use(async (req, res) => {
   // If Flask not ready yet, provide startup health responses
   if (!flaskReady) {
-    // GET/HEAD "/" → 200 text/html (for deployment health check)
-    if ((req.method === 'GET' || req.method === 'HEAD') && req.url === '/') {
-      return res.status(200).type('text/html').send('OK — starting');
+    // HEAD/GET "/" → 200 text/html (for deployment health check)
+    if (req.url === '/') {
+      res.status(200).type('text/html');
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
+      return res.send('OK — starting');
     }
     
-    // GET/HEAD "/health" → 200 application/json (for health check)
-    if ((req.method === 'GET' || req.method === 'HEAD') && req.url === '/health') {
-      return res.status(200).json({ status: 'ok' });
+    // HEAD/GET "/health" → 200 application/json (for health check)
+    if (req.url === '/health') {
+      res.status(200).type('application/json');
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
+      return res.json({ status: 'ok' });
+    }
+    
+    // HEAD/GET "/script.js" → 200 application/javascript (temporary warming response)
+    if (req.url === '/script.js') {
+      res.status(200)
+         .type('application/javascript')
+         .setHeader('Cache-Control', 'public, max-age=60');
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
+      return res.send('// warming up');
     }
     
     // Other paths → 503 Service Unavailable
