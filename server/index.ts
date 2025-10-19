@@ -24,27 +24,44 @@ app.use((req, res, next) => {
   // Log warmup requests
   console.log(`[warmup] ${req.method} ${req.path}`);
 
-  // 1) ALL HEAD requests → 200 immediate
-  if (req.method === 'HEAD') {
-    return res.status(200).set('Content-Type', 'text/plain').end();
-  }
+  // Helper to set common headers for warmup responses
+  const setWarmupHeaders = (contentType: string, cacheControl: string = 'public, max-age=10') => {
+    res.status(200)
+       .type(contentType)
+       .setHeader('Cache-Control', cacheControl)
+       .setHeader('ETag', `"warmup-${Date.now()}"`);
+  };
 
-  // 2) GET "/" → 200 text/html
+  // 1) GET/HEAD "/" → 200 text/html
   if (req.path === '/') {
-    return res.status(200).type('text/html').send('OK — starting');
+    setWarmupHeaders('text/html', 'no-cache');
+    if (req.method === 'HEAD') {
+      return res.end();
+    }
+    return res.send('OK — starting');
   }
 
-  // 3) GET "/health" → 200 application/json
+  // 2) GET/HEAD "/health" → 200 application/json
   if (req.path === '/health') {
-    return res.status(200).type('application/json').json({ status: 'ok' });
+    setWarmupHeaders('application/json', 'no-cache');
+    if (req.method === 'HEAD') {
+      return res.end();
+    }
+    return res.json({ status: 'ok' });
   }
 
-  // 4) ALL .js files (with or without query strings) → 200 application/javascript
+  // 3) GET/HEAD .js files → 200 application/javascript
   if (req.path.endsWith('.js')) {
-    return res.status(200)
-      .type('application/javascript')
-      .setHeader('Cache-Control', 'public, max-age=60')
-      .send('// warming up');
+    setWarmupHeaders('application/javascript', 'public, max-age=60');
+    if (req.method === 'HEAD') {
+      return res.end();
+    }
+    return res.send('// warming up');
+  }
+
+  // 4) All other HEAD requests → 200 text/plain
+  if (req.method === 'HEAD') {
+    return res.status(200).type('text/plain').end();
   }
 
   // 5) All other paths → 503
