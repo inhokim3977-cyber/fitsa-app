@@ -285,11 +285,13 @@ async function generateFitting() {
                     signal: controller.signal
                 }).finally(() => clearTimeout(timeoutId));
                 
-                // Handle error responses
+                // Handle error responses - read text first to avoid consuming body
+                const topResponseText = await topResponse.text();
+                
                 if (!topResponse.ok) {
                     let errorMsg = '서버 오류가 발생했습니다.';
                     try {
-                        const errorData = await topResponse.json();
+                        const errorData = JSON.parse(topResponseText);
                         errorMsg = errorData.message || errorData.error || errorMsg;
                         
                         if (topResponse.status === 402) {
@@ -304,15 +306,14 @@ async function generateFitting() {
                         }
                     } catch (parseError) {
                         // If response is not JSON (e.g., rate limit error from Gemini)
-                        const errorText = await topResponse.text();
-                        console.error('Non-JSON error response:', errorText);
+                        console.error('Non-JSON error response:', topResponseText);
                         errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                     }
                     alert(errorMsg);
                     return;
                 }
                 
-                const topData = await topResponse.json();
+                const topData = JSON.parse(topResponseText);
                 if (topData.error) {
                     alert('상의 피팅 오류: ' + topData.error);
                     return;
@@ -356,11 +357,13 @@ async function generateFitting() {
                     signal: controller2.signal
                 }).finally(() => clearTimeout(timeoutId2));
                 
-                // Handle error responses
+                // Handle error responses - read text first to avoid consuming body
+                const bottomResponseText = await bottomResponse.text();
+                
                 if (!bottomResponse.ok) {
                     let errorMsg = '서버 오류가 발생했습니다.';
                     try {
-                        const errorData = await bottomResponse.json();
+                        const errorData = JSON.parse(bottomResponseText);
                         errorMsg = errorData.message || errorData.error || errorMsg;
                         
                         if (bottomResponse.status === 402) {
@@ -375,15 +378,14 @@ async function generateFitting() {
                         }
                     } catch (parseError) {
                         // If response is not JSON (e.g., rate limit error from Gemini)
-                        const errorText = await bottomResponse.text();
-                        console.error('Non-JSON error response:', errorText);
+                        console.error('Non-JSON error response:', bottomResponseText);
                         errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                     }
                     alert(errorMsg);
                     return;
                 }
                 
-                const bottomData = await bottomResponse.json();
+                const bottomData = JSON.parse(bottomResponseText);
                 if (bottomData.error) {
                     alert('하의 피팅 오류: ' + bottomData.error);
                     return;
@@ -433,11 +435,13 @@ async function generateFitting() {
                 signal: controller.signal
             }).finally(() => clearTimeout(timeoutId));
             
-            // Handle error responses
+            // Handle error responses - read text first to avoid consuming body
+            const dressResponseText = await dressResponse.text();
+            
             if (!dressResponse.ok) {
                 let errorMsg = '서버 오류가 발생했습니다.';
                 try {
-                    const errorData = await dressResponse.json();
+                    const errorData = JSON.parse(dressResponseText);
                     errorMsg = errorData.message || errorData.error || errorMsg;
                     
                     if (dressResponse.status === 402) {
@@ -452,15 +456,14 @@ async function generateFitting() {
                     }
                 } catch (parseError) {
                     // If response is not JSON (e.g., rate limit error from Gemini)
-                    const errorText = await dressResponse.text();
-                    console.error('Non-JSON error response:', errorText);
+                    console.error('Non-JSON error response:', dressResponseText);
                     errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                 }
                 alert(errorMsg);
                 return;
             }
             
-            const dressData = await dressResponse.json();
+            const dressData = JSON.parse(dressResponseText);
             if (dressData.error) {
                 alert('원피스 피팅 오류: ' + dressData.error);
                 return;
