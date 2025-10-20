@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.0.1'; // Increment this to force reload
+            const APP_VERSION = '2.1.0'; // NEW BRITISH TAILOR SHOP THEME
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
@@ -27,23 +27,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* British Luxury Tailor Shop Color Theme */
+        :root {
+            --primary-green: #1E3D2B;
+            --wood-brown: #8B6A4A;
+            --gold: #D9B377;
+            --ivory: #F5F1EA;
+            --text-dark: #222222;
+            --white: #FFFFFF;
+        }
+        
         * {
             font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         body {
-            background: #2C4A3E;
+            background: var(--ivory);
             min-height: 100vh;
         }
         
         .drop-zone {
-            border: 8px solid #8B6B47;
+            border: 8px solid var(--wood-brown);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: white;
+            background: var(--white);
             box-shadow: 
-                inset 0 0 0 2px #A0826D,
-                inset 0 0 0 4px #6B4E31,
-                0 4px 12px rgba(0, 0, 0, 0.15),
+                inset 0 0 0 2px var(--gold),
+                inset 0 0 0 4px var(--primary-green),
+                0 4px 12px rgba(30, 61, 43, 0.15),
                 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
         }
@@ -55,29 +65,29 @@
             left: -8px;
             right: -8px;
             bottom: -8px;
-            border: 2px solid #5C3D2E;
+            border: 2px solid var(--primary-green);
             pointer-events: none;
         }
         
         .drop-zone:hover {
-            border-color: #A0826D;
+            border-color: var(--gold);
             background: #FFFEF9;
             transform: scale(1.02);
             box-shadow: 
-                inset 0 0 0 2px #C9A581,
-                inset 0 0 0 4px #8B6B47,
-                0 6px 16px rgba(139, 107, 71, 0.2),
+                inset 0 0 0 2px var(--gold),
+                inset 0 0 0 4px var(--wood-brown),
+                0 6px 16px rgba(217, 179, 119, 0.3),
                 0 3px 6px rgba(0, 0, 0, 0.15);
         }
         
         .drop-zone.drag-over {
-            border-color: #C9A581;
+            border-color: var(--gold);
             background: #FFFCF5;
             transform: scale(1.05);
             box-shadow: 
-                inset 0 0 0 2px #D4B896,
-                inset 0 0 0 4px #A0826D,
-                0 8px 24px rgba(139, 107, 71, 0.3),
+                inset 0 0 0 2px var(--gold),
+                inset 0 0 0 4px var(--wood-brown),
+                0 8px 24px rgba(217, 179, 119, 0.4),
                 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
@@ -96,9 +106,9 @@
             right: -12px;
             bottom: -12px;
             border-radius: 50%;
-            border: 3px solid #5C3D2E;
+            border: 3px solid var(--primary-green);
             pointer-events: none;
-            box-shadow: 0 0 0 1px #3D2817;
+            box-shadow: 0 0 0 1px var(--wood-brown);
         }
         
         .item-drop {
@@ -154,7 +164,7 @@
         }
         
         .glow {
-            box-shadow: 0 4px 20px rgba(244, 91, 105, 0.2);
+            box-shadow: 0 4px 20px rgba(217, 179, 119, 0.3);
         }
 
         .cloth-type-btn {
@@ -162,10 +172,15 @@
         }
 
         .cloth-type-btn.active {
-            background: #F45B69;
+            background: var(--primary-green);
             color: white;
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(244, 91, 105, 0.3);
+            box-shadow: 0 4px 12px rgba(30, 61, 43, 0.4);
+        }
+
+        .cloth-type-btn:hover:not(.active) {
+            background: var(--gold);
+            color: white;
         }
 
         .delete-btn {
@@ -174,7 +189,7 @@
             right: -8px;
             width: 32px;
             height: 32px;
-            background: #F45B69;
+            background: var(--primary-green);
             border-radius: 50%;
             display: none;
             align-items: center;
@@ -182,13 +197,13 @@
             cursor: pointer;
             z-index: 10;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(244, 91, 105, 0.3);
+            box-shadow: 0 2px 8px rgba(30, 61, 43, 0.3);
         }
 
         .delete-btn:hover {
-            background: #E04555;
+            background: var(--gold);
             transform: scale(1.15);
-            box-shadow: 0 4px 12px rgba(244, 91, 105, 0.4);
+            box-shadow: 0 4px 12px rgba(217, 179, 119, 0.4);
         }
         
         /* Fade transition for results */
@@ -213,11 +228,11 @@
         
         /* Wood Frame Mirror for Result Image */
         .wood-frame-mirror {
-            border: 12px solid #8B6B47;
+            border: 12px solid var(--wood-brown);
             border-radius: 24px;
             box-shadow: 
-                inset 0 0 0 3px #A0826D,
-                inset 0 0 0 6px #6B4E31,
+                inset 0 0 0 3px var(--gold),
+                inset 0 0 0 6px var(--primary-green),
                 0 6px 20px rgba(0, 0, 0, 0.2),
                 0 3px 8px rgba(0, 0, 0, 0.15);
             position: relative;
@@ -232,7 +247,7 @@
             right: -12px;
             bottom: -12px;
             border-radius: 24px;
-            border: 3px solid #5C3D2E;
+            border: 3px solid var(--primary-green);
             pointer-events: none;
         }
         
@@ -244,7 +259,7 @@
             right: -15px;
             bottom: -15px;
             border-radius: 26px;
-            box-shadow: 0 0 0 1px #3D2817;
+            box-shadow: 0 0 0 1px var(--wood-brown);
             pointer-events: none;
         }
 
@@ -341,10 +356,10 @@
 <body class="overflow-x-hidden">
     <div class="min-h-screen py-4 px-4">
         <div class="max-w-7xl mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-2">
-                <h1 class="text-7xl font-bold mb-2" style="color: #D4C5A0;">입사</h1>
-                <p class="text-2xl" style="color: #C9B896;">입어보고 사자 - 내 사진에 어울리는 스타일 찾기</p>
+            <!-- Header with British Tailor Shop Gradient -->
+            <div class="text-center mb-2" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--wood-brown) 100%); padding: 2rem; border-radius: 16px; border-bottom: 4px solid var(--gold); box-shadow: 0 4px 20px rgba(30, 61, 43, 0.2);">
+                <h1 class="text-7xl font-bold mb-2" style="color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">FITSA</h1>
+                <p class="text-2xl" style="color: #F5F1EA;">입어보고 사자 - 내 사진에 어울리는 스타일 찾기</p>
             </div>
 
             <!-- Credits Display -->
@@ -360,7 +375,7 @@
                         <p class="text-gray-800 text-3xl font-bold"><span id="creditsCount">0</span></p>
                     </div>
                 </div>
-                <button id="buyCreditsBtn" class="hidden mt-4 w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-3 px-6 rounded-full hover:from-pink-600 hover:to-rose-600 transition-all transform hover:scale-105" style="background: linear-gradient(135deg, #F45B69 0%, #E04555 100%);">
+                <button id="buyCreditsBtn" class="hidden mt-4 w-full text-white font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105" style="background: var(--primary-green); box-shadow: 0 4px 12px rgba(30, 61, 43, 0.3);" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--primary-green)'">
                     💳 크레딧 구매 ($2 = 10회)
                 </button>
                 
@@ -380,12 +395,12 @@
 
             <!-- Clothing Type Selection -->
             <div class="text-center" style="margin-bottom: 2px;">
-                <p class="font-semibold" style="color: #C9B896; margin-bottom: 8px;">👔 피팅할 옷 종류를 선택하세요</p>
+                <p class="font-semibold" style="color: var(--wood-brown); margin-bottom: 8px;">👔 피팅할 옷 종류를 선택하세요</p>
                 <div class="flex justify-center gap-4">
-                    <button data-type="separate" class="cloth-type-btn active px-6 py-3 bg-white text-gray-700 rounded-full font-medium hover:bg-gray-50 shadow-md border border-gray-200">
+                    <button data-type="separate" class="cloth-type-btn active px-6 py-3 bg-white text-gray-700 rounded-full font-medium shadow-md" style="border: 2px solid var(--primary-green);">
                         상의 + 하의
                     </button>
-                    <button data-type="dress" class="cloth-type-btn px-6 py-3 bg-white text-gray-700 rounded-full font-medium hover:bg-gray-50 shadow-md border border-gray-200">
+                    <button data-type="dress" class="cloth-type-btn px-6 py-3 bg-white text-gray-700 rounded-full font-medium shadow-md" style="border: 2px solid var(--primary-green);">
                         원피스 / 전체
                     </button>
                 </div>
@@ -471,13 +486,13 @@
             
             <!-- Generate Button -->
             <div class="text-center mb-12 mt-20">
-                <button id="generateBtn" disabled class="px-12 py-4 text-white rounded-full font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-all shadow-xl" style="background: linear-gradient(135deg, #F45B69 0%, #E04555 100%);">
+                <button id="generateBtn" disabled class="px-12 py-4 text-white rounded-full font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-all shadow-xl" style="background: var(--primary-green); box-shadow: 0 6px 24px rgba(30, 61, 43, 0.4);" onmouseover="if(!this.disabled) this.style.background='var(--gold)'" onmouseout="if(!this.disabled) this.style.background='var(--primary-green)'">
                     입어보기
                 </button>
                 <div id="loadingIndicator" class="hidden mt-6">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
-                    <p class="text-gray-700 mt-4 font-semibold">패브릭 입히는 중...</p>
-                    <p class="text-gray-500 text-sm mt-2">완성까지 약 30초 소요됩니다</p>
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style="border-color: var(--gold); border-top-color: transparent;"></div>
+                    <p class="mt-4 font-semibold" style="color: var(--text-dark);">패브릭 입히는 중...</p>
+                    <p class="text-sm mt-2" style="color: var(--wood-brown);">완성까지 약 30초 소요됩니다</p>
                 </div>
             </div>
             
@@ -494,13 +509,13 @@
                 <div class="max-w-2xl mx-auto space-y-4">
                     <!-- Primary Actions -->
                     <div class="flex justify-center items-center gap-3 flex-wrap">
-                        <button id="refitBtn" class="px-10 py-3.5 text-white rounded-full font-semibold text-base transition shadow-lg hover:scale-105" style="background: linear-gradient(135deg, #F45B69 0%, #E04555 100%);">
+                        <button id="refitBtn" class="px-10 py-3.5 text-white rounded-full font-semibold text-base transition shadow-lg hover:scale-105" style="background: var(--primary-green); box-shadow: 0 4px 16px rgba(30, 61, 43, 0.3);" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--primary-green)'">
                             다시 입어보기
                         </button>
-                        <button id="shareBtn" class="px-10 py-3.5 bg-white text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition shadow-md border border-gray-200">
+                        <button id="shareBtn" class="px-10 py-3.5 bg-white rounded-full font-semibold transition shadow-md hover:scale-105" style="color: var(--text-dark); border: 2px solid var(--wood-brown);" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--wood-brown)'">
                             공유하기
                         </button>
-                        <button id="downloadBtn" class="px-10 py-3.5 bg-white text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition shadow-md border border-gray-200">
+                        <button id="downloadBtn" class="px-10 py-3.5 bg-white rounded-full font-semibold transition shadow-md hover:scale-105" style="color: var(--text-dark); border: 2px solid var(--wood-brown);" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--wood-brown)'">
                             저장하기
                         </button>
                     </div>
@@ -516,14 +531,14 @@
                     <div class="text-center space-y-3 mt-6">
                         <!-- Refit Counter Badge -->
                         <div id="refitCounter" class="inline-block">
-                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200">
+                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium" style="background-color: rgba(217, 179, 119, 0.15); color: var(--primary-green); border: 2px solid var(--gold);">
                                 재피팅 <span id="refitCount">5</span>/5회 남음
                                 <span id="refitTimer" class="text-xs opacity-75"></span>
                             </div>
                         </div>
                         
                         <!-- Help Text -->
-                        <p class="text-gray-500 text-xs">
+                        <p class="text-xs" style="color: var(--wood-brown);">
                             💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)
                         </p>
                     </div>

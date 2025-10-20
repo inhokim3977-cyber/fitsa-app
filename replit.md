@@ -2,7 +2,9 @@
 
 ## Overview
 
-"입사"는 AI 기술을 활용한 가상 피팅 앱으로, 사용자가 자신의 사진과 옷 사진을 업로드하면 AI가 자연스럽게 합성된 이미지를 생성합니다. "거울처럼 자연스럽게"라는 비전 아래, 기술보다는 사용자 경험과 결과의 자연스러움에 집중합니다. 핵심 기능은 AI 기반 가상 피팅, 모바일 반응형 디자인, 그리고 신용카드 결제 시스템을 통한 수익화 모델입니다.
+"입사 (FITSA)"는 AI 기술을 활용한 가상 피팅 앱으로, 사용자가 자신의 사진과 옷 사진을 업로드하면 AI가 자연스럽게 합성된 이미지를 생성합니다. "거울처럼 자연스럽게"라는 비전 아래, 기술보다는 사용자 경험과 결과의 자연스러움에 집중합니다. 핵심 기능은 AI 기반 가상 피팅, 모바일 반응형 디자인, 그리고 신용카드 결제 시스템을 통한 수익화 모델입니다.
+
+**Design Philosophy (v2.1.0)**: 영국 고급 양복점의 프리미엄 부티크 피팅룸 감성을 담아, 짙은 초록과 우드 브라운의 조화로 고급감, 따뜻함, 신뢰를 동시에 전달합니다. 브랜드명 "FITSA"는 골드 컬러로 강조되며, 아이보리 배경 위에 우아하게 배치됩니다.
 
 ## User Preferences
 
@@ -141,7 +143,21 @@ Priority 2: IDM-VTON (fallback)
 
 ### Frontend Architecture
 
-The frontend uses static HTML/CSS/JavaScript with Tailwind CSS via CDN for styling. It features a mobile-responsive design optimized for portrait mode, displaying all input elements vertically. The UI emphasizes a "mirror-like" natural experience with a circular layout (or vertical stacking on mobile), minimal whitespace, and a focus on visual results rather than technical details. Key UI elements include drag & drop image upload, a before/after slider, and download functionality. The design uses a light gray background (#F7F7F7) and rose pink (#F45B69) for main actions, with Noto Sans KR typography.
+The frontend uses static HTML/CSS/JavaScript with Tailwind CSS via CDN for styling. It features a mobile-responsive design optimized for portrait mode, displaying all input elements vertically. The UI emphasizes a "mirror-like" natural experience with a circular layout (or vertical stacking on mobile), minimal whitespace, and a focus on visual results rather than technical details. Key UI elements include drag & drop image upload, wood-frame mirror styling for results, and download functionality.
+
+**Color Palette (v2.1.0 - British Luxury Tailor Shop Theme):**
+- **Primary Green**: `#1E3D2B` - Main color for headers, buttons, and emphasis
+- **Wood Brown**: `#8B6A4A` - Secondary color for borders and accents
+- **Gold**: `#D9B377` - Highlight color for hover states and premium elements
+- **Ivory**: `#F5F1EA` - Background color for elegant, warm atmosphere
+- **Text Dark**: `#222222` - Main text color
+
+**Design Features:**
+- Header with green-to-brown gradient and gold bottom border
+- Drop zones with wood brown borders and gold/green dual-layer shadows
+- Buttons: Primary green background with gold hover states
+- "FITSA" branding in gold with text shadow
+- Noto Sans KR typography for Korean text clarity
 
 ### Backend Architecture
 
