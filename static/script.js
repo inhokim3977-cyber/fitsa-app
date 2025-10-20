@@ -313,7 +313,15 @@ async function generateFitting() {
                     return;
                 }
                 
-                const topData = JSON.parse(topResponseText);
+                let topData;
+                try {
+                    topData = JSON.parse(topResponseText);
+                } catch (parseError) {
+                    console.error('피팅 생성 중 오류가 발생했습니다:', topResponseText);
+                    alert(`피팅 생성 중 오류가 발생했습니다: ${topResponseText.substring(0, 100)}`);
+                    return;
+                }
+                
                 if (topData.error) {
                     alert('상의 피팅 오류: ' + topData.error);
                     return;
@@ -385,7 +393,15 @@ async function generateFitting() {
                     return;
                 }
                 
-                const bottomData = JSON.parse(bottomResponseText);
+                let bottomData;
+                try {
+                    bottomData = JSON.parse(bottomResponseText);
+                } catch (parseError) {
+                    console.error('피팅 생성 중 오류가 발생했습니다:', bottomResponseText);
+                    alert(`피팅 생성 중 오류가 발생했습니다: ${bottomResponseText.substring(0, 100)}`);
+                    return;
+                }
+                
                 if (bottomData.error) {
                     alert('하의 피팅 오류: ' + bottomData.error);
                     return;
@@ -463,7 +479,15 @@ async function generateFitting() {
                 return;
             }
             
-            const dressData = JSON.parse(dressResponseText);
+            let dressData;
+            try {
+                dressData = JSON.parse(dressResponseText);
+            } catch (parseError) {
+                console.error('피팅 생성 중 오류가 발생했습니다:', dressResponseText);
+                alert(`피팅 생성 중 오류가 발생했습니다: ${dressResponseText.substring(0, 100)}`);
+                return;
+            }
+            
             if (dressData.error) {
                 alert('원피스 피팅 오류: ' + dressData.error);
                 return;
