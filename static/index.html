@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.2.0'; // NEW BUTTON COMPONENT SYSTEM
+            const APP_VERSION = '2.3.0'; // DARK GREEN BACKGROUND THEME
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
@@ -42,8 +42,9 @@
         }
         
         body {
-            background: var(--ivory);
+            background: var(--primary-green);
             min-height: 100vh;
+            color: var(--ivory);
         }
         
         .drop-zone {
@@ -169,9 +170,9 @@
 
         /* Cloth type button active state override */
         .cloth-type-btn.active.btn-outline {
-            background-color: var(--primary-green);
-            color: var(--ivory);
-            border-color: var(--primary-green);
+            background-color: var(--ivory);
+            color: var(--primary-green);
+            border-color: var(--ivory);
         }
         
         .cloth-type-btn.active.btn-primary {
@@ -264,10 +265,10 @@
             border-radius: 12px;
         }
         
-        /* Button Variants */
+        /* Button Variants - Adjusted for Dark Background */
         .btn-primary {
-            background-color: var(--primary-green);
-            color: var(--ivory);
+            background-color: var(--ivory);
+            color: var(--primary-green);
         }
         
         .btn-primary:hover:not(:disabled):not(.loading) {
@@ -280,7 +281,7 @@
         }
         
         .btn-primary:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--ivory), 0 0 0 6px var(--gold);
+            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
         }
         
         .btn-secondary {
@@ -290,7 +291,7 @@
         
         .btn-secondary:hover:not(:disabled):not(.loading) {
             background-color: var(--gold);
-            color: var(--wood-brown);
+            color: var(--primary-green);
         }
         
         .btn-secondary:active:not(:disabled):not(.loading) {
@@ -298,44 +299,44 @@
         }
         
         .btn-secondary:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--ivory), 0 0 0 6px var(--gold);
+            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
         }
         
         .btn-outline {
             background-color: transparent;
-            color: var(--primary-green);
-            border: 2px solid var(--primary-green);
+            color: var(--ivory);
+            border: 2px solid var(--ivory);
         }
         
         .btn-outline:hover:not(:disabled):not(.loading) {
-            background-color: var(--primary-green);
-            color: var(--ivory);
+            background-color: var(--ivory);
+            color: var(--primary-green);
         }
         
         .btn-outline:active:not(:disabled):not(.loading) {
-            background-color: #162D1F;
+            background-color: #E5DFD4;
         }
         
         .btn-outline:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--ivory), 0 0 0 6px var(--gold);
+            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
         }
         
         .btn-ghost {
             background-color: transparent;
-            color: var(--wood-brown);
+            color: var(--ivory);
         }
         
         .btn-ghost:hover:not(:disabled):not(.loading) {
-            background-color: rgba(139, 106, 74, 0.1);
-            color: var(--primary-green);
+            background-color: rgba(245, 241, 234, 0.15);
+            color: var(--gold);
         }
         
         .btn-ghost:active:not(:disabled):not(.loading) {
-            background-color: rgba(139, 106, 74, 0.2);
+            background-color: rgba(245, 241, 234, 0.25);
         }
         
         .btn-ghost:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--ivory), 0 0 0 6px var(--gold);
+            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
         }
         
         .btn-danger {
@@ -395,12 +396,12 @@
         
         /* Button Preview Section Styles */
         .btn-preview-section {
-            background: var(--white);
+            background: var(--ivory);
             border-radius: 16px;
             padding: 2rem;
             margin: 3rem auto;
             max-width: 1200px;
-            box-shadow: 0 4px 20px rgba(30, 61, 43, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         
         .btn-preview-section h3 {
@@ -572,16 +573,16 @@
             </div>
 
             <!-- Credits Display -->
-            <div id="creditsDisplay" class="max-w-md mx-auto mb-2 bg-white rounded-2xl p-3 text-center shadow-lg">
+            <div id="creditsDisplay" class="max-w-md mx-auto mb-2 rounded-2xl p-3 text-center shadow-lg" style="background: var(--ivory);">
                 <div class="flex justify-around items-center">
                     <div>
-                        <p class="text-gray-500 text-sm mb-1">오늘 무료 체험</p>
-                        <p class="text-gray-800 text-3xl font-bold"><span id="freeRemaining">3</span>/3</p>
+                        <p class="text-sm mb-1" style="color: var(--wood-brown);">오늘 무료 체험</p>
+                        <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="freeRemaining">3</span>/3</p>
                     </div>
-                    <div class="h-12 w-px bg-gray-200"></div>
+                    <div class="h-12 w-px" style="background: var(--wood-brown); opacity: 0.3;"></div>
                     <div>
-                        <p class="text-gray-500 text-sm mb-1">보유 크레딧</p>
-                        <p class="text-gray-800 text-3xl font-bold"><span id="creditsCount">0</span></p>
+                        <p class="text-sm mb-1" style="color: var(--wood-brown);">보유 크레딧</p>
+                        <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="creditsCount">0</span></p>
                     </div>
                 </div>
                 <button id="buyCreditsBtn" class="btn btn-primary btn-lg hidden mt-4 w-full" data-testid="button-buy-credits">
@@ -604,7 +605,7 @@
 
             <!-- Clothing Type Selection -->
             <div class="text-center" style="margin-bottom: 2px;">
-                <p class="font-semibold" style="color: var(--wood-brown); margin-bottom: 8px;">👔 피팅할 옷 종류를 선택하세요</p>
+                <p class="font-semibold" style="color: var(--gold); margin-bottom: 8px;">👔 피팅할 옷 종류를 선택하세요</p>
                 <div class="flex justify-center gap-4">
                     <button data-type="separate" class="cloth-type-btn btn btn-primary btn-md active" data-testid="button-type-separate">
                         상의 + 하의
@@ -700,8 +701,8 @@
                 </button>
                 <div id="loadingIndicator" class="hidden mt-6">
                     <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style="border-color: var(--gold); border-top-color: transparent;"></div>
-                    <p class="mt-4 font-semibold" style="color: var(--text-dark);">패브릭 입히는 중...</p>
-                    <p class="text-sm mt-2" style="color: var(--wood-brown);">완성까지 약 30초 소요됩니다</p>
+                    <p class="mt-4 font-semibold" style="color: var(--ivory);">패브릭 입히는 중...</p>
+                    <p class="text-sm mt-2" style="color: var(--gold);">완성까지 약 30초 소요됩니다</p>
                 </div>
             </div>
             
@@ -709,7 +710,7 @@
             <div id="resultsSection" class="hidden fade-in">
                 <!-- Result Image - Wood Frame Mirror -->
                 <div class="flex justify-center mb-8">
-                    <div class="wood-frame-mirror p-4" style="max-width: 900px; width: 100%;">
+                    <div class="wood-frame-mirror p-4" style="max-width: 900px; width: 100%; background: var(--ivory);">
                         <img id="resultImage" src="" alt="Virtual Fitting Result" class="w-full h-auto max-h-[75vh] object-contain rounded-2xl">
                     </div>
                 </div>
@@ -740,14 +741,14 @@
                     <div class="text-center space-y-3 mt-6">
                         <!-- Refit Counter Badge -->
                         <div id="refitCounter" class="inline-block">
-                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium" style="background-color: rgba(217, 179, 119, 0.15); color: var(--primary-green); border: 2px solid var(--gold);">
+                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium" style="background-color: var(--ivory); color: var(--primary-green); border: 2px solid var(--gold);">
                                 재피팅 <span id="refitCount">5</span>/5회 남음
                                 <span id="refitTimer" class="text-xs opacity-75"></span>
                             </div>
                         </div>
                         
                         <!-- Help Text -->
-                        <p class="text-xs" style="color: var(--wood-brown);">
+                        <p class="text-xs" style="color: var(--gold);">
                             💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)
                         </p>
                     </div>
