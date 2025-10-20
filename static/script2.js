@@ -118,11 +118,17 @@ function renderButtons() {
                             </svg>
                             다시 입어보기
                         </button>
-                        <button id="downloadBtn" class="btn btn-primary btn-lg" data-testid="button-download">
+                        <button id="saveBtn" class="btn btn-primary btn-lg" data-testid="button-save">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            저장하기
+                        </button>
+                        <button id="downloadBtn" class="btn btn-secondary btn-lg" data-testid="button-download">
                             <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            저장하기
+                            다운로드
                         </button>
                         <button id="shareBtn" class="btn btn-outline btn-lg" data-testid="button-share">
                             <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,6 +141,7 @@ function renderButtons() {
                 
                 // Re-attach event listeners
                 document.getElementById('refitBtn').addEventListener('click', refitCurrentPhotos);
+                document.getElementById('saveBtn').addEventListener('click', openSaveFitModal);
                 document.getElementById('downloadBtn').addEventListener('click', downloadResult);
                 document.getElementById('shareBtn').addEventListener('click', shareResult);
             }
@@ -1033,3 +1040,432 @@ function testClearCookie() {
     alert('✅ 쿠키가 삭제되었습니다. 페이지를 새로고침합니다.');
     location.reload();
 }
+
+// ============================================
+// SAVED FITS (WARDROBE) FUNCTIONALITY
+// ============================================
+
+let currentPage = 1;
+let currentSearchQuery = '';
+
+// Navigation functions
+function navigateToWardrobe() {
+    // Hide main sections
+    document.querySelector('.upload-area-container')?.closest('.flex').classList.add('hidden');
+    document.getElementById('generateSection')?.classList.add('hidden');
+    document.getElementById('resultsSection')?.classList.add('hidden');
+    document.getElementById('clothingTypeSelection')?.classList.add('hidden');
+    document.getElementById('emptyStateGuide')?.classList.add('hidden');
+    document.getElementById('btn-preview')?.classList.add('hidden');
+    
+    // Show wardrobe section
+    document.getElementById('savedFitsSection')?.classList.remove('hidden');
+    document.getElementById('wardrobeNavBtn')?.classList.add('hidden');
+    
+    // Load saved fits
+    loadSavedFits(1);
+}
+
+function navigateToMain() {
+    // Show main sections
+    document.querySelector('.upload-area-container')?.closest('.flex').classList.remove('hidden');
+    document.getElementById('btn-preview')?.classList.remove('hidden');
+    
+    // Show appropriate sections based on state
+    if (appState === 'empty') {
+        document.getElementById('emptyStateGuide')?.classList.remove('hidden');
+    } else if (appState === 'uploaded') {
+        document.getElementById('clothingTypeSelection')?.classList.remove('hidden');
+        document.getElementById('generateSection')?.classList.remove('hidden');
+    } else if (appState === 'completed') {
+        document.getElementById('resultsSection')?.classList.remove('hidden');
+    }
+    
+    // Hide wardrobe section
+    document.getElementById('savedFitsSection')?.classList.add('hidden');
+    document.getElementById('wardrobeNavBtn')?.classList.remove('hidden');
+}
+
+// Save fit modal functions
+function openSaveFitModal() {
+    const modal = document.getElementById('saveFitModal');
+    const resultImage = document.getElementById('resultImage');
+    
+    if (!resultImage || !resultImage.src) {
+        showToast('저장할 결과 이미지가 없습니다', 'error');
+        return;
+    }
+    
+    // Store current result image URL in modal
+    modal.dataset.resultImageUrl = resultImage.src;
+    
+    // Reset form
+    document.getElementById('saveFitForm').reset();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+}
+
+function closeSaveFitModal() {
+    const modal = document.getElementById('saveFitModal');
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+}
+
+async function handleSaveFitSubmit(e) {
+    e.preventDefault();
+    
+    const modal = document.getElementById('saveFitModal');
+    const resultImageUrl = modal.dataset.resultImageUrl;
+    
+    if (!resultImageUrl) {
+        showToast('결과 이미지를 찾을 수 없습니다', 'error');
+        return;
+    }
+    
+    // Get form data
+    const shopName = document.getElementById('saveFitShopName').value.trim();
+    const productName = document.getElementById('saveFitProductName').value.trim();
+    const productUrl = document.getElementById('saveFitProductUrl').value.trim();
+    const category = document.getElementById('saveFitCategory').value;
+    const priceSnapshot = parseInt(document.getElementById('saveFitPrice').value) || null;
+    const note = document.getElementById('saveFitNote').value.trim();
+    
+    // Validate
+    if (!shopName || !productName || !productUrl) {
+        showToast('필수 항목을 모두 입력해주세요', 'error');
+        return;
+    }
+    
+    // Validate HTTPS
+    if (!productUrl.startsWith('https://')) {
+        showToast('구매 링크는 HTTPS로 시작해야 합니다', 'error');
+        return;
+    }
+    
+    // Prepare data
+    const data = {
+        result_image_url: resultImageUrl,
+        shop_name: shopName,
+        product_name: productName,
+        product_url: productUrl,
+        category: category || null,
+        price_snapshot: priceSnapshot,
+        note: note || null
+    };
+    
+    try {
+        const response = await fetch('/api/save-fit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            showToast('옷장에 저장되었습니다!', 'success');
+            closeSaveFitModal();
+        } else {
+            showToast(result.error || '저장 실패', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Save fit error:', error);
+        showToast('저장 중 오류가 발생했습니다', 'error');
+    }
+}
+
+// Load and render saved fits
+async function loadSavedFits(page = 1, query = '') {
+    currentPage = page;
+    currentSearchQuery = query;
+    
+    try {
+        const params = new URLSearchParams({
+            page: page,
+            per_page: 20,
+            ...(query && { q: query })
+        });
+        
+        const response = await fetch(`/api/saved-fits?${params}`);
+        const data = await response.json();
+        
+        renderSavedFits(data);
+        
+    } catch (error) {
+        console.error('Load saved fits error:', error);
+        showToast('불러오기 실패', 'error');
+    }
+}
+
+function renderSavedFits(data) {
+    const grid = document.getElementById('savedFitsGrid');
+    const emptyState = document.getElementById('savedFitsEmpty');
+    const pagination = document.getElementById('savedFitsPagination');
+    
+    // Clear grid
+    grid.innerHTML = '';
+    
+    // Show empty state if no items
+    if (!data.items || data.items.length === 0) {
+        emptyState.classList.remove('hidden');
+        pagination.classList.add('hidden');
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    
+    // Render cards
+    data.items.forEach(item => {
+        const card = createFitCard(item);
+        grid.appendChild(card);
+    });
+    
+    // Render pagination
+    if (data.total_pages > 1) {
+        renderPagination(data.page, data.total_pages);
+        pagination.classList.remove('hidden');
+    } else {
+        pagination.classList.add('hidden');
+    }
+}
+
+function createFitCard(item) {
+    const card = document.createElement('div');
+    card.className = 'rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition';
+    card.style.background = 'var(--ivory)';
+    card.dataset.testid = `card-fit-${item.id}`;
+    
+    // Format date
+    const date = new Date(item.created_at * 1000);
+    const relativeTime = getRelativeTime(date);
+    
+    card.innerHTML = `
+        <!-- Image -->
+        <div class="relative" style="aspect-ratio: 1/1;">
+            <img 
+                src="${item.result_image_url}" 
+                alt="${item.product_name}"
+                class="w-full h-full object-cover"
+                data-testid="img-fit-result">
+            <!-- Shop Name Badge -->
+            <div class="absolute top-2 right-2 px-3 py-1 rounded-full text-sm font-semibold" 
+                 style="background: var(--gold); color: var(--primary-green);"
+                 data-testid="badge-shop">
+                ${escapeHtml(item.shop_name)}
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-4">
+            <!-- Product Name -->
+            <h4 class="font-semibold text-lg mb-2 line-clamp-2" 
+                style="color: var(--text-dark);"
+                data-testid="text-product-name">
+                ${escapeHtml(item.product_name)}
+            </h4>
+            
+            <!-- Metadata -->
+            <p class="text-sm mb-3" style="color: var(--wood-brown);" data-testid="text-metadata">
+                ${relativeTime}${item.category ? ' · ' + item.category : ''}
+            </p>
+            
+            ${item.price_snapshot ? `
+            <p class="text-sm mb-3 font-semibold" style="color: var(--primary-green);">
+                ${item.price_snapshot.toLocaleString()}원
+            </p>
+            ` : ''}
+            
+            ${item.note ? `
+            <p class="text-xs mb-3 italic" style="color: var(--wood-brown);">
+                "${escapeHtml(item.note)}"
+            </p>
+            ` : ''}
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+                <a 
+                    href="${item.product_url}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="btn btn-primary btn-md flex-1 text-center"
+                    aria-label="구매 페이지로 이동"
+                    data-testid="button-buy-${item.id}">
+                    구매하기 ↗
+                </a>
+                <button 
+                    onclick="deleteSavedFit('${item.id}')"
+                    class="btn btn-danger btn-md"
+                    data-testid="button-delete-${item.id}">
+                    삭제
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+function renderPagination(currentPage, totalPages) {
+    const pagination = document.getElementById('savedFitsPagination');
+    pagination.innerHTML = '';
+    
+    // Previous button
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'btn btn-ghost btn-md';
+        prevBtn.textContent = '← 이전';
+        prevBtn.onclick = () => loadSavedFits(currentPage - 1, currentSearchQuery);
+        prevBtn.dataset.testid = 'button-page-prev';
+        pagination.appendChild(prevBtn);
+    }
+    
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = i === currentPage ? 'btn btn-primary btn-md' : 'btn btn-ghost btn-md';
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => loadSavedFits(i, currentSearchQuery);
+        pageBtn.dataset.testid = `button-page-${i}`;
+        pagination.appendChild(pageBtn);
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn btn-ghost btn-md';
+        nextBtn.textContent = '다음 →';
+        nextBtn.onclick = () => loadSavedFits(currentPage + 1, currentSearchQuery);
+        nextBtn.dataset.testid = 'button-page-next';
+        pagination.appendChild(nextBtn);
+    }
+}
+
+async function deleteSavedFit(fitId) {
+    if (!confirm('정말 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/saved-fits/${fitId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            showToast('삭제되었습니다', 'success');
+            loadSavedFits(currentPage, currentSearchQuery);
+        } else {
+            showToast(result.error || '삭제 실패', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Delete fit error:', error);
+        showToast('삭제 중 오류가 발생했습니다', 'error');
+    }
+}
+
+// Helper functions
+function getRelativeTime(date) {
+    const now = new Date();
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (days > 30) {
+        return date.toLocaleDateString('ko-KR');
+    } else if (days > 0) {
+        return `${days}일 전`;
+    } else if (hours > 0) {
+        return `${hours}시간 전`;
+    } else if (minutes > 0) {
+        return `${minutes}분 전`;
+    } else {
+        return '방금 전';
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Event listeners for wardrobe
+document.addEventListener('DOMContentLoaded', () => {
+    // Wardrobe navigation
+    const wardrobeNavBtn = document.getElementById('wardrobeNavBtn');
+    const backToMainBtn = document.getElementById('backToMainBtn');
+    
+    if (wardrobeNavBtn) {
+        wardrobeNavBtn.addEventListener('click', navigateToWardrobe);
+    }
+    
+    if (backToMainBtn) {
+        backToMainBtn.addEventListener('click', navigateToMain);
+    }
+    
+    // Save fit modal
+    const cancelSaveBtn = document.getElementById('cancelSaveBtn');
+    const saveFitForm = document.getElementById('saveFitForm');
+    
+    if (cancelSaveBtn) {
+        cancelSaveBtn.addEventListener('click', closeSaveFitModal);
+    }
+    
+    if (saveFitForm) {
+        saveFitForm.addEventListener('submit', handleSaveFitSubmit);
+    }
+    
+    // Close modal on background click
+    const saveFitModal = document.getElementById('saveFitModal');
+    if (saveFitModal) {
+        saveFitModal.addEventListener('click', (e) => {
+            if (e.target === saveFitModal) {
+                closeSaveFitModal();
+            }
+        });
+    }
+    
+    // Search
+    const searchFitsBtn = document.getElementById('searchFitsBtn');
+    const savedFitsSearch = document.getElementById('savedFitsSearch');
+    
+    if (searchFitsBtn) {
+        searchFitsBtn.addEventListener('click', () => {
+            const query = savedFitsSearch.value.trim();
+            loadSavedFits(1, query);
+        });
+    }
+    
+    if (savedFitsSearch) {
+        savedFitsSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = savedFitsSearch.value.trim();
+                loadSavedFits(1, query);
+            }
+        });
+    }
+    
+    // Show wardrobe nav button after first save
+    setTimeout(() => {
+        wardrobeNavBtn?.classList.remove('hidden');
+    }, 2000);
+});
+
+// Make functions globally accessible
+window.navigateToWardrobe = navigateToWardrobe;
+window.navigateToMain = navigateToMain;
+window.openSaveFitModal = openSaveFitModal;
+window.closeSaveFitModal = closeSaveFitModal;
+window.deleteSavedFit = deleteSavedFit;
