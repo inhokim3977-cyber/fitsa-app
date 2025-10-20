@@ -1,0 +1,68 @@
+기능: 결과 이미지를 ‘옷장(Saved Fits)’에 저장하고, 저장 목록에서 각 사진의 쇼핑몰·상품 정보를 즉시 확인/구매로 이동할 수 있게 해줘.
+
+[데이터 스키마 (로컬 JSON 또는 간단 DB)]
+FitSaved {
+  id: string,                 // uuid
+  createdAt: number,          // ts
+  resultImageUrl: string,     // R2 등 결과 이미지 URL
+  thumbUrl?: string,          // 썸네일(선택)
+  shopName: string,           // 예: “무신사”, “쿠팡”, “ZARA”
+  productName: string,        // 예: “스트레이트 데님”
+  productUrl: string,         // 구매 URL (어필리에이트 파라미터 포함 가능)
+  priceSnapshot?: number,     // 저장 시점 가격(선택)
+  currency?: string,          // KRW
+  sku?: string,               // 상품코드(선택)
+  category?: string,          // 상의/하의/원피스 등
+  tags?: string[],            // 색상/핏 같은 필터용
+  note?: string               // 메모(선택)
+}
+
+[백엔드 API (Flask 기준 예시)]
+- POST /api/save-fit      (body: FitSaved 필수 필드만) → {ok:true, id}
+- GET  /api/saved-fits    (query: page, q?) → {items:[FitSaved], total}
+- DELETE /api/saved-fits/:id → {ok:true}
+- (선택) GET /api/saved-fits/:id → 상세
+
+저장은 서버에서 id/createdAt 보정하고, productUrl은 화이트리스트(https/도메인체크)만 허용.
+
+[프런트 수정]
+1) 결과 화면에 ‘저장하기’ 버튼 추가(.btn-primary):
+   - 클릭 시 /api/save-fit 호출
+   - 필요한 필드는 클라가 알고 있는 컨텍스트에서 구성:
+     shopName, productName, productUrl, category, resultImageUrl 등
+   - 성공 시 토스트 “옷장에 저장되었습니다.”
+
+2) 상단/사이드에 ‘옷장’ 메뉴 추가 → /saved 페이지 라우트 생성
+   - 그리드 카드 UI (3열, 모바일 2열):
+     카드 요소:
+      - 이미지(16:9 or 1:1), 우측 상단에 shopName 배지
+      - 아래 텍스트: productName (두 줄 말줄임)
+      - 보조 텍스트: 저장일(상대시간) · category
+      - 액션 버튼:
+        a) [구매하기] → productUrl 새 탭 열기 (rel="noopener")
+        b) [삭제] → DELETE /api/saved-fits/:id 후 목록 갱신
+        c) (선택) [공유] → 이미지/링크 복사
+   - 검색/필터(선택): 상단에 shopName, category, q(키워드) 필터박스
+
+3) 접근성/안내 문구:
+   - 빈 목록일 때: “아직 저장한 착용샷이 없어요. 결과 화면에서 ‘저장하기’를 눌러주세요.”
+   - 구매 버튼에는 aria-label="구매 페이지로 이동" 추가
+   - 외부 링크 아이콘 표시(↗)
+
+[스타일 가이드 (기존 테마 준수)]
+- 배지: shopName 배지는 골드(#D9B377) 바탕 + 짙은 초록 텍스트(#1E3D2B)
+- 카드 배경: 아이보리(#F5F1EA), 그림자 미세 적용, 라운드 12px
+- 버튼: 기존 .btn-primary/.btn-outline 사용
+- 텍스트: productName은 600 weight, 두 줄 말줄임
+
+[어필리에이트/보안]
+- productUrl에 어필리에이트 파라미터가 있으면 서버에서 보관 후 그대로 링크 처리.
+- 외부로 나갈 때 UTM 매개변수(utm_source=fitsa&utm_medium=savedfits&utm_campaign=buy) 자동 부착.
+
+[QA 체크리스트]
+- 저장/삭제 후 즉시 목록 반영
+- 구매하기 링크 새 탭 열리고, 도메인 정상/https만 허용
+- 50개 이상 저장 시 페이지네이션 또는 무한스크롤 (이번엔 간단 페이지네이션)
+- 이미지 없는 경우 placeholder 적용
+
+위 사양대로 ‘옷장(Saved Fits) MVP’를 구현하고, 결과 화면의 “저장하기”부터 /saved의 그리드/구매 버튼까지 한 번에 동작하게 만들어줘.

@@ -207,3 +207,106 @@ def virtual_fitting():
 @api_bp.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok'})
+
+# ============================================
+# Saved Fits API Endpoints
+# ============================================
+
+@api_bp.route('/save-fit', methods=['POST'])
+def save_fit():
+    """Save a virtual fitting result with shopping information"""
+    try:
+        from services.saved_fits_service import save_fit as save_fit_service
+        
+        # Get user_key from cookie
+        user_key = request.cookies.get('user_key')
+        if not user_key:
+            return jsonify({'ok': False, 'error': 'User not identified'}), 401
+        
+        # Get request data
+        data = request.get_json()
+        if not data:
+            return jsonify({'ok': False, 'error': 'No data provided'}), 400
+        
+        # Save fit
+        result = save_fit_service(user_key, data)
+        
+        if result['ok']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        print(f'Error in save_fit endpoint: {e}')
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@api_bp.route('/saved-fits', methods=['GET'])
+def get_saved_fits():
+    """Get saved fits for the current user"""
+    try:
+        from services.saved_fits_service import get_saved_fits as get_fits_service
+        
+        # Get user_key from cookie
+        user_key = request.cookies.get('user_key')
+        if not user_key:
+            return jsonify({'items': [], 'total': 0, 'page': 1, 'per_page': 20}), 200
+        
+        # Get query parameters
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 20))
+        query = request.args.get('q')
+        
+        # Get saved fits
+        result = get_fits_service(user_key, page, per_page, query)
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        print(f'Error in get_saved_fits endpoint: {e}')
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/saved-fits/<fit_id>', methods=['GET'])
+def get_fit_detail(fit_id):
+    """Get a single saved fit by ID"""
+    try:
+        from services.saved_fits_service import get_fit_by_id
+        
+        # Get user_key from cookie
+        user_key = request.cookies.get('user_key')
+        if not user_key:
+            return jsonify({'error': 'User not identified'}), 401
+        
+        # Get fit
+        fit = get_fit_by_id(user_key, fit_id)
+        
+        if fit:
+            return jsonify(fit), 200
+        else:
+            return jsonify({'error': 'Fit not found'}), 404
+            
+    except Exception as e:
+        print(f'Error in get_fit_detail endpoint: {e}')
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/saved-fits/<fit_id>', methods=['DELETE'])
+def delete_saved_fit(fit_id):
+    """Delete a saved fit"""
+    try:
+        from services.saved_fits_service import delete_fit
+        
+        # Get user_key from cookie
+        user_key = request.cookies.get('user_key')
+        if not user_key:
+            return jsonify({'ok': False, 'error': 'User not identified'}), 401
+        
+        # Delete fit
+        result = delete_fit(user_key, fit_id)
+        
+        if result['ok']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 404
+            
+    except Exception as e:
+        print(f'Error in delete_saved_fit endpoint: {e}')
+        return jsonify({'ok': False, 'error': str(e)}), 500
