@@ -49,8 +49,157 @@ window.setLoading = function(btnEl, isLoading) {
 };
 
 // ============================================
+// STATE MANAGEMENT
+// ============================================
+
+/**
+ * Change app state and update UI accordingly
+ * @param {string} nextState - One of: 'empty', 'uploaded', 'processing', 'completed'
+ */
+function setState(nextState) {
+    console.log(`🔄 State transition: ${appState} → ${nextState}`);
+    appState = nextState;
+    renderButtons();
+}
+
+/**
+ * Render buttons based on current appState
+ */
+function renderButtons() {
+    if (!buttonContainer) {
+        console.warn('buttonContainer not initialized yet');
+        return;
+    }
+    
+    console.log(`🎨 Rendering buttons for state: ${appState}`);
+    
+    // Hide all buttons first
+    if (generateBtn) generateBtn.classList.add('hidden');
+    if (generateSection) generateSection.classList.add('hidden');
+    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+    if (buttonContainer) buttonContainer.classList.add('hidden');
+    if (resultsSection) resultsSection.classList.add('hidden');
+    
+    switch (appState) {
+        case 'empty':
+            // Only show upload interface (already visible in HTML)
+            if (emptyStateGuide) emptyStateGuide.classList.remove('hidden');
+            if (clothingTypeSelection) clothingTypeSelection.classList.add('hidden');
+            break;
+            
+        case 'uploaded':
+            // Show category selection and "입어보기" button
+            if (emptyStateGuide) emptyStateGuide.classList.add('hidden');
+            if (clothingTypeSelection) clothingTypeSelection.classList.remove('hidden');
+            if (generateSection) generateSection.classList.remove('hidden');
+            if (generateBtn) {
+                generateBtn.classList.remove('hidden');
+                generateBtn.disabled = false;
+            }
+            break;
+            
+        case 'processing':
+            // Show only loading spinner
+            if (generateSection) generateSection.classList.remove('hidden');
+            if (generateBtn) generateBtn.classList.add('hidden');
+            if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+            break;
+            
+        case 'completed':
+            // Show result image + 3 action buttons only
+            if (resultsSection) resultsSection.classList.remove('hidden');
+            if (buttonContainer) {
+                buttonContainer.classList.remove('hidden');
+                buttonContainer.innerHTML = `
+                    <div class="btn-group-center">
+                        <button id="refitBtn" class="btn btn-secondary btn-lg" data-testid="button-refit">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            다시 입어보기
+                        </button>
+                        <button id="downloadBtn" class="btn btn-primary btn-lg" data-testid="button-download">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            저장하기
+                        </button>
+                        <button id="shareBtn" class="btn btn-outline btn-lg" data-testid="button-share">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                            공유하기
+                        </button>
+                    </div>
+                `;
+                
+                // Re-attach event listeners
+                document.getElementById('refitBtn').addEventListener('click', refitCurrentPhotos);
+                document.getElementById('downloadBtn').addEventListener('click', downloadResult);
+                document.getElementById('shareBtn').addEventListener('click', shareResult);
+            }
+            
+            // Show success toast after 300ms
+            setTimeout(() => {
+                showToast('✨ 피팅 결과가 완성되었습니다!', 'success');
+            }, 300);
+            break;
+    }
+}
+
+/**
+ * Show toast notification
+ * @param {string} message - Toast message
+ * @param {string} type - 'success' | 'error' | 'info'
+ */
+function showToast(message, type = 'info') {
+    // Create toast element if not exists
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        `;
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.style.cssText = `
+        background: ${type === 'success' ? 'var(--gold)' : type === 'error' ? '#B00020' : 'var(--wood-brown)'};
+        color: ${type === 'success' ? 'var(--primary-green)' : '#fff'};
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        font-weight: 600;
+        font-size: 15px;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 320px;
+    `;
+    toast.textContent = message;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ============================================
 // GLOBAL STATE
 // ============================================
+
+// App state machine: empty → uploaded → processing → completed
+let appState = 'empty'; // Current UI state
 
 // Global state
 let personImage = null;
@@ -64,9 +213,10 @@ let imageLoaded = false; // Track if person image is uploaded
 let personDropZone, topClothDropZone, bottomClothDropZone, dressDropZone;
 let personFileInput, topClothFileInput, bottomClothFileInput, dressFileInput;
 let generateBtn, loadingIndicator, resultsSection;
-let downloadBtn, resetAllBtn, shareBtn;
+let downloadBtn, resetAllBtn, shareBtn, refitBtn;
 let clothTypeButtons;
 let emptyStateGuide, clothingTypeSelection, generateSection;
+let buttonContainer; // Single container for all action buttons
 
 // Initialize everything after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -89,6 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn = document.getElementById('downloadBtn');
     resetAllBtn = document.getElementById('resetAllBtn');
     shareBtn = document.getElementById('shareBtn');
+    refitBtn = document.getElementById('refitBtn');
+    buttonContainer = document.getElementById('actionButtons');
     
     clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
     
@@ -255,7 +407,7 @@ function handleFile(file, type) {
             case 'person':
                 personImage = file;
                 imageLoaded = true; // Update imageLoaded state
-                updateUIState(); // Update UI when person image is loaded
+                setState('uploaded'); // Transition to uploaded state
                 break;
             case 'topCloth':
                 topClothImage = file;
@@ -292,7 +444,7 @@ function clearImage(type, event) {
         case 'person':
             personImage = null;
             imageLoaded = false; // Update imageLoaded state
-            updateUIState(); // Update UI when person image is cleared
+            setState('empty'); // Transition back to empty state
             break;
         case 'topCloth':
             topClothImage = null;
@@ -358,8 +510,8 @@ async function generateFitting() {
         return;
     }
     
-    generateBtn.disabled = true;
-    loadingIndicator.classList.remove('hidden');
+    // Transition to processing state
+    setState('processing');
     
     try {
         let currentPersonImage = personImage;
@@ -530,8 +682,8 @@ async function generateFitting() {
             // Show final results (result only, no comparison)
             const resultImage = document.getElementById('resultImage');
             resultImage.src = finalResultUrl;
-            resultsSection.classList.remove('hidden');
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            setState('completed'); // Transition to completed state
+            setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
             return;
             
         } else {
@@ -620,20 +772,18 @@ async function generateFitting() {
             
             const resultImage = document.getElementById('resultImage');
             resultImage.src = dressData.resultUrl;
-            resultsSection.classList.remove('hidden');
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            setState('completed'); // Transition to completed state
+            setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
         }
         
     } catch (error) {
         console.error('Error:', error);
+        setState('uploaded'); // Return to uploaded state on error
         if (error.name === 'AbortError') {
             alert('⏱️ 요청 시간이 초과되었습니다 (120초). Gemini API가 응답하지 않습니다. 다시 시도해주세요.');
         } else {
             alert('피팅 생성 중 오류가 발생했습니다: ' + error.message);
         }
-    } finally {
-        generateBtn.disabled = false;
-        loadingIndicator.classList.add('hidden');
     }
 }
 

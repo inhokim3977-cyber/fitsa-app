@@ -337,43 +337,25 @@
                     </div>
                 </div>
                 
-                <!-- Action Buttons - Clean & Simple -->
-                <div class="max-w-2xl mx-auto space-y-4">
-                    <!-- Primary Actions -->
-                    <div class="flex justify-center items-center gap-3 flex-wrap">
-                        <button id="refitBtn" class="btn btn-primary btn-lg" data-testid="button-refit">
-                            다시 입어보기
-                        </button>
-                        <button id="shareBtn" class="btn btn-outline btn-lg" data-testid="button-share">
-                            공유하기
-                        </button>
-                        <button id="downloadBtn" class="btn btn-secondary btn-lg" data-testid="button-download">
-                            저장하기
-                        </button>
-                    </div>
-                    
-                    <!-- Secondary Action -->
-                    <div class="text-center">
-                        <button id="resetAllBtn" class="btn btn-ghost btn-sm" data-testid="button-reset">
-                            다른 옷 입어보기
-                        </button>
-                    </div>
-                    
-                    <!-- Refit Info & Counter -->
-                    <div class="text-center space-y-3 mt-6">
-                        <!-- Refit Counter Badge -->
-                        <div id="refitCounter" class="inline-block">
-                            <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium" style="background-color: var(--ivory); color: var(--primary-green); border: 2px solid var(--gold);">
-                                재피팅 <span id="refitCount">5</span>/5회 남음
-                                <span id="refitTimer" class="text-xs opacity-75"></span>
-                            </div>
+                <!-- Action Buttons Container (Managed by renderButtons()) -->
+                <div id="actionButtons" class="max-w-2xl mx-auto hidden">
+                    <!-- Buttons will be dynamically rendered here -->
+                </div>
+                
+                <!-- Refit Info & Counter -->
+                <div class="text-center space-y-3 mt-6">
+                    <!-- Refit Counter Badge -->
+                    <div id="refitCounter" class="inline-block">
+                        <div id="refitBadge" class="px-4 py-2 rounded-full text-sm font-medium" style="background-color: var(--ivory); color: var(--primary-green); border: 2px solid var(--gold);">
+                            재피팅 <span id="refitCount">5</span>/5회 남음
+                            <span id="refitTimer" class="text-xs opacity-75"></span>
                         </div>
-                        
-                        <!-- Help Text -->
-                        <p class="text-xs" style="color: var(--gold);">
-                            💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)
-                        </p>
                     </div>
+                    
+                    <!-- Help Text -->
+                    <p class="text-xs" style="color: var(--gold);">
+                        💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)
+                    </p>
                 </div>
             </div>
             
