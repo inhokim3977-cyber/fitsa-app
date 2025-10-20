@@ -232,55 +232,90 @@
 
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
-            /* Change main container to flex column on mobile */
+            /* Header adjustments */
+            h1 {
+                font-size: 3rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.1rem !important;
+            }
+            
+            /* Credits display */
+            #creditsDisplay {
+                padding: 1rem !important;
+            }
+            
+            /* Clothing type buttons */
+            .cloth-type-btn {
+                padding: 0.75rem 1.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Change main container to vertical stack */
             .upload-area-container {
                 display: flex !important;
-                flex-direction: column;
-                align-items: center;
+                flex-direction: column !important;
+                align-items: center !important;
                 width: 100% !important;
                 height: auto !important;
-                gap: 20px;
+                gap: 16px !important;
+                position: static !important;
             }
 
-            /* Reset absolute positioning on mobile */
+            /* Reset ALL absolute positioning */
             .upload-area-container > div {
                 position: static !important;
                 transform: none !important;
             }
 
-            /* Stack vertically on mobile */
-            .item-drop.top-cloth {
-                position: static !important;
-                transform: none !important;
-                margin: 0 auto;
+            /* Person photo (center) */
+            .center-drop {
+                width: 220px !important;
+                height: 220px !important;
+                margin: 0 auto !important;
             }
-            
-            .item-drop.bottom-cloth {
-                position: static !important;
-                transform: none !important;
-                margin: 0 auto;
-            }
-            
+
+            /* All item drops */
+            .item-drop.top-cloth,
+            .item-drop.bottom-cloth,
             .item-drop.dress {
                 position: static !important;
                 transform: none !important;
-                margin: 0 auto;
+                width: 180px !important;
+                height: 180px !important;
+                margin: 0 auto !important;
             }
-
-            /* Make center drop smaller on mobile */
-            .center-drop {
-                width: 200px;
-                height: 200px;
+            
+            /* Generate button */
+            #generateBtn {
+                padding: 1rem 3rem !important;
+                font-size: 1.1rem !important;
             }
-
-            /* Adjust header text size */
-            h1 {
-                font-size: 2rem !important;
+            
+            /* Result image wood frame */
+            .wood-frame-mirror {
+                border-width: 8px !important;
+                max-width: 95% !important;
             }
-
-            /* Adjust description text */
-            .text-lg {
-                font-size: 1rem !important;
+            
+            /* Action buttons */
+            #refitBtn, #shareBtn, #downloadBtn {
+                padding: 0.875rem 2rem !important;
+                font-size: 0.95rem !important;
+            }
+            
+            /* Delete buttons - larger touch target */
+            .delete-btn {
+                width: 40px !important;
+                height: 40px !important;
+                top: -10px !important;
+                right: -10px !important;
+                display: flex !important;
+            }
+            
+            .delete-btn:not(.show) {
+                display: flex !important;
             }
         }
     </style>

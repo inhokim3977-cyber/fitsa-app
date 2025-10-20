@@ -248,7 +248,15 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             return None
             
         except Exception as e:
+            error_str = str(e).lower()
             print(f"Gemini virtual try-on error: {str(e)}")
+            
+            # Detect rate limit errors
+            if 'rate' in error_str and ('limit' in error_str or 'exceeded' in error_str):
+                print("⚠️ Gemini API rate limit exceeded - fallback will be triggered")
+            elif 'quota' in error_str:
+                print("⚠️ Gemini API quota exceeded - fallback will be triggered")
+            
             import traceback
             traceback.print_exc()
             raise
