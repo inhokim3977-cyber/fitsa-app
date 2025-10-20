@@ -55,9 +55,15 @@ function initializeApp() {
             const type = btn.getAttribute('data-type');
             switchClothingMode(type);
             
-            // Update active state
-            clothTypeButtons.forEach(b => b.classList.remove('active'));
+            // Update active state with new button system
+            clothTypeButtons.forEach(b => {
+                b.classList.remove('active');
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline');
+            });
             btn.classList.add('active');
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
         });
     });
 
