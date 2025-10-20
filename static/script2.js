@@ -1,3 +1,57 @@
+// ============================================
+// BUTTON HELPER: setLoading
+// ============================================
+
+/**
+ * Toggle loading state on a button
+ * @param {HTMLElement} btnEl - Button element
+ * @param {boolean} isLoading - Loading state
+ */
+window.setLoading = function(btnEl, isLoading) {
+    if (!btnEl) {
+        console.error('setLoading: Button element is required');
+        return;
+    }
+    
+    if (isLoading) {
+        // Store original content
+        if (!btnEl.dataset.originalContent) {
+            btnEl.dataset.originalContent = btnEl.innerHTML;
+        }
+        
+        // Add loading class and spinner
+        btnEl.classList.add('loading');
+        btnEl.disabled = true;
+        
+        // Create spinner if not exists
+        if (!btnEl.querySelector('.spinner')) {
+            const spinner = document.createElement('span');
+            spinner.className = 'spinner';
+            btnEl.insertBefore(spinner, btnEl.firstChild);
+        }
+    } else {
+        // Remove loading class
+        btnEl.classList.remove('loading');
+        btnEl.disabled = false;
+        
+        // Restore original content if available
+        if (btnEl.dataset.originalContent) {
+            btnEl.innerHTML = btnEl.dataset.originalContent;
+            delete btnEl.dataset.originalContent;
+        } else {
+            // Just remove spinner if no original content stored
+            const spinner = btnEl.querySelector('.spinner');
+            if (spinner) {
+                spinner.remove();
+            }
+        }
+    }
+};
+
+// ============================================
+// GLOBAL STATE
+// ============================================
+
 // Global state
 let personImage = null;
 let topClothImage = null;

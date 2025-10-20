@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.4.0'; // EMPTY STATE GUIDE + UPLOAD CTA
+            const APP_VERSION = '2.5.0'; // BUTTON SYSTEM V2
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
@@ -25,486 +25,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* British Luxury Tailor Shop Color Theme */
-        :root {
-            --primary-green: #1E3D2B;
-            --wood-brown: #8B6A4A;
-            --gold: #D9B377;
-            --ivory: #F5F1EA;
-            --text-dark: #222222;
-            --white: #FFFFFF;
-        }
-        
-        * {
-            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        
-        body {
-            background: var(--primary-green);
-            min-height: 100vh;
-            color: var(--ivory);
-        }
-        
-        .drop-zone {
-            border: 8px solid var(--wood-brown);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: var(--white);
-            box-shadow: 
-                inset 0 0 0 2px var(--gold),
-                inset 0 0 0 4px var(--primary-green),
-                0 4px 12px rgba(30, 61, 43, 0.15),
-                0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        
-        .drop-zone::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
-            border: 2px solid var(--primary-green);
-            pointer-events: none;
-        }
-        
-        .drop-zone:hover {
-            border-color: var(--gold);
-            background: #FFFEF9;
-            transform: scale(1.02);
-            box-shadow: 
-                inset 0 0 0 2px var(--gold),
-                inset 0 0 0 4px var(--wood-brown),
-                0 6px 16px rgba(217, 179, 119, 0.3),
-                0 3px 6px rgba(0, 0, 0, 0.15);
-        }
-        
-        .drop-zone.drag-over {
-            border-color: var(--gold);
-            background: #FFFCF5;
-            transform: scale(1.05);
-            box-shadow: 
-                inset 0 0 0 2px var(--gold),
-                inset 0 0 0 4px var(--wood-brown),
-                0 8px 24px rgba(217, 179, 119, 0.4),
-                0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .center-drop {
-            width: 340px;
-            height: 340px;
-            border-radius: 50%;
-            position: relative;
-        }
-        
-        .center-drop::after {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: -12px;
-            right: -12px;
-            bottom: -12px;
-            border-radius: 50%;
-            border: 3px solid var(--primary-green);
-            pointer-events: none;
-            box-shadow: 0 0 0 1px var(--wood-brown);
-        }
-        
-        .item-drop {
-            width: 220px;
-            height: 220px;
-            border-radius: 20px;
-            position: absolute;
-        }
-        
-        
-        .item-drop.top-cloth {
-            top: 50%;
-            left: -240px;
-            transform: translateY(-50%);
-        }
-        
-        .item-drop.bottom-cloth {
-            top: 50%;
-            right: -240px;
-            transform: translateY(-50%);
-        }
-        
-        .item-drop.dress {
-            top: 100%;
-            left: 50%;
-            transform: translate(-50%, -110px);
-            width: 220px;
-            height: 220px;
-        }
-        
-        
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .center-drop .preview-image {
-            border-radius: 50%;
-        }
-        
-        .item-drop .preview-image {
-            border-radius: 20px;
-        }
-        
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .glow {
-            box-shadow: 0 4px 20px rgba(217, 179, 119, 0.3);
-        }
-
-        /* Cloth type button active state override */
-        .cloth-type-btn.active.btn-outline {
-            background-color: var(--ivory);
-            color: var(--primary-green);
-            border-color: var(--ivory);
-        }
-        
-        .cloth-type-btn.active.btn-primary {
-            transform: scale(1.05);
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 32px;
-            height: 32px;
-            background: var(--primary-green);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(30, 61, 43, 0.3);
-        }
-
-        .delete-btn:hover {
-            background: var(--gold);
-            transform: scale(1.15);
-            box-shadow: 0 4px 12px rgba(217, 179, 119, 0.4);
-        }
-        
-        /* Fade transition for results */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .drop-zone:hover .delete-btn.show {
-            display: flex;
-        }
-        
-        /* ============================================
-           BUTTON COMPONENT SYSTEM
-           ============================================ */
-        
-        /* Base Button Styles */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Noto Sans KR', sans-serif;
-            font-weight: 600;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, border-color 0.2s;
-            text-decoration: none;
-            white-space: nowrap;
-            user-select: none;
-            outline: none;
-        }
-        
-        /* Button Sizes */
-        .btn-sm {
-            height: 36px;
-            padding: 0 12px;
-            font-size: 14px;
-            border-radius: 8px;
-        }
-        
-        .btn-md {
-            height: 44px;
-            padding: 0 16px;
-            font-size: 15px;
-            border-radius: 10px;
-        }
-        
-        .btn-lg {
-            height: 52px;
-            padding: 0 20px;
-            font-size: 16px;
-            border-radius: 12px;
-        }
-        
-        /* Button Variants - Adjusted for Dark Background */
-        .btn-primary {
-            background-color: var(--ivory);
-            color: var(--primary-green);
-        }
-        
-        .btn-primary:hover:not(:disabled):not(.loading) {
-            background-color: var(--gold);
-            color: var(--primary-green);
-        }
-        
-        .btn-primary:active:not(:disabled):not(.loading) {
-            background-color: #C9A668;
-        }
-        
-        .btn-primary:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
-        }
-        
-        .btn-secondary {
-            background-color: var(--wood-brown);
-            color: var(--ivory);
-        }
-        
-        .btn-secondary:hover:not(:disabled):not(.loading) {
-            background-color: var(--gold);
-            color: var(--primary-green);
-        }
-        
-        .btn-secondary:active:not(:disabled):not(.loading) {
-            background-color: #C9A668;
-        }
-        
-        .btn-secondary:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            color: var(--ivory);
-            border: 2px solid var(--ivory);
-        }
-        
-        .btn-outline:hover:not(:disabled):not(.loading) {
-            background-color: var(--ivory);
-            color: var(--primary-green);
-        }
-        
-        .btn-outline:active:not(:disabled):not(.loading) {
-            background-color: #E5DFD4;
-        }
-        
-        .btn-outline:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
-        }
-        
-        .btn-ghost {
-            background-color: transparent;
-            color: var(--ivory);
-        }
-        
-        .btn-ghost:hover:not(:disabled):not(.loading) {
-            background-color: rgba(245, 241, 234, 0.15);
-            color: var(--gold);
-        }
-        
-        .btn-ghost:active:not(:disabled):not(.loading) {
-            background-color: rgba(245, 241, 234, 0.25);
-        }
-        
-        .btn-ghost:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--primary-green), 0 0 0 6px var(--gold);
-        }
-        
-        .btn-danger {
-            background-color: #B00020;
-            color: #ffffff;
-        }
-        
-        .btn-danger:hover:not(:disabled):not(.loading) {
-            background-color: #8B0019;
-        }
-        
-        .btn-danger:active:not(:disabled):not(.loading) {
-            background-color: #6B0013;
-        }
-        
-        .btn-danger:focus:not(:disabled):not(.loading) {
-            box-shadow: 0 0 0 2px var(--ivory), 0 0 0 6px rgba(176, 0, 32, 0.4);
-        }
-        
-        /* Button States */
-        .btn:disabled,
-        .btn.loading {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-        
-        /* Icon Support */
-        .btn .icon-left {
-            width: 18px;
-            height: 18px;
-            margin-right: 8px;
-        }
-        
-        .btn .icon-right {
-            width: 18px;
-            height: 18px;
-            margin-left: 8px;
-        }
-        
-        /* Loading Spinner */
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        /* Empty State Guide */
-        .empty-guide {
-            background: var(--ivory);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 14px;
-            padding: 2rem 1.5rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .step-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(30, 61, 43, 0.08);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .step-arrow {
-            opacity: 0.6;
-        }
-
-        /* Upload CTA Button */
-        .upload-cta-btn {
-            width: 100%;
-            max-width: 360px;
-            height: 56px;
-            font-size: 1.125rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .micro-copy {
-            line-height: 1.4;
-        }
-
-        /* Button Preview Section Styles */
-        .btn-preview-section {
-            background: var(--ivory);
-            border-radius: 16px;
-            padding: 2rem;
-            margin: 3rem auto;
-            max-width: 1200px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn-preview-section h3 {
-            color: var(--primary-green);
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-        
-        .btn-group-label {
-            width: 100%;
-            text-align: center;
-            color: var(--wood-brown);
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        /* Wood Frame Mirror for Result Image */
-        .wood-frame-mirror {
-            border: 12px solid var(--wood-brown);
-            border-radius: 24px;
-            box-shadow: 
-                inset 0 0 0 3px var(--gold),
-                inset 0 0 0 6px var(--primary-green),
-                0 6px 20px rgba(0, 0, 0, 0.2),
-                0 3px 8px rgba(0, 0, 0, 0.15);
-            position: relative;
-            background: white;
-        }
-        
-        .wood-frame-mirror::before {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: -12px;
-            right: -12px;
-            bottom: -12px;
-            border-radius: 24px;
-            border: 3px solid var(--primary-green);
-            pointer-events: none;
-        }
-        
-        .wood-frame-mirror::after {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            right: -15px;
-            bottom: -15px;
-            border-radius: 26px;
-            box-shadow: 0 0 0 1px var(--wood-brown);
-            pointer-events: none;
-        }
-
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             /* Header adjustments */
@@ -854,56 +377,125 @@
                 </div>
             </div>
             
-            <!-- Button Component Preview Section -->
-            <div class="btn-preview-section">
-                <h3>🎨 Button Component System</h3>
+            <!-- Button Component Preview Section (v2) -->
+            <div class="btn-preview-section" id="btn-preview">
+                <h3>🎨 Button Component System v2</h3>
+                <p style="text-align: center; color: var(--wood-brown); margin-bottom: 2rem; font-size: 0.9rem;">
+                    모든 variant/size/state 조합을 시각적으로 검증하세요
+                </p>
                 
-                <div class="btn-group-label">기본 버튼 타입</div>
-                <div class="btn-group">
+                <!-- Variants (md 사이즈) -->
+                <div class="btn-group-label">✨ Variants (Medium Size)</div>
+                <div class="btn-preview-group">
                     <button class="btn btn-primary btn-md" data-testid="button-preview-primary">입어보기</button>
                     <button class="btn btn-secondary btn-md" data-testid="button-preview-secondary">결과 저장</button>
                     <button class="btn btn-outline btn-md" data-testid="button-preview-outline">샘플 보기</button>
                     <button class="btn btn-ghost btn-md" data-testid="button-preview-ghost">더 알아보기</button>
-                    <button class="btn btn-danger btn-md" data-testid="button-preview-danger">삭제하기</button>
+                    <button class="btn btn-danger btn-md" data-testid="button-preview-danger">삭제</button>
+                    <button class="btn btn-light btn-md" data-testid="button-preview-light">보조 버튼</button>
                 </div>
                 
-                <div class="btn-group-label">크기 옵션 (Small / Medium / Large)</div>
-                <div class="btn-group">
-                    <button class="btn btn-primary btn-sm" data-testid="button-size-small">Small</button>
-                    <button class="btn btn-primary btn-md" data-testid="button-size-medium">Medium</button>
-                    <button class="btn btn-primary btn-lg" data-testid="button-size-large">Large</button>
+                <!-- Sizes (primary variant) -->
+                <div class="btn-group-label">📏 Sizes (Primary Variant)</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-primary btn-sm" data-testid="button-size-sm">Small (36px)</button>
+                    <button class="btn btn-primary btn-md" data-testid="button-size-md">Medium (44px)</button>
+                    <button class="btn btn-primary btn-lg" data-testid="button-size-lg">Large (52px)</button>
                 </div>
                 
-                <div class="btn-group-label">상태 (Disabled / Loading)</div>
-                <div class="btn-group">
-                    <button class="btn btn-primary btn-md" disabled data-testid="button-state-disabled">처리 중</button>
+                <!-- Size variations for all variants -->
+                <div class="btn-group-label">🎨 Secondary - All Sizes</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-secondary btn-sm">Small</button>
+                    <button class="btn btn-secondary btn-md">Medium</button>
+                    <button class="btn btn-secondary btn-lg">Large</button>
+                </div>
+                
+                <div class="btn-group-label">🎨 Outline - All Sizes</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-outline btn-sm">Small</button>
+                    <button class="btn btn-outline btn-md">Medium</button>
+                    <button class="btn btn-outline btn-lg">Large</button>
+                </div>
+                
+                <!-- States -->
+                <div class="btn-group-label">🔄 States (Disabled / Loading)</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-primary btn-md" disabled data-testid="button-state-disabled">Disabled</button>
                     <button class="btn btn-primary btn-md loading" id="loadingDemoBtn" data-testid="button-state-loading">
                         <span class="spinner"></span>
-                        로딩 중...
+                        처리 중...
                     </button>
-                    <button class="btn btn-secondary btn-md" onclick="toggleLoadingDemo()" data-testid="button-toggle-loading">로딩 토글</button>
+                    <button class="btn btn-secondary btn-md" onclick="toggleLoadingDemo()" data-testid="button-toggle-loading">
+                        로딩 토글
+                    </button>
                 </div>
                 
-                <div class="btn-group-label">아이콘 지원</div>
-                <div class="btn-group">
-                    <button class="btn btn-primary btn-md" data-testid="button-icon-left">
-                        <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                <!-- Block Button -->
+                <div class="btn-group-label">📱 Block Button (100% Width)</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-primary btn-lg btn-block" data-testid="button-block">
+                        <svg style="width: 20px; height: 20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        추가하기
+                        내 사진 업로드
                     </button>
-                    <button class="btn btn-outline btn-md" data-testid="button-icon-right">
+                </div>
+                
+                <!-- Icon Support -->
+                <div class="btn-group-label">🎯 Icon Support (Left / Right)</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-primary btn-md" data-testid="button-icon-left">
+                        <svg style="width: 18px; height: 18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        </svg>
+                        입어보기
+                    </button>
+                    <button class="btn btn-secondary btn-md" data-testid="button-icon-right">
                         다운로드
-                        <svg class="icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg style="width: 18px; height: 18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                     </button>
                 </div>
                 
-                <div class="btn-group-label">조합 예시</div>
-                <div class="btn-group">
+                <!-- Icon-only Buttons -->
+                <div class="btn-group-label">⚡ Icon-Only Buttons (btn-icon)</div>
+                <div class="btn-preview-group">
+                    <button class="btn btn-primary btn-icon btn-sm" aria-label="공유하기" data-testid="button-icon-share-sm">
+                        <svg style="width: 16px; height: 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-secondary btn-icon btn-md" aria-label="설정" data-testid="button-icon-settings-md">
+                        <svg style="width: 18px; height: 18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-danger btn-icon btn-lg" aria-label="삭제" data-testid="button-icon-delete-lg">
+                        <svg style="width: 20px; height: 20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Button Group -->
+                <div class="btn-group-label">🔗 Button Group (결합형 라운드)</div>
+                <div class="btn-preview-group">
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-md">왼쪽</button>
+                        <button class="btn btn-outline btn-md">중간</button>
+                        <button class="btn btn-outline btn-md">오른쪽</button>
+                    </div>
+                </div>
+                
+                <!-- Complex Examples -->
+                <div class="btn-group-label">🎪 조합 예시 (Complex)</div>
+                <div class="btn-preview-group">
                     <button class="btn btn-primary btn-lg" data-testid="button-combo-1">
-                        <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg style="width: 20px; height: 20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                         가상 피팅 시작

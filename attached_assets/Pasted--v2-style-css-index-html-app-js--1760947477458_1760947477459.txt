@@ -1,0 +1,100 @@
+버튼 시스템이 불완전해서, 아래 사양으로 v2를 전면 재구성해줘.
+파일 수정은 네가 적절히 분리해서 style.css / index.html / app.js에 반영하고,
+미리보기 섹션을 자동 생성해 상호작용을 바로 확인 가능하게 해.
+
+[디자인 토큰(이미 설정된 테마와 일치)]
+:root {
+  --btn-primary: #1E3D2B;   /* 짙은 초록 */
+  --btn-secondary: #8B6A4A; /* 우드 브라운 */
+  --btn-accent: #D9B377;    /* 골드 */
+  --btn-bg: #F5F1EA;        /* 아이보리 */
+  --btn-text: #222222;      /* 텍스트 */
+  --btn-danger: #B00020;    /* 오류/삭제 */
+  --btn-radius-sm: 8px;
+  --btn-radius-md: 10px;
+  --btn-radius-lg: 12px;
+  --btn-shadow: 0 2px 8px rgba(0,0,0,.08);
+  --ring: 0 0 0 2px rgba(217,179,119,.8); /* accent ring */
+}
+
+[컴포넌트 구조]
+- 모든 버튼은 .btn 베이스 + 변형 클래스(variant/size/state)를 조합
+- 아이콘은 .icon-left, .icon-right slot 사용 (inline-svg 또는 <i>)
+- 아이콘 전용 버튼(.btn-icon)은 라벨 없이 aria-label 필수
+
+[Variant]
+1) .btn-primary   : 배경=primary, 글자=아이보리. hover=accent, 글자=primary
+2) .btn-secondary : 배경=secondary, 글자=아이보리. hover=accent, 글자=primary
+3) .btn-outline   : 테두리=primary, 배경=transparent, 글자=primary. hover=배경=btn-bg, 테두리/글자=primary 진하게
+4) .btn-ghost     : 배경=transparent, 글자=secondary. hover=배경=rgba(0,0,0,.04)
+5) .btn-danger    : 배경=danger, 글자=#fff. hover=조금 어둡게
+
+[Size]
+- .btn-sm:   height:36px;  padding:0 12px; font-size:14px;  border-radius:var(--btn-radius-sm)
+- .btn-md:   height:44px;  padding:0 16px; font-size:15px;  border-radius:var(--btn-radius-md) (기본)
+- .btn-lg:   height:52px;  padding:0 20px; font-size:16px;  border-radius:var(--btn-radius-lg)
+- .btn-block: width:100% (모바일 CTA 용)
+
+[State]
+- :hover    : 명확한 시각 변화(배경/글자 반전 또는 톤 업)
+- :active   : hover보다 5% 어둡게
+- :focus-visible: outline:none; box-shadow: var(--ring)
+- .disabled 또는 [disabled]: opacity:.55; cursor:not-allowed; hover/active/focus 무시
+- .loading  : 좌측에 .spinner 삽입, 텍스트와 8px 간격. pointer-events:none
+- .busy     : aria-busy="true" 동등 처리(스크린리더 인식)
+
+[접근성]
+- role="button"은 링크 대체일 때만. 기본은 <button>.
+- aria-label 필수 (아이콘 전용), aria-live="polite" 토스트 영역 별도.
+- 색 대비 WCAG AA 충족(텍스트/배경 대비 점검)
+
+[유틸 클래스]
+- .btn-group: 인접 버튼 라운드 결합(첫/마지막만 radius, 중간은 0), overflow:hidden
+- .btn-icon: 정사각형 40/44/52px, 아이콘 18~20px 중앙정렬
+- .btn-light: 배경=btn-bg, 글자=primary (보조용)
+
+[Spinner]
+.spinner {
+  width:16px; height:16px; border:2px solid rgba(255,255,255,.6);
+  border-top-color:#fff; border-radius:50%;
+  animation:spin .9s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg) } }
+
+[기본 CSS 베이스 예시]
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:600; line-height:1; border:1px solid transparent;
+  transition:background-color .2s, color .2s, box-shadow .2s, border-color .2s;
+  box-shadow: var(--btn-shadow);
+}
+.btn i,.btn svg,.btn .icon-left,.btn .icon-right { display:inline-flex; width:18px; height:18px; }
+
+[미리보기 섹션 자동 생성]
+index.html 하단에 <section id="btn-preview">를 만들고, 아래 샘플을 렌더:
+1) Variants (md 사이즈):
+  - .btn-primary “입어보기”
+  - .btn-secondary “결과 저장”
+  - .btn-outline “샘플 보기”
+  - .btn-ghost “더 알아보기”
+  - .btn-danger “삭제”
+2) Size:
+  - 각 variant의 .btn-sm / .btn-md / .btn-lg 샘플
+3) States:
+  - disabled 상태, loading 상태(.spinner + “처리 중…”)
+4) Block:
+  - .btn-primary.btn-lg.btn-block “내 사진 업로드”
+5) Icon:
+  - .btn-primary (왼쪽 카메라 아이콘) “입어보기”
+  - .btn-icon (aria-label="공유하기") 예시 3개
+
+[JS 헬퍼 (선택)]
+- window.setLoading(btnEl, true|false) 유틸 생성 → .loading 클래스 토글 + spinner 삽입/제거
+- 미리보기에서 “로딩 토글” 버튼 눌러 상호작용 시현
+
+[품질]
+- 중복 규칙 제거: .btn 베이스 + 변형 클래스만으로 구성
+- 모바일 터치 타겟 최소 44px 보장
+- CSS 구조 주석 달고, style.css 최상단에 “Button v2 – last updated: YYYY-MM-DD” 삽입
+
+위 사양대로 Button Component System v2를 구현하고, 프리뷰 섹션에서 hover/focus/active/disabled/loading/블록/아이콘 조합이 모두 시각적으로 검증되도록 해줘.

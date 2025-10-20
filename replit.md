@@ -4,7 +4,7 @@
 
 "입사 (FITSA)"는 AI 기술을 활용한 가상 피팅 앱으로, 사용자가 자신의 사진과 옷 사진을 업로드하면 AI가 자연스럽게 합성된 이미지를 생성합니다. "거울처럼 자연스럽게"라는 비전 아래, 기술보다는 사용자 경험과 결과의 자연스러움에 집중합니다. 핵심 기능은 AI 기반 가상 피팅, 모바일 반응형 디자인, 그리고 신용카드 결제 시스템을 통한 수익화 모델입니다.
 
-**Design Philosophy (v2.4.0)**: 영국 고급 양복점 내부의 짙은 초록 벽(#1E3D2B)을 배경으로, 프리미엄 부티크 피팅룸 감성을 구현합니다. 모든 컴포넌트는 아이보리(#F5F1EA) 배경으로 떠있는 듯한 효과를 주어, 고급감과 가독성을 동시에 확보합니다. 브랜드명 "FITSA"는 골드로 강조되며, 전체적으로 "고급 맞춤정장점 내부"의 몰입감 있는 경험을 제공합니다. 빈 상태 가이드와 Progressive Disclosure를 통해 첫 방문자의 이해도를 높이고, 단일 대형 업로드 CTA로 행동 유도를 명확화했습니다.
+**Design Philosophy (v2.5.0)**: 영국 고급 양복점 내부의 짙은 초록 벽(#1E3D2B)을 배경으로, 프리미엄 부티크 피팅룸 감성을 구현합니다. 모든 컴포넌트는 아이보리(#F5F1EA) 배경으로 떠있는 듯한 효과를 주어, 고급감과 가독성을 동시에 확보합니다. 브랜드명 "FITSA"는 골드로 강조되며, 전체적으로 "고급 맞춤정장점 내부"의 몰입감 있는 경험을 제공합니다. 빈 상태 가이드와 Progressive Disclosure를 통해 첫 방문자의 이해도를 높이고, 단일 대형 업로드 CTA로 행동 유도를 명확화했습니다. Button Component System v2를 통해 일관된 인터랙션과 접근성을 보장합니다.
 
 ## User Preferences
 
@@ -161,7 +161,7 @@ The frontend uses static HTML/CSS/JavaScript with Tailwind CSS via CDN for styli
 - **Typography**: Noto Sans KR, ivory text on dark, dark text on light components
 - **Contrast**: High contrast for accessibility (WCAG AA compliant)
 
-**UX Features (v2.4.0):**
+**UX Features (v2.5.0):**
 - **Empty State Guide**: 3-step visual process (① 사진 업로드 → ② 카테고리 선택 → ③ 입어보기)
   - Ivory background card with subtle border
   - Circular icons with step numbers
@@ -175,6 +175,21 @@ The frontend uses static HTML/CSS/JavaScript with Tailwind CSS via CDN for styli
   - Micro-copy: "가장 잘 보이는 정면 상반신 사진을 권장해요"
   - aria-label for accessibility
 - **Mobile Optimized**: 100% width buttons, hidden step arrows, responsive padding
+
+**Button Component System v2 (v2.5.0):**
+- **Architecture**: .btn base + variant/size/state modular classes
+- **Variants**: primary, secondary, outline, ghost, danger, light (6 types)
+- **Sizes**: sm (36px), md (44px), lg (52px), block (100% width), icon (square)
+- **States**: hover, active, focus-visible, disabled, loading, busy
+- **Features**:
+  - Flexbox gap (8px) for icon spacing
+  - CSS design tokens (--btn-* variables)
+  - WCAG AA compliant (color contrast, 44px min touch target)
+  - Spinner animation for loading states
+  - Button group utility (결합형 라운드)
+  - `window.setLoading(btnEl, bool)` helper function
+- **Preview Section**: Live demonstration of all variant/size/state combinations
+- **File Structure**: Separated CSS (`styles.css`) for maintainability
 
 ### Backend Architecture
 
