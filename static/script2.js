@@ -4,6 +4,7 @@ let topClothImage = null;
 let bottomClothImage = null;
 let dressImage = null;
 let clothingMode = 'separate'; // 'separate' or 'dress'
+let imageLoaded = false; // Track if person image is uploaded
 
 // DOM elements - will be initialized after DOM loads
 let personDropZone, topClothDropZone, bottomClothDropZone, dressDropZone;
@@ -11,6 +12,7 @@ let personFileInput, topClothFileInput, bottomClothFileInput, dressFileInput;
 let generateBtn, loadingIndicator, resultsSection;
 let downloadBtn, resetAllBtn, shareBtn;
 let clothTypeButtons;
+let emptyStateGuide, clothingTypeSelection, generateSection;
 
 // Initialize everything after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     shareBtn = document.getElementById('shareBtn');
     
     clothTypeButtons = document.querySelectorAll('.cloth-type-btn');
+    
+    // Empty state and progressive disclosure elements
+    emptyStateGuide = document.getElementById('emptyStateGuide');
+    clothingTypeSelection = document.getElementById('clothingTypeSelection');
+    generateSection = document.getElementById('generateSection');
     
     initializeApp();
 });
@@ -193,6 +200,8 @@ function handleFile(file, type) {
         switch(type) {
             case 'person':
                 personImage = file;
+                imageLoaded = true; // Update imageLoaded state
+                updateUIState(); // Update UI when person image is loaded
                 break;
             case 'topCloth':
                 topClothImage = file;
@@ -228,6 +237,8 @@ function clearImage(type, event) {
     switch(type) {
         case 'person':
             personImage = null;
+            imageLoaded = false; // Update imageLoaded state
+            updateUIState(); // Update UI when person image is cleared
             break;
         case 'topCloth':
             topClothImage = null;
@@ -250,6 +261,41 @@ function checkCanGenerate() {
     // Need person image and at least one clothing item
     const hasAnyClothing = topClothImage || bottomClothImage || dressImage;
     generateBtn.disabled = !(personImage && hasAnyClothing);
+}
+
+// Update UI based on imageLoaded state
+function updateUIState() {
+    if (imageLoaded) {
+        // Hide empty state guide
+        if (emptyStateGuide) {
+            emptyStateGuide.classList.add('hidden');
+        }
+        
+        // Show clothing type selection
+        if (clothingTypeSelection) {
+            clothingTypeSelection.classList.remove('hidden');
+        }
+        
+        // Show generate section
+        if (generateSection) {
+            generateSection.classList.remove('hidden');
+        }
+    } else {
+        // Show empty state guide
+        if (emptyStateGuide) {
+            emptyStateGuide.classList.remove('hidden');
+        }
+        
+        // Hide clothing type selection
+        if (clothingTypeSelection) {
+            clothingTypeSelection.classList.add('hidden');
+        }
+        
+        // Hide generate section
+        if (generateSection) {
+            generateSection.classList.add('hidden');
+        }
+    }
 }
 
 async function generateFitting() {
