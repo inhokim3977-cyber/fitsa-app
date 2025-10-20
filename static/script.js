@@ -285,16 +285,30 @@ async function generateFitting() {
                     signal: controller.signal
                 }).finally(() => clearTimeout(timeoutId));
                 
-                if (topResponse.status === 402) {
-                    const topData = await topResponse.json();
-                    alert(topData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
-                    updateCreditsDisplay(topData.remaining_free, topData.credits);
-                    return;
-                }
-                
-                if (topResponse.status === 429) {
-                    const topData = await topResponse.json();
-                    alert(topData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                // Handle error responses
+                if (!topResponse.ok) {
+                    let errorMsg = '서버 오류가 발생했습니다.';
+                    try {
+                        const errorData = await topResponse.json();
+                        errorMsg = errorData.message || errorData.error || errorMsg;
+                        
+                        if (topResponse.status === 402) {
+                            alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                            updateCreditsDisplay(errorData.remaining_free, errorData.credits);
+                            return;
+                        }
+                        
+                        if (topResponse.status === 429) {
+                            alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                            return;
+                        }
+                    } catch (parseError) {
+                        // If response is not JSON (e.g., rate limit error from Gemini)
+                        const errorText = await topResponse.text();
+                        console.error('Non-JSON error response:', errorText);
+                        errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    }
+                    alert(errorMsg);
                     return;
                 }
                 
@@ -342,16 +356,30 @@ async function generateFitting() {
                     signal: controller2.signal
                 }).finally(() => clearTimeout(timeoutId2));
                 
-                if (bottomResponse.status === 402) {
-                    const bottomData = await bottomResponse.json();
-                    alert(bottomData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
-                    updateCreditsDisplay(bottomData.remaining_free, bottomData.credits);
-                    return;
-                }
-                
-                if (bottomResponse.status === 429) {
-                    const bottomData = await bottomResponse.json();
-                    alert(bottomData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                // Handle error responses
+                if (!bottomResponse.ok) {
+                    let errorMsg = '서버 오류가 발생했습니다.';
+                    try {
+                        const errorData = await bottomResponse.json();
+                        errorMsg = errorData.message || errorData.error || errorMsg;
+                        
+                        if (bottomResponse.status === 402) {
+                            alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                            updateCreditsDisplay(errorData.remaining_free, errorData.credits);
+                            return;
+                        }
+                        
+                        if (bottomResponse.status === 429) {
+                            alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                            return;
+                        }
+                    } catch (parseError) {
+                        // If response is not JSON (e.g., rate limit error from Gemini)
+                        const errorText = await bottomResponse.text();
+                        console.error('Non-JSON error response:', errorText);
+                        errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    }
+                    alert(errorMsg);
                     return;
                 }
                 
@@ -405,16 +433,30 @@ async function generateFitting() {
                 signal: controller.signal
             }).finally(() => clearTimeout(timeoutId));
             
-            if (dressResponse.status === 402) {
-                const dressData = await dressResponse.json();
-                alert(dressData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
-                updateCreditsDisplay(dressData.remaining_free, dressData.credits);
-                return;
-            }
-            
-            if (dressResponse.status === 429) {
-                const dressData = await dressResponse.json();
-                alert(dressData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+            // Handle error responses
+            if (!dressResponse.ok) {
+                let errorMsg = '서버 오류가 발생했습니다.';
+                try {
+                    const errorData = await dressResponse.json();
+                    errorMsg = errorData.message || errorData.error || errorMsg;
+                    
+                    if (dressResponse.status === 402) {
+                        alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
+                        updateCreditsDisplay(errorData.remaining_free, errorData.credits);
+                        return;
+                    }
+                    
+                    if (dressResponse.status === 429) {
+                        alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
+                        return;
+                    }
+                } catch (parseError) {
+                    // If response is not JSON (e.g., rate limit error from Gemini)
+                    const errorText = await dressResponse.text();
+                    console.error('Non-JSON error response:', errorText);
+                    errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                }
+                alert(errorMsg);
                 return;
             }
             
