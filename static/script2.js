@@ -331,26 +331,8 @@ function switchClothingMode(mode) {
     // Generate button
     generateBtn.addEventListener('click', () => generateFitting());
 
-    // Download, share, refit, and reset
-    downloadBtn.addEventListener('click', () => downloadResult());
-    shareBtn.addEventListener('click', () => shareResult());
-    const refitBtn = document.getElementById('refitBtn');
-    if (refitBtn) {
-        console.log('✓ Refit button found and event listener attached');
-        refitBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('🔄 Refit button clicked!');
-            refitCurrentPhotos();
-        });
-        // Test: Add visual feedback on hover
-        refitBtn.addEventListener('mouseenter', () => {
-            console.log('Mouse entered refit button');
-        });
-    } else {
-        console.error('❌ Refit button NOT found!');
-    }
-    resetAllBtn.addEventListener('click', () => resetAll());
+    // Note: Button event listeners are now handled in renderButtons()
+    // No need to attach listeners here since buttons are dynamically created
 }
 
 function setupDropZone(dropZone, fileInput, type) {
