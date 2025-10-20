@@ -120,10 +120,10 @@ function initializeApp() {
             clothTypeButtons.forEach(b => {
                 b.classList.remove('active');
                 b.classList.remove('btn-primary');
-                b.classList.add('btn-outline');
+                b.classList.add('btn-secondary');
             });
             btn.classList.add('active');
-            btn.classList.remove('btn-outline');
+            btn.classList.remove('btn-secondary');
             btn.classList.add('btn-primary');
         });
     });
