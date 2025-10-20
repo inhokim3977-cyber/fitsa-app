@@ -172,7 +172,7 @@ The frontend uses static HTML/CSS/JavaScript with Tailwind CSS via CDN for styli
   - Smart CTA progression reduces cognitive load
 - **Upload CTA**: Single large button (360px max, btn-lg)
   - Camera icon + "내 사진 업로드" text
-  - Micro-copy: "가장 잘 보이는 정면 상반신 사진을 권장해요"
+  - Micro-copy: "가장 잘 보이는 정면 전신 사진을 권장해요"
   - aria-label for accessibility
 - **Mobile Optimized**: 100% width buttons, hidden step arrows, responsive padding
 
