@@ -1457,10 +1457,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Show wardrobe nav button after first save
-    setTimeout(() => {
-        wardrobeNavBtn?.classList.remove('hidden');
-    }, 2000);
+    // Show wardrobe nav button immediately for testing
+    if (wardrobeNavBtn) {
+        wardrobeNavBtn.classList.remove('hidden');
+    }
 });
 
 // Make functions globally accessible

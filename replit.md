@@ -6,7 +6,7 @@
 
 **Design Philosophy (v2.6.0)**: 영국 고급 양복점 내부의 짙은 초록 벽(#1E3D2B)을 배경으로, 프리미엄 부티크 피팅룸 감성을 구현합니다. 모든 컴포넌트는 아이보리(#F5F1EA) 배경으로 떠있는 듯한 효과를 주어, 고급감과 가독성을 동시에 확보합니다. 브랜드명 "FITSA"는 골드로 강조되며, 전체적으로 "고급 맞춤정장점 내부"의 몰입감 있는 경험을 제공합니다. 빈 상태 가이드와 Progressive Disclosure를 통해 첫 방문자의 이해도를 높이고, 단일 대형 업로드 CTA로 행동 유도를 명확화했습니다. Button Component System v2를 통해 일관된 인터랙션과 접근성을 보장합니다.
 
-**v2.6.0 Updates (2025-10-20)**: State-based UI 시스템 도입으로 사용자 경험 개선. 4가지 상태(empty/uploaded/processing/completed) 기반 버튼 자동 전환으로 불필요한 UI 요소 제거. 토스트 알림 시스템 추가로 상태 변화 시각적 피드백 강화. Progressive disclosure pattern 완성으로 초보자 진입장벽 완화.
+**v2.6.0 Updates (2025-10-20)**: State-based UI 시스템 도입으로 사용자 경험 개선. 4가지 상태(empty/uploaded/processing/completed) 기반 버튼 자동 전환으로 불필요한 UI 요소 제거. 토스트 알림 시스템 추가로 상태 변화 시각적 피드백 강화. Progressive disclosure pattern 완성으로 초보자 진입장벽 완화. **옷장(Wardrobe) 기능 추가**: 저장한 착용샷을 쇼핑몰/상품 정보와 함께 관리하는 전용 페이지 구현. SQLite 기반 데이터 저장, 검색, 페이지네이션, UTM 파라미터 자동 추가 기능 포함.
 
 ## User Preferences
 
@@ -213,6 +213,15 @@ A monetization MVP is implemented with a free tier of 3 virtual try-ons per day 
 **Data Storage Solutions**
 
 Object storage is handled via Google Cloud Storage, authenticated through a Replit sidecar service, using UUID-based file naming. An in-memory storage class (`MemStorage`) is used for fitting records, with a prepared Drizzle ORM schema for future migration to PostgreSQL (e.g., Neon serverless).
+
+**Wardrobe (Saved Fits) System** (Added: 2025-10-20): A complete feature for saving and managing virtual fitting results with shopping information. Implemented with SQLite database (`saved_fits.db`) containing:
+- User identification via cookie-based user_key
+- Result image URLs (base64 data URLs)
+- Shop name, product name, product URL (with automatic UTM parameter injection)
+- Optional metadata: category, price snapshot, notes
+- RESTful API endpoints: `POST /api/save-fit`, `GET /api/saved-fits`, `DELETE /api/saved-fits/:id`
+- Frontend features: Grid layout with cards, pagination (20 items/page), search by shop/product name, delete functionality
+- Navigation: Floating wardrobe button (👔) and dedicated wardrobe page with back navigation
 
 ## External Dependencies
 

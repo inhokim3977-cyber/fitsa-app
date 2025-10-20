@@ -248,7 +248,10 @@ def get_saved_fits():
         
         # Get user_key from cookie
         user_key = request.cookies.get('user_key')
+        print(f'[/api/saved-fits] user_key from cookie: {user_key}')
+        
         if not user_key:
+            print('[/api/saved-fits] No user_key cookie found, returning empty result')
             return jsonify({'items': [], 'total': 0, 'page': 1, 'per_page': 20}), 200
         
         # Get query parameters
@@ -256,13 +259,19 @@ def get_saved_fits():
         per_page = int(request.args.get('per_page', 20))
         query = request.args.get('q')
         
+        print(f'[/api/saved-fits] Fetching saved fits: user_key={user_key}, page={page}, per_page={per_page}, query={query}')
+        
         # Get saved fits
         result = get_fits_service(user_key, page, per_page, query)
+        
+        print(f'[/api/saved-fits] Result: total={result.get("total", 0)}, items_count={len(result.get("items", []))}')
         
         return jsonify(result), 200
         
     except Exception as e:
         print(f'Error in get_saved_fits endpoint: {e}')
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @api_bp.route('/saved-fits/<fit_id>', methods=['GET'])
