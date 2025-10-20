@@ -16,6 +16,12 @@ def virtual_fitting():
     Optimized AI pipeline for virtual fashion fitting
     With monetization: 3 free tries/day, then paid credits
     """
+    # Initialize variables for exception handler
+    credits_service = None
+    ip = None
+    user_agent = None
+    info = None
+    
     try:
         # Check if files are present (validate first before credit check)
         if 'userPhoto' not in request.files or 'clothingPhoto' not in request.files:
@@ -165,6 +171,11 @@ def virtual_fitting():
             return jsonify({'error': f'Unsupported category: {category}. Only upper_body, lower_body, dress are supported.'}), 400
         
         if not stage1_result:
+            # AI generation failed - refund credit
+            if not info.get('is_refitting'):
+                # Only refund if it was not a refitting (refitting doesn't consume credits)
+                credits_service.refund_credit(ip, user_agent, info.get('used_type', 'free'))
+                print(f"💔 AI generation failed - credit refunded")
             return jsonify({'error': f'All virtual fitting methods failed for category: {category}'}), 500
         
         print(f"✓ Virtual fitting completed using: {method_used}")
@@ -187,6 +198,10 @@ def virtual_fitting():
         })
     
     except Exception as e:
+        # Unexpected error - refund credit
+        if credits_service and ip and info and not info.get('is_refitting'):
+            credits_service.refund_credit(ip, user_agent or '', info.get('used_type', 'free'))
+            print(f"💔 Unexpected error - credit refunded")
         return jsonify({'error': str(e)}), 500
 
 @api_bp.route('/health', methods=['GET'])

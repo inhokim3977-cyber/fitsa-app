@@ -158,6 +158,8 @@ The backend is built with Flask (Python) and features a CORS-enabled API for vir
 
 A monetization MVP is implemented with a free tier of 3 virtual try-ons per day per user, and a paid tier of 10 credits for $2 USD via Stripe Checkout. User identification is based on an IP + User-Agent hash. Credits are managed in an SQLite database (`credits.db`), with free tries resetting daily at midnight UTC. A "Refitting Feature" allows up to 5 free retries per hour for the same photo set, improving user satisfaction without consuming credits.
 
+**Credit Protection System** (Added: 2025-10-20): Automatic refund mechanism ensures credits are only consumed on successful AI generation. If AI generation fails or server errors occur, credits are automatically refunded to the user. Refitting attempts (which don't consume credits) are not eligible for refunds.
+
 **Data Storage Solutions**
 
 Object storage is handled via Google Cloud Storage, authenticated through a Replit sidecar service, using UUID-based file naming. An in-memory storage class (`MemStorage`) is used for fitting records, with a prepared Drizzle ORM schema for future migration to PostgreSQL (e.g., Neon serverless).

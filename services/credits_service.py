@@ -275,3 +275,42 @@ class CreditsService:
         
         finally:
             conn.close()
+    
+    def refund_credit(self, ip_or_user_key: str, user_agent: str = '', used_type: str = 'free'):
+        """
+        Refund a credit when virtual fitting fails
+        
+        Args:
+            ip_or_user_key: User IP address OR pre-computed user_key
+            user_agent: User agent string (empty string means ip_or_user_key is already a user_key)
+            used_type: Type of credit used ('free' or 'credit')
+        """
+        if user_agent == '':
+            user_key = ip_or_user_key
+        else:
+            user_key = self.get_user_key(ip_or_user_key, user_agent)
+        
+        conn = sqlite3.connect(self.db_path)
+        
+        try:
+            c = conn.cursor()
+            
+            if used_type == 'free':
+                # Refund free attempt (decrease free_used_today)
+                c.execute(
+                    'UPDATE users SET free_used_today = MAX(0, free_used_today - 1) WHERE user_key = ?',
+                    (user_key,)
+                )
+                print(f"🔄 Refunded 1 free attempt to user {user_key}")
+            elif used_type == 'credit':
+                # Refund paid credit
+                c.execute(
+                    'UPDATE users SET credits = credits + 1 WHERE user_key = ?',
+                    (user_key,)
+                )
+                print(f"🔄 Refunded 1 paid credit to user {user_key}")
+            
+            conn.commit()
+        
+        finally:
+            conn.close()
