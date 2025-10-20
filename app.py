@@ -93,6 +93,25 @@ def selftest_run():
     """
     return html
 
+# Error handlers for debugging
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    print("="*80)
+    print("🚨 INTERNAL SERVER ERROR:")
+    print(traceback.format_exc())
+    print("="*80)
+    return {'error': 'Internal server error', 'message': str(error)}, 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    import traceback
+    print("="*80)
+    print("🚨 UNHANDLED EXCEPTION:")
+    print(traceback.format_exc())
+    print("="*80)
+    return {'error': 'Internal server error', 'message': str(e)}, 500
+
 if __name__ == '__main__':
     PORT = int(os.getenv('PORT', '5000'))
     print(f"🚀 Starting Flask on 0.0.0.0:{PORT}")
