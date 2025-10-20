@@ -359,6 +359,61 @@
                 </div>
             </div>
             
+            <!-- Saved Fits (Wardrobe) Section -->
+            <div id="savedFitsSection" class="hidden fade-in">
+                <!-- Navigation Bar -->
+                <div class="text-center mb-6">
+                    <button id="backToMainBtn" class="btn btn-ghost btn-md" data-testid="button-back-main">
+                        ← 피팅으로 돌아가기
+                    </button>
+                </div>
+                
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold mb-2" style="color: var(--gold);">👔 내 옷장</h2>
+                    <p class="text-lg" style="color: var(--ivory);">저장한 착용샷과 상품 정보</p>
+                </div>
+                
+                <!-- Search/Filter Bar (Optional) -->
+                <div class="max-w-2xl mx-auto mb-8">
+                    <div class="flex gap-3 flex-wrap justify-center">
+                        <input 
+                            type="text" 
+                            id="savedFitsSearch" 
+                            placeholder="검색 (쇼핑몰, 상품명...)" 
+                            class="px-4 py-2 rounded-lg border-2 text-sm flex-1 min-w-[200px]"
+                            style="background: var(--ivory); border-color: var(--wood-brown); color: var(--text-dark);"
+                            data-testid="input-search-fits">
+                        <button id="searchFitsBtn" class="btn btn-primary btn-md" data-testid="button-search-fits">
+                            🔍 검색
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="savedFitsEmpty" class="text-center py-16 hidden">
+                    <div class="max-w-md mx-auto p-8 rounded-2xl" style="background: var(--ivory);">
+                        <div class="text-6xl mb-4">👔</div>
+                        <p class="text-xl font-semibold mb-2" style="color: var(--primary-green);">
+                            아직 저장한 착용샷이 없어요
+                        </p>
+                        <p class="text-sm" style="color: var(--wood-brown);">
+                            결과 화면에서 '저장하기'를 눌러주세요
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Grid Container -->
+                <div id="savedFitsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
+                    <!-- Cards will be dynamically inserted here -->
+                </div>
+                
+                <!-- Pagination -->
+                <div id="savedFitsPagination" class="flex justify-center gap-2 mt-8 hidden">
+                    <!-- Pagination buttons will be dynamically inserted here -->
+                </div>
+            </div>
+            
             <!-- Button Component Preview Section (v2) -->
             <div class="btn-preview-section" id="btn-preview">
                 <h3>🎨 Button Component System v2</h3>
@@ -488,6 +543,111 @@
             </div>
         </div>
     </div>
+    
+    <!-- Save Fit Modal -->
+    <div id="saveFitModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="max-w-md w-full mx-4 p-6 rounded-2xl shadow-2xl" style="background: var(--ivory);">
+            <h3 class="text-2xl font-bold mb-4 text-center" style="color: var(--primary-green);">👔 옷장에 저장하기</h3>
+            
+            <form id="saveFitForm" class="space-y-4">
+                <!-- Shop Name -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">쇼핑몰 *</label>
+                    <input 
+                        type="text" 
+                        id="saveFitShopName" 
+                        required
+                        placeholder="예: 무신사, ZARA, 쿠팡" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-shop-name">
+                </div>
+                
+                <!-- Product Name -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">상품명 *</label>
+                    <input 
+                        type="text" 
+                        id="saveFitProductName" 
+                        required
+                        placeholder="예: 스트레이트 데님 팬츠" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-product-name">
+                </div>
+                
+                <!-- Product URL -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">구매 링크 (HTTPS) *</label>
+                    <input 
+                        type="url" 
+                        id="saveFitProductUrl" 
+                        required
+                        placeholder="https://..." 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-product-url">
+                </div>
+                
+                <!-- Category -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">카테고리</label>
+                    <select 
+                        id="saveFitCategory" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="select-category">
+                        <option value="">선택 안함</option>
+                        <option value="상의">상의</option>
+                        <option value="하의">하의</option>
+                        <option value="원피스">원피스</option>
+                        <option value="아우터">아우터</option>
+                        <option value="신발">신발</option>
+                        <option value="악세서리">악세서리</option>
+                    </select>
+                </div>
+                
+                <!-- Price (Optional) -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">가격 (선택)</label>
+                    <input 
+                        type="number" 
+                        id="saveFitPrice" 
+                        placeholder="예: 49900" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-price">
+                </div>
+                
+                <!-- Note (Optional) -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">메모 (선택)</label>
+                    <textarea 
+                        id="saveFitNote" 
+                        rows="2" 
+                        placeholder="자유롭게 메모하세요" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="textarea-note"></textarea>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="cancelSaveBtn" class="btn btn-ghost btn-lg flex-1" data-testid="button-cancel-save">
+                        취소
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg flex-1" data-testid="button-submit-save">
+                        저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Wardrobe Navigation Button (Floating) -->
+    <button id="wardrobeNavBtn" class="fixed bottom-6 right-6 btn btn-primary btn-lg shadow-2xl z-40 hidden" data-testid="button-wardrobe-nav" style="border-radius: 50%; width: 64px; height: 64px; padding: 0;">
+        👔
+    </button>
     
     <script src="/script2.js"></script>
     <script>
