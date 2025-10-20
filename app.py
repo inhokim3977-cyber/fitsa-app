@@ -37,7 +37,11 @@ def health():
 # Serve frontend
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    response = send_from_directory('static', 'index.html')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/success')
 def success():
@@ -45,7 +49,13 @@ def success():
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('static', path)
+    response = send_from_directory('static', path)
+    # Add cache control headers for JS files to prevent mobile browser caching
+    if path.endswith('.js') or path.endswith('.html'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 # Self Test routes
 from flask import render_template_string
