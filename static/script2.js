@@ -10,25 +10,23 @@
  * @param {number} quality - JPEG quality 0-1 (default: 0.85)
  * @returns {Promise<Blob>} Compressed image blob
  */
-async function compressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.85) {
+async function compressImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.80) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-                // Calculate new dimensions
+                // Calculate new dimensions (always resize for mobile)
                 let width = img.width;
                 let height = img.height;
                 
-                if (width > maxWidth || height > maxHeight) {
-                    const aspectRatio = width / height;
-                    if (width > height) {
-                        width = maxWidth;
-                        height = width / aspectRatio;
-                    } else {
-                        height = maxHeight;
-                        width = height * aspectRatio;
-                    }
+                const aspectRatio = width / height;
+                if (width > height) {
+                    width = Math.min(width, maxWidth);
+                    height = width / aspectRatio;
+                } else {
+                    height = Math.min(height, maxHeight);
+                    width = height * aspectRatio;
                 }
                 
                 // Create canvas and compress
@@ -36,6 +34,10 @@ async function compressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
+                
+                // Enable image smoothing for better quality
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
                 
                 // Convert to blob
@@ -438,23 +440,28 @@ function handleFileSelect(e, type) {
 async function handleFile(file, type) {
     try {
         const fileSizeKB = (file.size / 1024).toFixed(1);
-        console.log(`📁 Original file size (${type}): ${fileSizeKB}KB`);
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
+        console.log(`📁 Original file size (${type}): ${fileSizeKB}KB (${fileSizeMB}MB)`);
         
-        // Check file size - if > 2MB, compress it
+        // Check file size - if > 1MB, compress it (모바일 카메라 이미지 대응)
         let processedFile = file;
-        if (file.size > 2 * 1024 * 1024) { // 2MB
+        if (file.size > 1 * 1024 * 1024) { // 1MB
             console.log(`🔄 Compressing large image (${type})...`);
-            showToast(`📸 ${fileSizeKB}KB 이미지 압축 중...`, 'info');
+            showToast(`📸 이미지 최적화 중... (${fileSizeMB}MB)`, 'info');
             
             try {
-                const compressed = await compressImage(file, 1920, 1920, 0.85);
+                const compressed = await compressImage(file, 1600, 1600, 0.80);
                 processedFile = new File([compressed], file.name, { type: 'image/jpeg' });
-                showToast(`✅ ${fileSizeKB}KB → ${(processedFile.size / 1024).toFixed(1)}KB 압축 완료!`, 'success');
+                const newSizeMB = (processedFile.size / 1024 / 1024).toFixed(1);
+                showToast(`✅ ${fileSizeMB}MB → ${newSizeMB}MB 최적화 완료!`, 'success');
+                console.log(`✅ Compression success: ${fileSizeMB}MB → ${newSizeMB}MB`);
             } catch (compressError) {
                 console.error('⚠️ Compression failed, using original:', compressError);
                 // Continue with original file if compression fails
-                showToast('⚠️ 압축 실패, 원본 사용', 'info');
+                showToast('⚠️ 압축 실패, 원본 이미지 사용', 'info');
             }
+        } else {
+            console.log(`✅ File size OK, no compression needed (${fileSizeKB}KB)`);
         }
         
         const reader = new FileReader();
