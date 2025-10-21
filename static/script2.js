@@ -451,16 +451,8 @@ async function handleFile(file, type) {
             
             try {
                 const compressed = await compressImage(file, 1600, 1600, 0.80);
-                // Mobile-safe: Use safe filename and ensure proper File object creation
-                const safeFilename = file.name || 'image.jpg';
-                try {
-                    processedFile = new File([compressed], safeFilename, { type: 'image/jpeg' });
-                } catch (fileError) {
-                    // Fallback for older browsers: use Blob with name property
-                    console.warn('File constructor not supported, using Blob fallback');
-                    processedFile = compressed;
-                    processedFile.name = safeFilename;
-                }
+                // Mobile-safe: Use Blob directly (File constructor fails on some Samsung browsers)
+                processedFile = compressed;
                 const newSizeMB = (processedFile.size / 1024 / 1024).toFixed(1);
                 showToast(`✅ ${fileSizeMB}MB → ${newSizeMB}MB 최적화 완료!`, 'success');
                 console.log(`✅ Compression success: ${fileSizeMB}MB → ${newSizeMB}MB`);
