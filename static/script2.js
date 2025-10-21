@@ -628,18 +628,37 @@ async function generateFitting() {
                 console.log('📤 Preparing top cloth request...');
                 const topFormData = new FormData();
                 
-                // Mobile-safe: Ensure proper File/Blob handling
-                const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
-                const topClothBlob = topClothImage instanceof Blob ? topClothImage : await fetch(topClothImage).then(r => r.blob());
+                // Mobile-safe: Convert to proper File objects with explicit MIME type
+                let personFile, topClothFile;
                 
-                topFormData.append('userPhoto', personBlob, 'person.jpg');
-                topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
+                if (currentPersonImage instanceof File) {
+                    personFile = currentPersonImage;
+                } else if (currentPersonImage instanceof Blob) {
+                    personFile = new File([currentPersonImage], 'person.jpg', { type: 'image/jpeg' });
+                } else {
+                    const personBlob = await fetch(currentPersonImage).then(r => r.blob());
+                    personFile = new File([personBlob], 'person.jpg', { type: 'image/jpeg' });
+                }
+                
+                if (topClothImage instanceof File) {
+                    topClothFile = topClothImage;
+                } else if (topClothImage instanceof Blob) {
+                    topClothFile = new File([topClothImage], 'top.jpg', { type: 'image/jpeg' });
+                } else {
+                    const topBlob = await fetch(topClothImage).then(r => r.blob());
+                    topClothFile = new File([topBlob], 'top.jpg', { type: 'image/jpeg' });
+                }
+                
+                topFormData.append('userPhoto', personFile);
+                topFormData.append('clothingPhoto', topClothFile);
                 topFormData.append('category', 'upper_body');
                 topFormData.append('removeBackground', removeBg.toString());
                 
                 console.log('✅ FormData prepared:', {
-                    personSize: personBlob.size,
-                    topClothSize: topClothBlob.size,
+                    personSize: personFile.size,
+                    topClothSize: topClothFile.size,
+                    personType: personFile.type,
+                    topClothType: topClothFile.type,
                     category: 'upper_body'
                 });
                 
@@ -723,18 +742,37 @@ async function generateFitting() {
                 console.log('📤 Preparing bottom cloth request...');
                 const bottomFormData = new FormData();
                 
-                // Mobile-safe: Ensure proper File/Blob handling
-                const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
-                const bottomClothBlob = bottomClothImage instanceof Blob ? bottomClothImage : await fetch(bottomClothImage).then(r => r.blob());
+                // Mobile-safe: Convert to proper File objects with explicit MIME type
+                let personFile, bottomClothFile;
                 
-                bottomFormData.append('userPhoto', personBlob, 'person.jpg');
-                bottomFormData.append('clothingPhoto', bottomClothBlob, 'bottom.jpg');
+                if (currentPersonImage instanceof File) {
+                    personFile = currentPersonImage;
+                } else if (currentPersonImage instanceof Blob) {
+                    personFile = new File([currentPersonImage], 'person.jpg', { type: 'image/jpeg' });
+                } else {
+                    const personBlob = await fetch(currentPersonImage).then(r => r.blob());
+                    personFile = new File([personBlob], 'person.jpg', { type: 'image/jpeg' });
+                }
+                
+                if (bottomClothImage instanceof File) {
+                    bottomClothFile = bottomClothImage;
+                } else if (bottomClothImage instanceof Blob) {
+                    bottomClothFile = new File([bottomClothImage], 'bottom.jpg', { type: 'image/jpeg' });
+                } else {
+                    const bottomBlob = await fetch(bottomClothImage).then(r => r.blob());
+                    bottomClothFile = new File([bottomBlob], 'bottom.jpg', { type: 'image/jpeg' });
+                }
+                
+                bottomFormData.append('userPhoto', personFile);
+                bottomFormData.append('clothingPhoto', bottomClothFile);
                 bottomFormData.append('category', 'lower_body');
                 bottomFormData.append('removeBackground', removeBg.toString());
                 
                 console.log('✅ FormData prepared:', {
-                    personSize: personBlob.size,
-                    bottomClothSize: bottomClothBlob.size,
+                    personSize: personFile.size,
+                    bottomClothSize: bottomClothFile.size,
+                    personType: personFile.type,
+                    bottomClothType: bottomClothFile.type,
                     category: 'lower_body'
                 });
                 
@@ -825,18 +863,37 @@ async function generateFitting() {
             console.log('📤 Preparing dress request...');
             const dressFormData = new FormData();
             
-            // Mobile-safe: Ensure proper File/Blob handling
-            const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
-            const dressBlob = dressImage instanceof Blob ? dressImage : await fetch(dressImage).then(r => r.blob());
+            // Mobile-safe: Convert to proper File objects with explicit MIME type
+            let personFile, dressFile;
             
-            dressFormData.append('userPhoto', personBlob, 'person.jpg');
-            dressFormData.append('clothingPhoto', dressBlob, 'dress.jpg');
+            if (currentPersonImage instanceof File) {
+                personFile = currentPersonImage;
+            } else if (currentPersonImage instanceof Blob) {
+                personFile = new File([currentPersonImage], 'person.jpg', { type: 'image/jpeg' });
+            } else {
+                const personBlob = await fetch(currentPersonImage).then(r => r.blob());
+                personFile = new File([personBlob], 'person.jpg', { type: 'image/jpeg' });
+            }
+            
+            if (dressImage instanceof File) {
+                dressFile = dressImage;
+            } else if (dressImage instanceof Blob) {
+                dressFile = new File([dressImage], 'dress.jpg', { type: 'image/jpeg' });
+            } else {
+                const dressBlob = await fetch(dressImage).then(r => r.blob());
+                dressFile = new File([dressBlob], 'dress.jpg', { type: 'image/jpeg' });
+            }
+            
+            dressFormData.append('userPhoto', personFile);
+            dressFormData.append('clothingPhoto', dressFile);
             dressFormData.append('category', 'dress');
             dressFormData.append('removeBackground', removeBg.toString());
             
             console.log('✅ FormData prepared:', {
-                personSize: personBlob.size,
-                dressSize: dressBlob.size,
+                personSize: personFile.size,
+                dressSize: dressFile.size,
+                personType: personFile.type,
+                dressType: dressFile.type,
                 category: 'dress'
             });
             
