@@ -1,4 +1,62 @@
 // ============================================
+// IMAGE COMPRESSION UTILITIES
+// ============================================
+
+/**
+ * Compress and resize image for mobile compatibility
+ * @param {File|Blob} file - Image file to compress
+ * @param {number} maxWidth - Maximum width (default: 1920)
+ * @param {number} maxHeight - Maximum height (default: 1920)
+ * @param {number} quality - JPEG quality 0-1 (default: 0.85)
+ * @returns {Promise<Blob>} Compressed image blob
+ */
+async function compressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // Calculate new dimensions
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const aspectRatio = width / height;
+                    if (width > height) {
+                        width = maxWidth;
+                        height = width / aspectRatio;
+                    } else {
+                        height = maxHeight;
+                        width = height * aspectRatio;
+                    }
+                }
+                
+                // Create canvas and compress
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to blob
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        console.log(`📷 Image compressed: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB`);
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Image compression failed'));
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
+}
+
+// ============================================
 // BUTTON HELPER: setLoading
 // ============================================
 
@@ -377,42 +435,67 @@ function handleFileSelect(e, type) {
     }
 }
 
-function handleFile(file, type) {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-        const imageUrl = e.target.result;
-        const preview = document.getElementById(`${type}Preview`);
-        const placeholder = document.getElementById(`${type}Placeholder`);
-        const deleteBtn = document.getElementById(`${type}DeleteBtn`);
+async function handleFile(file, type) {
+    try {
+        const fileSizeKB = (file.size / 1024).toFixed(1);
+        console.log(`📁 Original file size (${type}): ${fileSizeKB}KB`);
         
-        preview.src = imageUrl;
-        preview.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        if (deleteBtn) deleteBtn.classList.add('show');
-        
-        // Store the file
-        switch(type) {
-            case 'person':
-                personImage = file;
-                imageLoaded = true; // Update imageLoaded state
-                setState('uploaded'); // Transition to uploaded state
-                break;
-            case 'topCloth':
-                topClothImage = file;
-                break;
-            case 'bottomCloth':
-                bottomClothImage = file;
-                break;
-            case 'dress':
-                dressImage = file;
-                break;
+        // Check file size - if > 2MB, compress it
+        let processedFile = file;
+        if (file.size > 2 * 1024 * 1024) { // 2MB
+            console.log(`🔄 Compressing large image (${type})...`);
+            showToast(`📸 ${fileSizeKB}KB 이미지 압축 중...`, 'info');
+            
+            try {
+                const compressed = await compressImage(file, 1920, 1920, 0.85);
+                processedFile = new File([compressed], file.name, { type: 'image/jpeg' });
+                showToast(`✅ ${fileSizeKB}KB → ${(processedFile.size / 1024).toFixed(1)}KB 압축 완료!`, 'success');
+            } catch (compressError) {
+                console.error('⚠️ Compression failed, using original:', compressError);
+                // Continue with original file if compression fails
+                showToast('⚠️ 압축 실패, 원본 사용', 'info');
+            }
         }
         
-        checkCanGenerate();
-    };
-    
-    reader.readAsDataURL(file);
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            const preview = document.getElementById(`${type}Preview`);
+            const placeholder = document.getElementById(`${type}Placeholder`);
+            const deleteBtn = document.getElementById(`${type}DeleteBtn`);
+            
+            preview.src = imageUrl;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            if (deleteBtn) deleteBtn.classList.add('show');
+            
+            // Store the processed file
+            switch(type) {
+                case 'person':
+                    personImage = processedFile;
+                    imageLoaded = true; // Update imageLoaded state
+                    setState('uploaded'); // Transition to uploaded state
+                    break;
+                case 'topCloth':
+                    topClothImage = processedFile;
+                    break;
+                case 'bottomCloth':
+                    bottomClothImage = processedFile;
+                    break;
+                case 'dress':
+                    dressImage = processedFile;
+                    break;
+            }
+            
+            checkCanGenerate();
+        };
+        
+        reader.readAsDataURL(processedFile);
+    } catch (error) {
+        console.error('❌ File handling error:', error);
+        alert('이미지 처리 중 오류가 발생했습니다. 다른 이미지를 시도해주세요.');
+    }
 }
 
 function clearImage(type, event) {
