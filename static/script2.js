@@ -625,11 +625,23 @@ async function generateFitting() {
             
             // Process top cloth first (if available)
             if (topClothImage) {
+                console.log('📤 Preparing top cloth request...');
                 const topFormData = new FormData();
-                topFormData.append('userPhoto', currentPersonImage, 'person.png');
-                topFormData.append('clothingPhoto', topClothImage, 'top.png');
+                
+                // Mobile-safe: Ensure proper File/Blob handling
+                const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
+                const topClothBlob = topClothImage instanceof Blob ? topClothImage : await fetch(topClothImage).then(r => r.blob());
+                
+                topFormData.append('userPhoto', personBlob, 'person.jpg');
+                topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
                 topFormData.append('category', 'upper_body');
                 topFormData.append('removeBackground', removeBg.toString());
+                
+                console.log('✅ FormData prepared:', {
+                    personSize: personBlob.size,
+                    topClothSize: topClothBlob.size,
+                    category: 'upper_body'
+                });
                 
                 // Add timeout to prevent infinite loading
                 const controller = new AbortController();
@@ -708,11 +720,23 @@ async function generateFitting() {
             
             // Process bottom cloth (if available)
             if (bottomClothImage) {
+                console.log('📤 Preparing bottom cloth request...');
                 const bottomFormData = new FormData();
-                bottomFormData.append('userPhoto', currentPersonImage, 'person.png');
-                bottomFormData.append('clothingPhoto', bottomClothImage, 'bottom.png');
+                
+                // Mobile-safe: Ensure proper File/Blob handling
+                const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
+                const bottomClothBlob = bottomClothImage instanceof Blob ? bottomClothImage : await fetch(bottomClothImage).then(r => r.blob());
+                
+                bottomFormData.append('userPhoto', personBlob, 'person.jpg');
+                bottomFormData.append('clothingPhoto', bottomClothBlob, 'bottom.jpg');
                 bottomFormData.append('category', 'lower_body');
                 bottomFormData.append('removeBackground', removeBg.toString());
+                
+                console.log('✅ FormData prepared:', {
+                    personSize: personBlob.size,
+                    bottomClothSize: bottomClothBlob.size,
+                    category: 'lower_body'
+                });
                 
                 // Add timeout to prevent infinite loading
                 const controller2 = new AbortController();
@@ -793,15 +817,28 @@ async function generateFitting() {
         } else {
             // Dress mode
             if (!dressImage) {
+                setState('uploaded'); // Return to uploaded state
                 alert('원피스 사진을 업로드해주세요!');
                 return;
             }
             
+            console.log('📤 Preparing dress request...');
             const dressFormData = new FormData();
-            dressFormData.append('userPhoto', currentPersonImage, 'person.png');
-            dressFormData.append('clothingPhoto', dressImage, 'dress.png');
+            
+            // Mobile-safe: Ensure proper File/Blob handling
+            const personBlob = currentPersonImage instanceof Blob ? currentPersonImage : await fetch(currentPersonImage).then(r => r.blob());
+            const dressBlob = dressImage instanceof Blob ? dressImage : await fetch(dressImage).then(r => r.blob());
+            
+            dressFormData.append('userPhoto', personBlob, 'person.jpg');
+            dressFormData.append('clothingPhoto', dressBlob, 'dress.jpg');
             dressFormData.append('category', 'dress');
             dressFormData.append('removeBackground', removeBg.toString());
+            
+            console.log('✅ FormData prepared:', {
+                personSize: personBlob.size,
+                dressSize: dressBlob.size,
+                category: 'dress'
+            });
             
             // Add timeout to prevent infinite loading
             const controller = new AbortController();
