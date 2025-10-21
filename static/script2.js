@@ -640,9 +640,9 @@ async function generateFitting() {
                     topClothBlob = await fetch(topClothImage).then(r => r.blob());
                 }
                 
-                // Append with explicit filename and type (3rd and 4th parameter)
-                topFormData.append('userPhoto', new Blob([personBlob], { type: 'image/jpeg' }), 'person.jpg');
-                topFormData.append('clothingPhoto', new Blob([topClothBlob], { type: 'image/jpeg' }), 'top.jpg');
+                // Append Blob directly with filename
+                topFormData.append('userPhoto', personBlob, 'person.jpg');
+                topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
                 topFormData.append('category', 'upper_body');
                 topFormData.append('removeBackground', removeBg.toString());
                 
@@ -744,9 +744,9 @@ async function generateFitting() {
                     bottomClothBlob = await fetch(bottomClothImage).then(r => r.blob());
                 }
                 
-                // Append with explicit filename and type
-                bottomFormData.append('userPhoto', new Blob([personBlob], { type: 'image/jpeg' }), 'person.jpg');
-                bottomFormData.append('clothingPhoto', new Blob([bottomClothBlob], { type: 'image/jpeg' }), 'bottom.jpg');
+                // Append Blob directly with filename
+                bottomFormData.append('userPhoto', personBlob, 'person.jpg');
+                bottomFormData.append('clothingPhoto', bottomClothBlob, 'bottom.jpg');
                 bottomFormData.append('category', 'lower_body');
                 bottomFormData.append('removeBackground', removeBg.toString());
                 
@@ -855,9 +855,9 @@ async function generateFitting() {
                 dressBlob = await fetch(dressImage).then(r => r.blob());
             }
             
-            // Append with explicit filename and type
-            dressFormData.append('userPhoto', new Blob([personBlob], { type: 'image/jpeg' }), 'person.jpg');
-            dressFormData.append('clothingPhoto', new Blob([dressBlob], { type: 'image/jpeg' }), 'dress.jpg');
+            // Append Blob directly with filename
+            dressFormData.append('userPhoto', personBlob, 'person.jpg');
+            dressFormData.append('clothingPhoto', dressBlob, 'dress.jpg');
             dressFormData.append('category', 'dress');
             dressFormData.append('removeBackground', removeBg.toString());
             
