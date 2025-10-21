@@ -584,7 +584,15 @@ function updateUIState() {
 }
 
 async function generateFitting() {
+    console.log('🚀 generateFitting called');
+    console.log('📷 personImage:', personImage ? `${(personImage.size / 1024).toFixed(1)}KB` : 'NULL');
+    console.log('👕 topClothImage:', topClothImage ? `${(topClothImage.size / 1024).toFixed(1)}KB` : 'NULL');
+    console.log('👖 bottomClothImage:', bottomClothImage ? `${(bottomClothImage.size / 1024).toFixed(1)}KB` : 'NULL');
+    console.log('👗 dressImage:', dressImage ? `${(dressImage.size / 1024).toFixed(1)}KB` : 'NULL');
+    console.log('🎭 clothingMode:', clothingMode);
+    
     if (!personImage) {
+        console.error('❌ No person image!');
         alert('사람 사진을 업로드해주세요!');
         return;
     }
@@ -598,6 +606,8 @@ async function generateFitting() {
         
         if (clothingMode === 'separate') {
             if (!topClothImage && !bottomClothImage) {
+                console.error('❌ No clothing image!');
+                setState('uploaded'); // Return to uploaded state
                 alert('상의 또는 하의를 업로드해주세요!');
                 return;
             }
