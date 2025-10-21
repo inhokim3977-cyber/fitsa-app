@@ -632,12 +632,14 @@ async function generateFitting() {
                         errorMsg = errorData.message || errorData.error || errorMsg;
                         
                         if (topResponse.status === 402) {
+                            setState('uploaded'); // Return to uploaded state on error
                             alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
                             updateCreditsDisplay(errorData.remaining_free, errorData.credits);
                             return;
                         }
                         
                         if (topResponse.status === 429) {
+                            setState('uploaded'); // Return to uploaded state on error
                             alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
                             return;
                         }
@@ -646,6 +648,7 @@ async function generateFitting() {
                         console.error('Non-JSON error response:', topResponseText);
                         errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                     }
+                    setState('uploaded'); // Return to uploaded state on error
                     alert(errorMsg);
                     return;
                 }
@@ -712,12 +715,14 @@ async function generateFitting() {
                         errorMsg = errorData.message || errorData.error || errorMsg;
                         
                         if (bottomResponse.status === 402) {
+                            setState('uploaded'); // Return to uploaded state on error
                             alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
                             updateCreditsDisplay(errorData.remaining_free, errorData.credits);
                             return;
                         }
                         
                         if (bottomResponse.status === 429) {
+                            setState('uploaded'); // Return to uploaded state on error
                             alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
                             return;
                         }
@@ -726,6 +731,7 @@ async function generateFitting() {
                         console.error('Non-JSON error response:', bottomResponseText);
                         errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                     }
+                    setState('uploaded'); // Return to uploaded state on error
                     alert(errorMsg);
                     return;
                 }
@@ -798,12 +804,14 @@ async function generateFitting() {
                     errorMsg = errorData.message || errorData.error || errorMsg;
                     
                     if (dressResponse.status === 402) {
+                        setState('uploaded'); // Return to uploaded state on error
                         alert(errorData.message || '크레딧이 부족합니다. 크레딧을 구매해주세요.');
                         updateCreditsDisplay(errorData.remaining_free, errorData.credits);
                         return;
                     }
                     
                     if (dressResponse.status === 429) {
+                        setState('uploaded'); // Return to uploaded state on error
                         alert(errorData.message || '재피팅 한도 초과: 1시간 내 최대 5회까지 가능합니다.');
                         return;
                     }
@@ -812,6 +820,7 @@ async function generateFitting() {
                     console.error('Non-JSON error response:', dressResponseText);
                     errorMsg = '피팅 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
                 }
+                setState('uploaded'); // Return to uploaded state on error
                 alert(errorMsg);
                 return;
             }
