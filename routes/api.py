@@ -40,6 +40,27 @@ def virtual_fitting():
         user_photo_bytes = user_photo.read()
         clothing_photo_bytes = clothing_photo.read()
         
+        # CRITICAL: Validate images BEFORE consuming credits
+        try:
+            from PIL import Image
+            import io
+            
+            # Test if images can be opened
+            user_img = Image.open(io.BytesIO(user_photo_bytes))
+            clothing_img = Image.open(io.BytesIO(clothing_photo_bytes))
+            
+            # Verify images are valid
+            user_img.verify()
+            clothing_img.verify()
+            
+            print(f"✓ Image validation passed: user={user_img.format}, clothing={clothing_img.format}")
+        except Exception as e:
+            print(f"✗ Image validation failed: {str(e)}")
+            return jsonify({
+                'error': 'Invalid image format',
+                'message': '이미지 형식이 올바르지 않습니다. 다른 사진을 시도해주세요.'
+            }), 400
+        
         # Import credits service
         from services.credits_service import CreditsService
         credits_service = CreditsService()
