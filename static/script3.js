@@ -656,12 +656,10 @@ async function generateFitting(quality = 'high') {
                     
                     if (!(currentPersonImage instanceof Blob)) {
                         console.log('🔄 Converting personImage to Blob...');
-                        alert('[DEBUG] Converting person image...');
                         personBlob = await fetch(currentPersonImage).then(r => r.blob());
                     }
                     if (!(topClothImage instanceof Blob)) {
                         console.log('🔄 Converting topClothImage to Blob...');
-                        alert('[DEBUG] Converting cloth image...');
                         topClothBlob = await fetch(topClothImage).then(r => r.blob());
                     }
                     
@@ -673,12 +671,9 @@ async function generateFitting(quality = 'high') {
                         topClothSize: topClothBlob.size,
                         topClothType: topClothBlob.type
                     });
-                    
-                    alert(`[DEBUG] Blobs ready:\nPerson: ${(personBlob.size/1024).toFixed(1)}KB\nCloth: ${(topClothBlob.size/1024).toFixed(1)}KB`);
                 } catch (blobError) {
                     console.error('❌ Blob conversion failed:', blobError);
                     setState('uploaded');
-                    alert(`[ERROR] Blob 변환 실패:\n${blobError.message}\n\nType: ${blobError.name}`);
                     return;
                 }
                 
@@ -696,12 +691,9 @@ async function generateFitting(quality = 'high') {
                         topClothSize: topClothBlob.size,
                         category: 'upper_body'
                     });
-                    
-                    alert('[DEBUG] FormData prepared, sending...');
                 } catch (formDataError) {
                     console.error('❌ FormData append failed:', formDataError);
                     setState('uploaded');
-                    alert(`[ERROR] FormData 생성 실패:\n${formDataError.message}`);
                     return;
                 }
                 
