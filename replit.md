@@ -4,7 +4,7 @@
 
 "입사 (FITSA)" is an AI-powered virtual try-on application that generates realistic images by superimposing user photos with clothing items. Its core vision is to provide a "mirror-like natural" experience, prioritizing user experience and natural-looking results over technical complexity. Key features include AI-driven virtual fitting, a mobile-responsive design, and a credit-based monetization model with Stripe integration. The project aims to offer a premium, immersive boutique fitting room experience, with a focus on intuitive UI/UX and clear calls to action. A new "Wardrobe" feature allows users to save and manage their fitted outfits alongside shopping information.
 
-The "Luxury Hall" (명품관) showcases 9 luxury brands across Youth/Modern/Classic categories. Users can select clothing from brand rooms, which automatically loads into the main try-on interface. **Critical requirement**: Clothing images must be product-only (no models), fully unfolded, and not cropped for optimal virtual try-on results.
+The "Luxury Hall" (명품관) showcases 9 luxury brands across Youth/Modern/Classic categories. Users can select clothing from brand rooms, which automatically loads into the main try-on interface. **Critical requirement**: Clothing images must be product-only (no models), fully unfolded, and not cropped for optimal virtual try-on results. For pants, use flat-lay photography with both legs fully extended and visible from waistband to hem.
 
 ## User Preferences
 
