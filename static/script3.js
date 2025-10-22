@@ -602,8 +602,8 @@ async function generateFitting(quality = 'high') {
     const loadingTime = document.getElementById('loadingTime');
     if (loadingTime) {
         loadingTime.textContent = quality === 'fast' 
-            ? '완성까지 약 10-15초 소요됩니다'
-            : '완성까지 약 30-35초 소요됩니다';
+            ? '완성까지 약 30초 소요됩니다'
+            : '완성까지 약 60초 소요됩니다';
     }
     
     // DEBUG: Show image type info
