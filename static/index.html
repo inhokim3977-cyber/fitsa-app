@@ -42,6 +42,16 @@
                 font-size: 1.1rem !important;
             }
             
+            /* Guide + Credits mobile - stack vertically */
+            .guide-credits-row {
+                flex-direction: column !important;
+            }
+            
+            .guide-credits-row > div {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            
             /* Credits display mobile */
             #creditsDisplay {
                 padding: 1rem !important;
@@ -204,16 +214,16 @@
                 <p class="text-2xl" style="color: #F5F1EA;">입어보고 사자 - 나에게 어울리는 스타일은?</p>
             </div>
 
-            <!-- Usage Guide (Center) -->
-            <div class="max-w-2xl mx-auto mb-3">
-                <div class="text-center rounded-2xl p-3 shadow-lg" style="background: var(--ivory);">
-                    <p class="text-lg font-bold" style="color: var(--primary-green);">💡 사진업로드 → 카테고리 선택 → 입어보기</p>
-                </div>
-            </div>
-
-            <!-- Credits Display (Center) -->
-            <div class="max-w-2xl mx-auto mb-4">
-                <div id="creditsDisplay" class="rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
+            <!-- Guide + Credits (Same Row) -->
+            <div class="max-w-6xl mx-auto mb-4">
+                <div class="guide-credits-row flex justify-between items-center gap-4 flex-wrap">
+                    <!-- Left: Usage Guide -->
+                    <div class="flex-1 min-w-[280px] rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
+                        <p class="text-lg font-bold" style="color: var(--primary-green);">💡 사진업로드 → 카테고리 선택 → 입어보기</p>
+                    </div>
+                    
+                    <!-- Right: Credits Display -->
+                    <div id="creditsDisplay" class="flex-1 min-w-[280px] rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
                     <div class="flex justify-around items-center">
                         <div>
                             <p class="text-sm mb-1" style="color: var(--wood-brown);">오늘 무료 체험</p>
@@ -228,6 +238,7 @@
                     <button id="buyCreditsBtn" class="btn btn-primary btn-lg hidden mt-3 w-full" data-testid="button-buy-credits">
                         💳 크레딧 구매 ($2 = 10회)
                     </button>
+                    </div>
                 </div>
                 
                 <!-- Developer Test Tools -->
