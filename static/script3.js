@@ -10,51 +10,52 @@
  * @param {number} quality - JPEG quality 0-1 (default: 0.85)
  * @returns {Promise<Blob>} Compressed image blob
  */
-async function compressImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.80) {
+async function compressImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                // Calculate new dimensions (always resize for mobile)
-                let width = img.width;
-                let height = img.height;
-                
-                const aspectRatio = width / height;
-                if (width > height) {
-                    width = Math.min(width, maxWidth);
-                    height = width / aspectRatio;
+        // Use createObjectURL instead of FileReader (Samsung browser compatible)
+        const objectURL = URL.createObjectURL(file);
+        const img = new Image();
+        
+        img.onload = () => {
+            // Clean up object URL
+            URL.revokeObjectURL(objectURL);
+            
+            let width = img.width;
+            let height = img.height;
+            
+            const aspectRatio = width / height;
+            if (width > height) {
+                width = Math.min(width, maxWidth);
+                height = width / aspectRatio;
+            } else {
+                height = Math.min(height, maxHeight);
+                width = height * aspectRatio;
+            }
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    resolve(blob);
                 } else {
-                    height = Math.min(height, maxHeight);
-                    width = height * aspectRatio;
+                    reject(new Error('Compression failed'));
                 }
-                
-                // Create canvas and compress
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                
-                // Enable image smoothing for better quality
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                // Convert to blob
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        console.log(`📷 Image compressed: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB`);
-                        resolve(blob);
-                    } else {
-                        reject(new Error('Image compression failed'));
-                    }
-                }, 'image/jpeg', quality);
-            };
-            img.onerror = () => reject(new Error('Failed to load image'));
-            img.src = e.target.result;
+            }, 'image/jpeg', quality);
         };
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(file);
+        
+        img.onerror = () => {
+            URL.revokeObjectURL(objectURL);
+            reject(new Error('Failed to load image'));
+        };
+        
+        img.src = objectURL;
     });
 }
 
@@ -403,14 +404,9 @@ function switchClothingMode(mode) {
 }
 
 function setupDropZone(dropZone, fileInput, type) {
-    console.log(`Setting up dropZone for ${type}:`, dropZone, fileInput);
     dropZone.addEventListener('click', () => {
-        console.log(`Drop zone clicked for ${type}`);
-        alert(`[1] ${type} zone clicked!`);
-        // Reset file input to allow selecting the same file again
         fileInput.value = '';
         fileInput.click();
-        alert(`[2] ${type} file input triggered!`);
     });
     
     dropZone.addEventListener('dragover', (e) => {
@@ -433,94 +429,69 @@ function setupDropZone(dropZone, fileInput, type) {
 }
 
 function handleFileSelect(e, type) {
-    alert(`[3] ${type} file selected!`);
     const file = e.target.files[0];
-    console.log(`handleFileSelect for ${type}:`, file);
     if (file) {
-        alert(`[4] ${type} file OK: ${file.name}, ${(file.size/1024).toFixed(1)}KB`);
         handleFile(file, type);
-    } else {
-        alert(`[ERROR] ${type} no file found!`);
     }
 }
 
 async function handleFile(file, type) {
-    alert(`[5] handleFile START for ${type}`);
     try {
-        const fileSizeKB = (file.size / 1024).toFixed(1);
         const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
-        alert(`[6] File size: ${fileSizeKB}KB`);
-        console.log(`📁 Original file size (${type}): ${fileSizeKB}KB (${fileSizeMB}MB)`);
         
-        // Check file size - if > 1MB, compress it (모바일 카메라 이미지 대응)
+        // Compress if > 1MB using canvas (more reliable than FileReader on mobile)
         let processedFile = file;
-        if (file.size > 1 * 1024 * 1024) { // 1MB
-            console.log(`🔄 Compressing large image (${type})...`);
-            showToast(`📸 이미지 최적화 중... (${fileSizeMB}MB)`, 'info');
-            
+        if (file.size > 1 * 1024 * 1024) {
+            showToast(`이미지 최적화 중... (${fileSizeMB}MB)`, 'info');
             try {
-                const compressed = await compressImage(file, 1600, 1600, 0.80);
-                // Mobile-safe: Use Blob directly (File constructor fails on some Samsung browsers)
+                const compressed = await compressImage(file, 1600, 1600, 0.85);
                 processedFile = compressed;
-                const newSizeMB = (processedFile.size / 1024 / 1024).toFixed(1);
-                showToast(`✅ ${fileSizeMB}MB → ${newSizeMB}MB 최적화 완료!`, 'success');
-                console.log(`✅ Compression success: ${fileSizeMB}MB → ${newSizeMB}MB`);
-            } catch (compressError) {
-                console.error('⚠️ Compression failed, using original:', compressError);
-                // Continue with original file if compression fails
-                showToast('⚠️ 압축 실패, 원본 이미지 사용', 'info');
+                const newSizeMB = (compressed.size / 1024 / 1024).toFixed(1);
+                showToast(`${fileSizeMB}MB → ${newSizeMB}MB 최적화 완료`, 'success');
+            } catch (err) {
+                // Use original if compression fails
+                showToast('원본 이미지 사용', 'info');
             }
-        } else {
-            console.log(`✅ File size OK, no compression needed (${fileSizeKB}KB)`);
         }
         
-        alert('[7] Creating FileReader...');
-        const reader = new FileReader();
+        // Use URL.createObjectURL for preview (Samsung browser compatible)
+        const preview = document.getElementById(`${type}Preview`);
+        const placeholder = document.getElementById(`${type}Placeholder`);
+        const deleteBtn = document.getElementById(`${type}DeleteBtn`);
         
-        reader.onload = (e) => {
-            alert('[8] FileReader SUCCESS!');
-            const imageUrl = e.target.result;
-            const preview = document.getElementById(`${type}Preview`);
-            const placeholder = document.getElementById(`${type}Placeholder`);
-            const deleteBtn = document.getElementById(`${type}DeleteBtn`);
-            
-            preview.src = imageUrl;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            if (deleteBtn) deleteBtn.classList.add('show');
-            
-            // Store the processed file
-            switch(type) {
-                case 'person':
-                    personImage = processedFile;
-                    imageLoaded = true; // Update imageLoaded state
-                    setState('uploaded'); // Transition to uploaded state
-                    break;
-                case 'topCloth':
-                    topClothImage = processedFile;
-                    break;
-                case 'bottomCloth':
-                    bottomClothImage = processedFile;
-                    break;
-                case 'dress':
-                    dressImage = processedFile;
-                    break;
-            }
-            
-            checkCanGenerate();
-        };
+        // Revoke old URL if exists
+        if (preview.src && preview.src.startsWith('blob:')) {
+            URL.revokeObjectURL(preview.src);
+        }
         
-        reader.onerror = (error) => {
-            alert('[ERROR] FileReader FAILED: ' + error);
-            console.error('FileReader error:', error);
-        };
+        // Create object URL for preview
+        const objectURL = URL.createObjectURL(processedFile);
+        preview.src = objectURL;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        if (deleteBtn) deleteBtn.classList.add('show');
         
-        alert('[9] Starting FileReader.readAsDataURL...');
-        reader.readAsDataURL(processedFile);
-        alert('[10] FileReader.readAsDataURL called (waiting for onload...)');
+        // Store the processed file
+        switch(type) {
+            case 'person':
+                personImage = processedFile;
+                imageLoaded = true;
+                setState('uploaded');
+                break;
+            case 'topCloth':
+                topClothImage = processedFile;
+                break;
+            case 'bottomCloth':
+                bottomClothImage = processedFile;
+                break;
+            case 'dress':
+                dressImage = processedFile;
+                break;
+        }
+        
+        checkCanGenerate();
     } catch (error) {
-        console.error('❌ File handling error:', error);
-        alert('[CRASH] handleFile error: ' + error.message);
+        showToast('이미지 로드 실패. 다시 시도해주세요.', 'error');
     }
 }
 
@@ -532,6 +503,11 @@ function clearImage(type, event) {
     const deleteBtn = document.getElementById(`${type}DeleteBtn`);
     const fileInput = document.getElementById(`${type}FileInput`);
     
+    // Revoke object URL to free memory
+    if (preview.src && preview.src.startsWith('blob:')) {
+        URL.revokeObjectURL(preview.src);
+    }
+    
     preview.classList.add('hidden');
     placeholder.classList.remove('hidden');
     if (deleteBtn) deleteBtn.classList.remove('show');
@@ -541,8 +517,8 @@ function clearImage(type, event) {
     switch(type) {
         case 'person':
             personImage = null;
-            imageLoaded = false; // Update imageLoaded state
-            setState('empty'); // Transition back to empty state
+            imageLoaded = false;
+            setState('empty');
             break;
         case 'topCloth':
             topClothImage = null;
@@ -562,29 +538,8 @@ function clearImage(type, event) {
 window.clearImage = clearImage;
 
 function checkCanGenerate() {
-    // Need person image and at least one clothing item
     const hasAnyClothing = topClothImage || bottomClothImage || dressImage;
-    const shouldEnable = !!(personImage && hasAnyClothing);
-    
-    console.log('🔍 checkCanGenerate called:', {
-        personImage: !!personImage,
-        topClothImage: !!topClothImage,
-        bottomClothImage: !!bottomClothImage,
-        dressImage: !!dressImage,
-        hasAnyClothing,
-        shouldEnable,
-        currentDisabled: generateBtn.disabled
-    });
-    
-    generateBtn.disabled = !shouldEnable;
-    
-    if (shouldEnable) {
-        console.log('✅ Generate button ENABLED');
-        alert('[DEBUG] Generate button enabled!');
-    } else {
-        console.log('❌ Generate button DISABLED');
-        alert(`[DEBUG] Button disabled - Person:${!!personImage}, Cloth:${hasAnyClothing}`);
-    }
+    generateBtn.disabled = !(personImage && hasAnyClothing);
 }
 
 // Update UI based on imageLoaded state

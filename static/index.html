@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.7.0'; // CACHE FIX: New file name
+            const APP_VERSION = '3.0.0'; // Mobile browser compatibility fix
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
@@ -22,9 +22,7 @@
                     });
                 }
             }
-            // Always show version
-            console.log('📱 FITSA v' + APP_VERSION);
-            alert('✅ v2.7.0 - 삼성폰 캐시 문제 해결!');
+            console.log('📱 FITSA v' + APP_VERSION + ' loaded');
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
