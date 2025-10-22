@@ -624,12 +624,28 @@ async function generateFitting() {
                 let personBlob = currentPersonImage;
                 let topClothBlob = topClothImage;
                 
-                // Ensure we have Blob objects
-                if (!(currentPersonImage instanceof Blob)) {
-                    personBlob = await fetch(currentPersonImage).then(r => r.blob());
-                }
-                if (!(topClothImage instanceof Blob)) {
-                    topClothBlob = await fetch(topClothImage).then(r => r.blob());
+                // Ensure we have Blob objects with better error handling
+                try {
+                    if (!(currentPersonImage instanceof Blob)) {
+                        console.log('🔄 Converting personImage to Blob...');
+                        personBlob = await fetch(currentPersonImage).then(r => r.blob());
+                    }
+                    if (!(topClothImage instanceof Blob)) {
+                        console.log('🔄 Converting topClothImage to Blob...');
+                        topClothBlob = await fetch(topClothImage).then(r => r.blob());
+                    }
+                    
+                    console.log('✅ Blob conversion successful:', {
+                        personBlob: personBlob instanceof Blob,
+                        personSize: personBlob.size,
+                        topClothBlob: topClothBlob instanceof Blob,
+                        topClothSize: topClothBlob.size
+                    });
+                } catch (blobError) {
+                    console.error('❌ Blob conversion failed:', blobError);
+                    setState('uploaded');
+                    alert('이미지 변환 중 오류가 발생했습니다. 다시 시도해주세요.');
+                    return;
                 }
                 
                 // Append Blob directly with filename
@@ -690,11 +706,13 @@ async function generateFitting() {
                     topData = JSON.parse(topResponseText);
                 } catch (parseError) {
                     console.error('피팅 생성 중 오류가 발생했습니다:', topResponseText);
+                    setState('uploaded'); // Return to uploaded state on error
                     alert(`피팅 생성 중 오류가 발생했습니다: ${topResponseText.substring(0, 100)}`);
                     return;
                 }
                 
                 if (topData.error) {
+                    setState('uploaded'); // Return to uploaded state on error
                     alert('상의 피팅 오류: ' + topData.error);
                     return;
                 }

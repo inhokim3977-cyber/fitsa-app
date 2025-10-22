@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.6.4'; // MOBILE FIX: Remove File constructor
+            const APP_VERSION = '2.6.5'; // DEBUG: setState + Blob conversion error handling
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
