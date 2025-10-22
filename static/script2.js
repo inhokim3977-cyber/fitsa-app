@@ -546,7 +546,27 @@ window.clearImage = clearImage;
 function checkCanGenerate() {
     // Need person image and at least one clothing item
     const hasAnyClothing = topClothImage || bottomClothImage || dressImage;
-    generateBtn.disabled = !(personImage && hasAnyClothing);
+    const shouldEnable = !!(personImage && hasAnyClothing);
+    
+    console.log('🔍 checkCanGenerate called:', {
+        personImage: !!personImage,
+        topClothImage: !!topClothImage,
+        bottomClothImage: !!bottomClothImage,
+        dressImage: !!dressImage,
+        hasAnyClothing,
+        shouldEnable,
+        currentDisabled: generateBtn.disabled
+    });
+    
+    generateBtn.disabled = !shouldEnable;
+    
+    if (shouldEnable) {
+        console.log('✅ Generate button ENABLED');
+        alert('[DEBUG] Generate button enabled!');
+    } else {
+        console.log('❌ Generate button DISABLED');
+        alert(`[DEBUG] Button disabled - Person:${!!personImage}, Cloth:${hasAnyClothing}`);
+    }
 }
 
 // Update UI based on imageLoaded state
