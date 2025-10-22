@@ -592,6 +592,17 @@ async function generateFitting() {
     console.log('👗 dressImage:', dressImage ? `${(dressImage.size / 1024).toFixed(1)}KB` : 'NULL');
     console.log('🎭 clothingMode:', clothingMode);
     
+    // DEBUG: Show image type info
+    if (personImage) {
+        console.log('📊 personImage details:', {
+            isBlob: personImage instanceof Blob,
+            isFile: personImage instanceof File,
+            type: personImage.type,
+            size: personImage.size,
+            constructor: personImage.constructor.name
+        });
+    }
+    
     if (!personImage) {
         console.error('❌ No person image!');
         alert('사람 사진을 업로드해주세요!');
@@ -626,39 +637,58 @@ async function generateFitting() {
                 
                 // Ensure we have Blob objects with better error handling
                 try {
+                    console.log('🔍 Before conversion - personImage type:', currentPersonImage.constructor.name);
+                    console.log('🔍 Before conversion - topClothImage type:', topClothImage.constructor.name);
+                    
                     if (!(currentPersonImage instanceof Blob)) {
                         console.log('🔄 Converting personImage to Blob...');
+                        alert('[DEBUG] Converting person image...');
                         personBlob = await fetch(currentPersonImage).then(r => r.blob());
                     }
                     if (!(topClothImage instanceof Blob)) {
                         console.log('🔄 Converting topClothImage to Blob...');
+                        alert('[DEBUG] Converting cloth image...');
                         topClothBlob = await fetch(topClothImage).then(r => r.blob());
                     }
                     
                     console.log('✅ Blob conversion successful:', {
                         personBlob: personBlob instanceof Blob,
                         personSize: personBlob.size,
+                        personType: personBlob.type,
                         topClothBlob: topClothBlob instanceof Blob,
-                        topClothSize: topClothBlob.size
+                        topClothSize: topClothBlob.size,
+                        topClothType: topClothBlob.type
                     });
+                    
+                    alert(`[DEBUG] Blobs ready:\nPerson: ${(personBlob.size/1024).toFixed(1)}KB\nCloth: ${(topClothBlob.size/1024).toFixed(1)}KB`);
                 } catch (blobError) {
                     console.error('❌ Blob conversion failed:', blobError);
                     setState('uploaded');
-                    alert('이미지 변환 중 오류가 발생했습니다. 다시 시도해주세요.');
+                    alert(`[ERROR] Blob 변환 실패:\n${blobError.message}\n\nType: ${blobError.name}`);
                     return;
                 }
                 
                 // Append Blob directly with filename
-                topFormData.append('userPhoto', personBlob, 'person.jpg');
-                topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
-                topFormData.append('category', 'upper_body');
-                topFormData.append('removeBackground', removeBg.toString());
-                
-                console.log('✅ FormData prepared:', {
-                    personSize: personBlob.size,
-                    topClothSize: topClothBlob.size,
-                    category: 'upper_body'
-                });
+                try {
+                    console.log('📦 Appending to FormData...');
+                    topFormData.append('userPhoto', personBlob, 'person.jpg');
+                    topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
+                    topFormData.append('category', 'upper_body');
+                    topFormData.append('removeBackground', removeBg.toString());
+                    
+                    console.log('✅ FormData prepared:', {
+                        personSize: personBlob.size,
+                        topClothSize: topClothBlob.size,
+                        category: 'upper_body'
+                    });
+                    
+                    alert('[DEBUG] FormData prepared, sending...');
+                } catch (formDataError) {
+                    console.error('❌ FormData append failed:', formDataError);
+                    setState('uploaded');
+                    alert(`[ERROR] FormData 생성 실패:\n${formDataError.message}`);
+                    return;
+                }
                 
                 // Add timeout to prevent infinite loading
                 const controller = new AbortController();
