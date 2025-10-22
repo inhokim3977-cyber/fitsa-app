@@ -85,8 +85,8 @@ def get_sample_items(brand_id, category):
         ]
     elif category == 'bottoms':
         items = [
-            {'name': '테일러드 팬츠', 'category': '하의', 'image': '/attached_assets/generated_images/black_pants_unfolded_complete_06ad10ca.png'},
-            {'name': '슬랙스 팬츠', 'category': '하의', 'image': '/attached_assets/generated_images/navy_trousers_unfolded_complete_8073d58f.png'},
+            {'name': '테일러드 팬츠', 'category': '하의', 'image': '/attached_assets/generated_images/black_pants_fully_extended_f0786d3e.png'},
+            {'name': '슬랙스 팬츠', 'category': '하의', 'image': '/attached_assets/generated_images/navy_trousers_fully_extended_5da62e11.png'},
             {'name': '데님 진', 'category': '하의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
     elif category == 'dresses':
