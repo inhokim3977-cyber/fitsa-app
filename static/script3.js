@@ -144,13 +144,13 @@ function renderButtons() {
         case 'empty':
             // Only show upload interface (already visible in HTML)
             if (emptyStateGuide) emptyStateGuide.classList.remove('hidden');
-            if (clothingTypeSelection) clothingTypeSelection.classList.add('hidden');
+            // clothingTypeSelection is now always visible
             break;
             
         case 'uploaded':
             // Show category selection and "입어보기" button
             if (emptyStateGuide) emptyStateGuide.classList.add('hidden');
-            if (clothingTypeSelection) clothingTypeSelection.classList.remove('hidden');
+            // clothingTypeSelection is now always visible
             if (generateSection) generateSection.classList.remove('hidden');
             const fastBtn = document.getElementById('fastFittingBtn');
             const highBtn = document.getElementById('highQualityFittingBtn');
@@ -217,6 +217,7 @@ function renderButtons() {
                 document.getElementById('tryNewClothesBtn').addEventListener('click', () => {
                     resetClothesOnly(); // Keep person photo, reset clothes only
                     setState('uploaded'); // Go back to "ready to fit" state
+                    switchClothingMode(clothingMode); // Re-apply current clothing mode layout
                 });
                 
                 // Save button - toggle menu
@@ -621,10 +622,7 @@ function updateUIState() {
             emptyStateGuide.classList.add('hidden');
         }
         
-        // Show clothing type selection
-        if (clothingTypeSelection) {
-            clothingTypeSelection.classList.remove('hidden');
-        }
+        // clothingTypeSelection is now always visible
         
         // Show generate section
         if (generateSection) {
@@ -636,10 +634,7 @@ function updateUIState() {
             emptyStateGuide.classList.remove('hidden');
         }
         
-        // Hide clothing type selection
-        if (clothingTypeSelection) {
-            clothingTypeSelection.classList.add('hidden');
-        }
+        // clothingTypeSelection is now always visible
         
         // Hide generate section
         if (generateSection) {
@@ -1410,7 +1405,7 @@ function navigateToWardrobe() {
     document.querySelector('.upload-area-container')?.closest('.flex').classList.add('hidden');
     document.getElementById('generateSection')?.classList.add('hidden');
     document.getElementById('resultsSection')?.classList.add('hidden');
-    document.getElementById('clothingTypeSelection')?.classList.add('hidden');
+    // clothingTypeSelection is now always visible - don't hide it
     document.getElementById('emptyStateGuide')?.classList.add('hidden');
     document.getElementById('btn-preview')?.classList.add('hidden');
     
@@ -1431,7 +1426,7 @@ function navigateToMain() {
     if (appState === 'empty') {
         document.getElementById('emptyStateGuide')?.classList.remove('hidden');
     } else if (appState === 'uploaded') {
-        document.getElementById('clothingTypeSelection')?.classList.remove('hidden');
+        // clothingTypeSelection is now always visible
         document.getElementById('generateSection')?.classList.remove('hidden');
     } else if (appState === 'completed') {
         document.getElementById('resultsSection')?.classList.remove('hidden');
