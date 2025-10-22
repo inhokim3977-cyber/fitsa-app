@@ -6,9 +6,63 @@
 
 The "Luxury Hall" (명품관) showcases 9 luxury brands across Youth/Modern/Classic categories. Users can select clothing from brand rooms, which automatically loads into the main try-on interface. **Critical requirement**: Clothing images must be product-only (no models), fully unfolded, and not cropped for optimal virtual try-on results. For pants, use flat-lay photography with both legs fully extended and visible from waistband to hem.
 
+### Strategic Evolution Roadmap
+
+**Phase 1: Traffic Acquisition (0-3 months)** - Current Focus
+- Goal: 5,000-10,000 monthly visitors via Luxury Hall
+- Strategy: Instagram/TikTok ads, viral features (SNS sharing, referrals), SEO optimization, influencer partnerships
+- Success Metrics: 5K+ monthly visitors, 5% conversion rate, 3+ press mentions
+
+**Phase 2: Partner Rooms Launch (3-6 months)**
+- Goal: 10-30 shopping mall partnerships, $5K-10K monthly revenue
+- Concept: Two-sided marketplace where shopping malls operate virtual fitting rooms within FITSA platform
+- 3-Tier Model: FREE (10 items, 15% commission), BASIC ($99/mo, 30 items, 10%), PREMIUM ($299/mo, unlimited, 5%)
+- Strategy: Leverage Phase 1 traffic as proof → "We have 10K visitors, join our platform"
+
+**Phase 3: SaaS/White-Label (6-12 months)**
+- Goal: 20-50 self-service customers, $50K+ monthly revenue
+- Concept: FITSA technology embedded into shopping mall websites (reverse integration)
+- Pricing: $199-1,999/month based on usage tier, enterprise custom pricing
+- Strategy: Convert successful Partner Room merchants → "Put this on your own website"
+
+**Why This Sequence Works:**
+1. Phase 1 builds traffic → Phase 2 leverage (not vice versa)
+2. Phase 2 proves ROI → Phase 3 sales become easy
+3. Each phase funds the next, reduces risk
+4. Follows proven Uber/Airbnb playbook (demand first, then supply)
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Competitive Position Analysis (Oct 2025)
+
+### Market Opportunity
+- Global virtual try-on market: $2-6B (2025) → $48B (2030) at 25% CAGR
+- Asia-Pacific: Fastest growing region (27.4% CAGR)
+- Korean e-commerce fashion: $24.5B (2025), $1.24K per user spending
+
+### FITSA Competitive Advantages
+1. **Technology**: Gemini 2.5 Flash Image ranked #1 on LMArena for image generation/editing (verified superior quality for virtual try-on)
+2. **Pricing**: B2C pay-per-use ($0.20/fitting) vs. competitors' B2B subscription ($129-549/month) - blue ocean strategy
+3. **Luxury Curation**: 9 premium brands (Dior, Chanel, Hermès) with British tailor aesthetic
+4. **Mobile Optimization**: Full Samsung browser compatibility, portrait-mode optimized
+
+### Current Assessment
+- **Technology Competitiveness**: ⭐⭐⭐⭐⭐ (5/5) - World-class AI
+- **Market Traction**: ⭐⭐☆☆☆ (2/5) - Needs immediate marketing push
+- **Monetization Potential**: ⭐⭐⭐⭐☆ (4/5) - Proven model, needs traffic
+
+### Immediate Action Plan (Next 2 Weeks)
+1. **Viral Features**: SNS share buttons (Instagram/KakaoTalk) with +5 credit rewards, referral system (+5 inviter, +3 friend)
+2. **Paid Ads**: Instagram/TikTok $100 test campaign targeting Korean women 18-35, fashion interest
+3. **SEO**: Meta tags, Naver blog posts (3), community seeding (10 communities)
+4. **Influencer Outreach**: 20 micro-influencers (5K-30K followers), free credit sponsorships
+
+### Revenue Projections
+- **Pessimistic** (no marketing): 100-500 monthly visitors, $50-200/month
+- **Realistic** ($500/month marketing): 5K-10K visitors by Month 3, $1K-3K/month
+- **Optimistic** (viral success): 50K+ visitors, $10K+/month, VC-fundable
 
 ## System Architecture
 
