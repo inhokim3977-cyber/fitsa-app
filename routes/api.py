@@ -160,6 +160,9 @@ def virtual_fitting():
             
             # Resize user photo
             user_img = Image.open(io.BytesIO(user_photo_bytes))
+            # Convert RGBA to RGB if necessary
+            if user_img.mode in ('RGBA', 'LA', 'P'):
+                user_img = user_img.convert('RGB')
             user_img.thumbnail((600, 800), Image.Resampling.LANCZOS)
             user_buffer = io.BytesIO()
             user_img.save(user_buffer, format='JPEG', quality=85)
@@ -168,6 +171,9 @@ def virtual_fitting():
             
             # Resize clothing photo
             clothing_img = Image.open(io.BytesIO(clothing_final_bytes))
+            # Convert RGBA to RGB if necessary
+            if clothing_img.mode in ('RGBA', 'LA', 'P'):
+                clothing_img = clothing_img.convert('RGB')
             clothing_img.thumbnail((600, 800), Image.Resampling.LANCZOS)
             clothing_buffer = io.BytesIO()
             clothing_img.save(clothing_buffer, format='JPEG', quality=85)
