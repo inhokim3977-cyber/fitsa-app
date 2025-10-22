@@ -977,15 +977,25 @@ async function shareResult() {
             // Convert base64 to blob
             const response = await fetch(resultImage.src);
             const blob = await response.blob();
-            const file = new File([blob], '가상피팅.png', { type: 'image/png' });
             
-            if (navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: '가상 피팅 결과',
-                    text: '나의 가상 피팅 결과를 확인해보세요!'
-                });
-                return;
+            // Try to create File object for Web Share API
+            // Some older browsers may not support File constructor
+            try {
+                const filesArray = [
+                    new File([blob], '가상피팅.png', { type: blob.type || 'image/png' })
+                ];
+                
+                if (navigator.canShare({ files: filesArray })) {
+                    await navigator.share({
+                        files: filesArray,
+                        title: '가상 피팅 결과',
+                        text: '나의 가상 피팅 결과를 확인해보세요!'
+                    });
+                    return;
+                }
+            } catch (fileError) {
+                console.warn('File constructor failed for share, trying fallback:', fileError);
+                // Continue to clipboard fallback
             }
         }
         
