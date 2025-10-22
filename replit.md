@@ -38,3 +38,50 @@ The "Wardrobe" system allows saving and managing virtual fitting results with sh
 *   **AI & Machine Learning**: Gemini 2.5 Flash API, IDM-VTON (via Replicate), `rembg`.
 *   **Payment Processing**: Stripe Checkout.
 *   **Development & Libraries**: Flask, Werkzeug, Tailwind CSS, Drizzle ORM, SQLite.
+
+## Production Deployment
+
+### Deployment Pipeline
+The project uses an automated **Replit → GitHub → Render** deployment pipeline:
+1. **Development**: Code changes on Replit
+2. **Version Control**: Push to GitHub (`main` branch)
+3. **Auto-Deploy**: Render detects GitHub push and triggers build
+4. **Production**: Live at https://fitsa-web.onrender.com (Singapore region)
+
+### Infrastructure
+- **Web Server**: Gunicorn (2 workers, 4 threads, 120s timeout)
+- **Platform**: Render Free Tier (upgradable to Starter $7/mo for zero downtime)
+- **Region**: Singapore (closest to Korea for optimal latency)
+- **Health Check**: `/healthz` endpoint for monitoring
+- **Build Time**: ~3-5 minutes
+- **Cold Start**: ~15 seconds on Free Tier (instant on paid plans)
+
+### Production Optimizations
+- **Security Headers**: X-Content-Type-Options, X-Frame-Options, HSTS
+- **Request Logging**: Structured logs with timing metrics
+- **CORS**: Configurable via `CORS_ORIGINS` environment variable
+- **Error Handling**: Comprehensive exception handlers with traceback logging
+- **Compression**: Brotli/gzip support via Gunicorn
+- **Environment Isolation**: Production `.env` separate from development
+
+### Critical Environment Variables
+- `GEMINI_API_KEY`: Google AI Studio API key (required)
+- `REPLICATE_API_TOKEN`: Replicate API token (required)
+- `STRIPE_SECRET_KEY`: Stripe Live secret key (required)
+- `VITE_STRIPE_PUBLIC_KEY`: Stripe publishable key (required)
+- `SESSION_SECRET`: Flask session secret (64-char random string)
+- `CORS_ORIGINS`: Allowed CORS origins (default: `*`)
+
+### Deployment Files
+- `requirements-prod.txt`: Production Python dependencies with pinned versions
+- `render.yaml`: Infrastructure-as-Code configuration for Render
+- `deploy.sh`: Automated deployment script with Git workflow
+- `DEPLOY.md`: Comprehensive deployment guide and troubleshooting
+- `.env.sample`: Environment variable template (safe to commit)
+- `.gitignore`: Security-focused ignore rules (excludes `.env`, `*.db`)
+
+### Performance Monitoring
+- Health Check: `GET /healthz` returns service status + timestamp
+- Logs: Structured JSON logs via Gunicorn stdout
+- Metrics: Request timing logged for all endpoints
+- Uptime: Monitor via UptimeRobot or similar (5-min ping recommended)

@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: fitsa-web
+    env: python
+    plan: free
+    region: singapore
+    buildCommand: pip install --upgrade pip && pip install -r requirements-prod.txt
+    startCommand: gunicorn --workers 2 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT app:app
+    autoDeploy: true
+    
+    healthCheckPath: /healthz
+    
+    envVars:
+      # Flask Configuration
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      
+      # AI Services (필수 - Render 대시보드에서 설정)
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REPLICATE_API_TOKEN
+        sync: false
+      
+      # Payment (필수 - Render 대시보드에서 설정)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: VITE_STRIPE_PUBLIC_KEY
+        sync: false
+      
+      # Session Security (필수 - Render 대시보드에서 설정)
+      - key: SESSION_SECRET
+        sync: false
+      
+      # Object Storage - Replit/GCS (선택 - 사용 시 설정)
+      - key: DEFAULT_OBJECT_STORAGE_BUCKET_ID
+        sync: false
+      - key: PRIVATE_OBJECT_DIR
+        sync: false
+      - key: PUBLIC_OBJECT_SEARCH_PATHS
+        sync: false
+      
+      # Database (선택 - PostgreSQL 사용 시)
+      - key: DATABASE_URL
+        sync: false

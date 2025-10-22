@@ -1,13 +1,67 @@
 import os
+import sys
+import logging
 import requests
-from flask import Flask, send_from_directory, Response
+from flask import Flask, send_from_directory, Response, g, request
 from flask_cors import CORS
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
+# Production Logging Setup
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__, static_folder='static')
-CORS(app)
+
+# CORS Configuration (프로덕션에서는 allowed_origins 제한 권장)
+cors_origins_env = os.getenv('CORS_ORIGINS', '*')
+if cors_origins_env == '*':
+    # Wildcard - allow all origins
+    CORS(app, 
+         origins='*',
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
+else:
+    # Specific origins (comma-separated)
+    allowed_origins = [origin.strip() for origin in cors_origins_env.split(',')]
+    CORS(app, 
+         origins=allowed_origins,
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'])
+
+# Compression (Brotli/gzip) - gunicorn에서 처리
+# Security Headers
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
+
+# Request logging
+@app.before_request
+def log_request():
+    """Log incoming requests"""
+    g.start_time = datetime.utcnow()
+    logger.info(f"→ {request.method} {request.path} from {request.remote_addr}")
+
+@app.after_request
+def log_response(response):
+    """Log outgoing responses with timing"""
+    if hasattr(g, 'start_time'):
+        elapsed = (datetime.utcnow() - g.start_time).total_seconds() * 1000
+        logger.info(f"← {request.method} {request.path} {response.status_code} ({elapsed:.2f}ms)")
+    return response
 
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -29,10 +83,37 @@ app.register_blueprint(stripe_bp, url_prefix='/stripe')
 # Object storage - disabled in Flask-only mode
 # Objects should be served directly from GCS or configured separately
 
-# Health check endpoint
+# Health check endpoints (for monitoring & Render)
 @app.route('/health')
+@app.route('/healthz')
 def health():
-    return {'status': 'ok'}, 200
+    """
+    Health check endpoint for load balancers and monitoring.
+    Returns 200 if service is healthy.
+    """
+    try:
+        # Check if critical env vars are set
+        required_vars = ['GEMINI_API_KEY', 'STRIPE_SECRET_KEY', 'SESSION_SECRET']
+        missing = [var for var in required_vars if not os.getenv(var)]
+        
+        if missing:
+            return {
+                'status': 'degraded',
+                'missing_env_vars': missing,
+                'timestamp': os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
+            }, 200  # Still return 200 to prevent restart loops
+        
+        return {
+            'status': 'ok',
+            'service': 'fitsa-web',
+            'timestamp': os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
+        }, 200
+    except Exception as e:
+        return {
+            'status': 'error',
+            'error': str(e),
+            'timestamp': os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
+        }, 500
 
 # Serve frontend
 @app.route('/')
