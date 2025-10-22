@@ -1779,22 +1779,19 @@ async function loadLuxuryClothing() {
         // Set clothing based on category
         switch (category) {
             case 'upper_body':
-                topClothImage = file;
                 clothingMode = 'separate';
-                displayImage(file, 'topClothPreview', 'topClothDropZone');
                 switchClothingMode('separate');
+                await handleFile(file, 'topCloth');
                 break;
             case 'lower_body':
-                bottomClothImage = file;
                 clothingMode = 'separate';
-                displayImage(file, 'bottomClothPreview', 'bottomClothDropZone');
                 switchClothingMode('separate');
+                await handleFile(file, 'bottomCloth');
                 break;
             case 'dress':
-                dressImage = file;
                 clothingMode = 'dress';
-                displayImage(file, 'dressPreview', 'dressDropZone');
                 switchClothingMode('dress');
+                await handleFile(file, 'dress');
                 break;
         }
         
