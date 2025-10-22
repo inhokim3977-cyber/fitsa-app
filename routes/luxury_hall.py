@@ -72,26 +72,26 @@ BRANDS = {
 def get_sample_items(brand_id, category):
     """
     Get sample clothing items for a brand category.
-    Returns placeholder data for now - will be replaced with actual images.
+    Uses stock images for demonstration - will be expanded with more items.
     """
     items = []
     
-    # Sample items with placeholder images
+    # Sample items with actual stock images
     if category == 'tops':
         items = [
-            {'name': '클래식 블라우스', 'category': '상의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
-            {'name': '실크 셔츠', 'category': '상의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
-            {'name': '니트 스웨터', 'category': '상의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
+            {'name': '엘레강스 블라우스', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_silk_b_71e57910.jpg'},
+            {'name': '실크 셔츠', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_silk_b_2cacd77b.jpg'},
+            {'name': '클래식 탑', 'category': '상의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
     elif category == 'bottoms':
         items = [
-            {'name': '테일러드 팬츠', 'category': '하의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
-            {'name': '실크 스커트', 'category': '하의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
+            {'name': '테일러드 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_pants_4c2d270b.jpg'},
+            {'name': '슬랙스 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_pants_021da930.jpg'},
             {'name': '데님 진', 'category': '하의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
     elif category == 'dresses':
         items = [
-            {'name': '이브닝 드레스', 'category': '원피스', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
+            {'name': '이브닝 드레스', 'category': '원피스', 'image': '/attached_assets/stock_images/elegant_evening_dres_f83b6dba.jpg'},
             {'name': '캐주얼 원피스', 'category': '원피스', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
             {'name': '트렌치 코트', 'category': '코트', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]

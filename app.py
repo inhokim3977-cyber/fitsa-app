@@ -130,6 +130,11 @@ def index():
 def success():
     return send_from_directory('static', 'success.html')
 
+# Serve attached assets (stock images, generated images, etc.)
+@app.route('/attached_assets/<path:path>')
+def serve_attached_assets(path):
+    return send_from_directory('attached_assets', path)
+
 @app.route('/<path:path>')
 def serve_static(path):
     response = send_from_directory('static', path)
