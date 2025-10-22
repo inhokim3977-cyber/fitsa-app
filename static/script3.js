@@ -575,7 +575,15 @@ function clearImage(type, event) {
         case 'person':
             personImage = null;
             imageLoaded = false;
-            setState('empty');
+            // Check if any clothes are still uploaded
+            const hasClothes = topClothImage || bottomClothImage || dressImage;
+            if (hasClothes) {
+                // Keep clothes, just hide category selection and fitting buttons
+                setState('empty');
+                showToast('👤 새로운 사람 사진을 업로드해주세요!', 'info');
+            } else {
+                setState('empty');
+            }
             break;
         case 'topCloth':
             topClothImage = null;
