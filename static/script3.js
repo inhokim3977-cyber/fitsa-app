@@ -275,10 +275,10 @@ function showToast(message, type = 'info') {
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toastContainer';
+        const isMobile = window.innerWidth <= 768;
         toastContainer.style.cssText = `
             position: fixed;
-            top: 20px;
-            right: 20px;
+            ${isMobile ? 'top: 10px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 400px;' : 'top: 20px; right: 20px;'}
             z-index: 9999;
             display: flex;
             flex-direction: column;
