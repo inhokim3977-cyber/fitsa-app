@@ -135,7 +135,6 @@ function renderButtons() {
     console.log(`🎨 Rendering buttons for state: ${appState}`);
     
     // Hide all buttons first
-    if (generateBtn) generateBtn.classList.add('hidden');
     if (generateSection) generateSection.classList.add('hidden');
     if (loadingIndicator) loadingIndicator.classList.add('hidden');
     if (buttonContainer) buttonContainer.classList.add('hidden');
@@ -153,10 +152,10 @@ function renderButtons() {
             if (emptyStateGuide) emptyStateGuide.classList.add('hidden');
             if (clothingTypeSelection) clothingTypeSelection.classList.remove('hidden');
             if (generateSection) generateSection.classList.remove('hidden');
-            if (generateBtn) {
-                generateBtn.classList.remove('hidden');
-                generateBtn.disabled = false;
-            }
+            const fastBtn = document.getElementById('fastFittingBtn');
+            const highBtn = document.getElementById('highQualityFittingBtn');
+            if (fastBtn) fastBtn.disabled = false;
+            if (highBtn) highBtn.disabled = false;
             break;
             
         case 'processing':
@@ -396,8 +395,16 @@ function switchClothingMode(mode) {
     bottomClothFileInput.addEventListener('change', (e) => handleFileSelect(e, 'bottomCloth'));
     dressFileInput.addEventListener('change', (e) => handleFileSelect(e, 'dress'));
 
-    // Generate button
-    generateBtn.addEventListener('click', () => generateFitting());
+    // Generate buttons (fast and high quality)
+    const fastFittingBtn = document.getElementById('fastFittingBtn');
+    const highQualityFittingBtn = document.getElementById('highQualityFittingBtn');
+    
+    if (fastFittingBtn) {
+        fastFittingBtn.addEventListener('click', () => generateFitting('fast'));
+    }
+    if (highQualityFittingBtn) {
+        highQualityFittingBtn.addEventListener('click', () => generateFitting('high'));
+    }
 
     // Note: Button event listeners are now handled in renderButtons()
     // No need to attach listeners here since buttons are dynamically created
@@ -539,7 +546,13 @@ window.clearImage = clearImage;
 
 function checkCanGenerate() {
     const hasAnyClothing = topClothImage || bottomClothImage || dressImage;
-    generateBtn.disabled = !(personImage && hasAnyClothing);
+    const canGenerate = !!(personImage && hasAnyClothing);
+    
+    const fastFittingBtn = document.getElementById('fastFittingBtn');
+    const highQualityFittingBtn = document.getElementById('highQualityFittingBtn');
+    
+    if (fastFittingBtn) fastFittingBtn.disabled = !canGenerate;
+    if (highQualityFittingBtn) highQualityFittingBtn.disabled = !canGenerate;
 }
 
 // Update UI based on imageLoaded state
@@ -577,13 +590,21 @@ function updateUIState() {
     }
 }
 
-async function generateFitting() {
-    console.log('🚀 generateFitting called');
+async function generateFitting(quality = 'high') {
+    console.log('🚀 generateFitting called with quality:', quality);
     console.log('📷 personImage:', personImage ? `${(personImage.size / 1024).toFixed(1)}KB` : 'NULL');
     console.log('👕 topClothImage:', topClothImage ? `${(topClothImage.size / 1024).toFixed(1)}KB` : 'NULL');
     console.log('👖 bottomClothImage:', bottomClothImage ? `${(bottomClothImage.size / 1024).toFixed(1)}KB` : 'NULL');
     console.log('👗 dressImage:', dressImage ? `${(dressImage.size / 1024).toFixed(1)}KB` : 'NULL');
     console.log('🎭 clothingMode:', clothingMode);
+    
+    // Update loading indicator based on quality
+    const loadingTime = document.getElementById('loadingTime');
+    if (loadingTime) {
+        loadingTime.textContent = quality === 'fast' 
+            ? '완성까지 약 10-15초 소요됩니다'
+            : '완성까지 약 30-35초 소요됩니다';
+    }
     
     // DEBUG: Show image type info
     if (personImage) {
@@ -668,6 +689,7 @@ async function generateFitting() {
                     topFormData.append('clothingPhoto', topClothBlob, 'top.jpg');
                     topFormData.append('category', 'upper_body');
                     topFormData.append('removeBackground', removeBg.toString());
+                    topFormData.append('quality', quality);
                     
                     console.log('✅ FormData prepared:', {
                         personSize: personBlob.size,
@@ -782,6 +804,7 @@ async function generateFitting() {
                 bottomFormData.append('clothingPhoto', bottomClothBlob, 'bottom.jpg');
                 bottomFormData.append('category', 'lower_body');
                 bottomFormData.append('removeBackground', removeBg.toString());
+                bottomFormData.append('quality', quality);
                 
                 console.log('✅ FormData prepared:', {
                     personSize: personBlob.size,
@@ -893,6 +916,7 @@ async function generateFitting() {
             dressFormData.append('clothingPhoto', dressBlob, 'dress.jpg');
             dressFormData.append('category', 'dress');
             dressFormData.append('removeBackground', removeBg.toString());
+            dressFormData.append('quality', quality);
             
             console.log('✅ FormData prepared:', {
                 personSize: personBlob.size,
@@ -1079,7 +1103,10 @@ function resetAll() {
     });
     
     resultsSection.classList.add('hidden');
-    generateBtn.disabled = true;
+    const fastFittingBtn = document.getElementById('fastFittingBtn');
+    const highQualityFittingBtn = document.getElementById('highQualityFittingBtn');
+    if (fastFittingBtn) fastFittingBtn.disabled = true;
+    if (highQualityFittingBtn) highQualityFittingBtn.disabled = true;
     
     // Reset refit counter
     document.getElementById('refitCount').textContent = '5';

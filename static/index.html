@@ -319,15 +319,32 @@
                 </label>
             </div>
             
-            <!-- Generate Button (hidden initially) -->
+            <!-- Generate Buttons (hidden initially) -->
             <div id="generateSection" class="text-center mb-12 mt-20 hidden">
-                <button id="generateBtn" disabled class="btn btn-primary btn-lg" data-testid="button-generate" style="padding: 0 3rem; height: 56px; font-size: 1.125rem;">
-                    입어보기
-                </button>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto mb-4">
+                    <!-- Fast Fitting Button -->
+                    <button id="fastFittingBtn" disabled class="btn btn-primary btn-lg flex-1 min-w-[200px]" data-testid="button-fast-fitting" style="padding: 0.75rem 2rem; height: 56px; font-size: 1rem;">
+                        <span class="text-xl mr-2">⚡</span>
+                        <div class="inline-flex flex-col items-start">
+                            <span class="font-bold">빠른 피팅</span>
+                            <span class="text-xs opacity-80">10-15초</span>
+                        </div>
+                    </button>
+                    
+                    <!-- High Quality Fitting Button -->
+                    <button id="highQualityFittingBtn" disabled class="btn btn-lg flex-1 min-w-[200px]" data-testid="button-high-quality-fitting" style="padding: 0.75rem 2rem; height: 56px; font-size: 1rem; background: linear-gradient(135deg, #C9A961 0%, #D4B883 100%); color: var(--primary-green); border: 2px solid var(--gold);">
+                        <span class="text-xl mr-2">💎</span>
+                        <div class="inline-flex flex-col items-start">
+                            <span class="font-bold">고품질 피팅</span>
+                            <span class="text-xs opacity-80">30-35초</span>
+                        </div>
+                    </button>
+                </div>
+                
                 <div id="loadingIndicator" class="hidden mt-6">
                     <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style="border-color: var(--gold); border-top-color: transparent;"></div>
                     <p class="mt-4 font-semibold" style="color: var(--ivory);">패브릭 입히는 중...</p>
-                    <p class="text-sm mt-2" style="color: var(--gold);">완성까지 약 30초 소요됩니다</p>
+                    <p id="loadingTime" class="text-sm mt-2" style="color: var(--gold);">완성까지 약 30초 소요됩니다</p>
                 </div>
             </div>
             

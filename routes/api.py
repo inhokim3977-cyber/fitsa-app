@@ -148,6 +148,32 @@ def virtual_fitting():
         # Determine clothing category (default to upper_body)
         category = request.form.get('category', 'upper_body')
         
+        # Get quality setting (fast or high)
+        quality = request.form.get('quality', 'high')
+        print(f"Quality mode: {quality}")
+        
+        # Resize images for fast mode
+        if quality == 'fast':
+            print("⚡ Fast mode: Resizing images to 600x800...")
+            from PIL import Image
+            import io
+            
+            # Resize user photo
+            user_img = Image.open(io.BytesIO(user_photo_bytes))
+            user_img.thumbnail((600, 800), Image.Resampling.LANCZOS)
+            user_buffer = io.BytesIO()
+            user_img.save(user_buffer, format='JPEG', quality=85)
+            user_photo_bytes = user_buffer.getvalue()
+            print(f"User photo resized: {len(user_photo_bytes)} bytes")
+            
+            # Resize clothing photo
+            clothing_img = Image.open(io.BytesIO(clothing_final_bytes))
+            clothing_img.thumbnail((600, 800), Image.Resampling.LANCZOS)
+            clothing_buffer = io.BytesIO()
+            clothing_img.save(clothing_buffer, format='JPEG', quality=85)
+            clothing_final_bytes = clothing_buffer.getvalue()
+            print(f"Clothing photo resized: {len(clothing_final_bytes)} bytes")
+        
         # Smart Category-Based AI Routing
         stage1_result = None
         method_used = "unknown"
