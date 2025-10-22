@@ -406,9 +406,11 @@ function setupDropZone(dropZone, fileInput, type) {
     console.log(`Setting up dropZone for ${type}:`, dropZone, fileInput);
     dropZone.addEventListener('click', () => {
         console.log(`Drop zone clicked for ${type}`);
+        alert(`[1] ${type} zone clicked!`);
         // Reset file input to allow selecting the same file again
         fileInput.value = '';
         fileInput.click();
+        alert(`[2] ${type} file input triggered!`);
     });
     
     dropZone.addEventListener('dragover', (e) => {
@@ -431,16 +433,23 @@ function setupDropZone(dropZone, fileInput, type) {
 }
 
 function handleFileSelect(e, type) {
+    alert(`[3] ${type} file selected!`);
     const file = e.target.files[0];
+    console.log(`handleFileSelect for ${type}:`, file);
     if (file) {
+        alert(`[4] ${type} file OK: ${file.name}, ${(file.size/1024).toFixed(1)}KB`);
         handleFile(file, type);
+    } else {
+        alert(`[ERROR] ${type} no file found!`);
     }
 }
 
 async function handleFile(file, type) {
+    alert(`[5] handleFile START for ${type}`);
     try {
         const fileSizeKB = (file.size / 1024).toFixed(1);
         const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
+        alert(`[6] File size: ${fileSizeKB}KB`);
         console.log(`📁 Original file size (${type}): ${fileSizeKB}KB (${fileSizeMB}MB)`);
         
         // Check file size - if > 1MB, compress it (모바일 카메라 이미지 대응)
@@ -465,9 +474,11 @@ async function handleFile(file, type) {
             console.log(`✅ File size OK, no compression needed (${fileSizeKB}KB)`);
         }
         
+        alert('[7] Creating FileReader...');
         const reader = new FileReader();
         
         reader.onload = (e) => {
+            alert('[8] FileReader SUCCESS!');
             const imageUrl = e.target.result;
             const preview = document.getElementById(`${type}Preview`);
             const placeholder = document.getElementById(`${type}Placeholder`);
@@ -499,10 +510,17 @@ async function handleFile(file, type) {
             checkCanGenerate();
         };
         
+        reader.onerror = (error) => {
+            alert('[ERROR] FileReader FAILED: ' + error);
+            console.error('FileReader error:', error);
+        };
+        
+        alert('[9] Starting FileReader.readAsDataURL...');
         reader.readAsDataURL(processedFile);
+        alert('[10] FileReader.readAsDataURL called (waiting for onload...)');
     } catch (error) {
         console.error('❌ File handling error:', error);
-        alert('이미지 처리 중 오류가 발생했습니다. 다른 이미지를 시도해주세요.');
+        alert('[CRASH] handleFile error: ' + error.message);
     }
 }
 
