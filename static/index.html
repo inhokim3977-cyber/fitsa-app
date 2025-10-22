@@ -15,17 +15,22 @@
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
                 localStorage.setItem('app_version', APP_VERSION);
-                // Force hard reload (bypass cache)
-                if (storedVersion) { // Only reload if not first visit
-                    window.location.reload(true);
+                // Clear all caches
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
                 }
             }
+            // Always show version in console
+            console.log('📱 FITSA v' + APP_VERSION + ' loaded');
+            alert('📱 FITSA v' + APP_VERSION + ' - 이 팝업이 나타나면 새 버전이 로드되었습니다!');
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles.css?v=2.6.8">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Mobile Responsive Design */
@@ -649,7 +654,7 @@
         👔
     </button>
     
-    <script src="/script2.js"></script>
+    <script src="/script2.js?v=2.6.8"></script>
     <script>
         // Loading Demo Toggle
         function toggleLoadingDemo() {
