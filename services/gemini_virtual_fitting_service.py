@@ -14,8 +14,8 @@ class GeminiVirtualFittingService:
     
     def virtual_try_on(self, person_image_bytes: bytes, clothing_image_bytes: bytes, category: str = 'upper_body') -> Optional[str]:
         """
-        Virtual Try-On using Gemini 2.5 Flash Image (Nano Banana)
-        Best quality - preserves hands, face, and background perfectly
+        Virtual Try-On using Gemini 1.5 Flash (TESTING FOR SPEED)
+        Testing faster model - if quality is good, keep it
         
         Args:
             person_image_bytes: Person image as bytes
@@ -28,7 +28,7 @@ class GeminiVirtualFittingService:
             from PIL import Image
             from io import BytesIO
             
-            print(f"\n=== Gemini 2.5 Flash Image Virtual Try-On ===")
+            print(f"\n=== Gemini 1.5 Flash Virtual Try-On (SPEED TEST) ===")
             print(f"Category: {category}")
             print(f"Person image: {len(person_image_bytes)} bytes ({len(person_image_bytes)/1024:.1f}KB)")
             print(f"Clothing image: {len(clothing_image_bytes)} bytes ({len(clothing_image_bytes)/1024:.1f}KB)")
@@ -197,7 +197,7 @@ STEP 3 - NATURAL INTEGRATION:
 
 OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT sleeve length - ZERO body modification."""
 
-            print("Calling Gemini 2.5 Flash Image API...")
+            print("Calling Gemini 1.5 Flash API (TESTING SPEED)...")
             
             # Add critical size preservation to prompt
             size_instruction = f"\n\nCRITICAL: Output image MUST be EXACTLY {original_size[0]}x{original_size[1]} pixels (width x height). DO NOT change dimensions - this will distort body proportions."
@@ -218,7 +218,7 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             
             def call_gemini():
                 return self.client.models.generate_content(
-                    model="gemini-2.5-flash-image",
+                    model="gemini-1.5-flash",
                     contents=[final_prompt, person_img, clothing_img],
                     config=config
                 )
