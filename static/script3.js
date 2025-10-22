@@ -176,7 +176,7 @@ function renderButtons() {
                         <button id="refitBtn" class="btn btn-secondary btn-lg" data-testid="button-refit">
                             🔄 다시 입어보기
                         </button>
-                        <button id="tryNewBtn" class="btn btn-secondary btn-lg" data-testid="button-try-new">
+                        <button id="tryNewClothesBtn" class="btn btn-secondary btn-lg" data-testid="button-try-new-clothes">
                             👔 다른 옷 입어보기
                         </button>
                     </div>
@@ -192,22 +192,26 @@ function renderButtons() {
                     
                     <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto">
                         <button id="saveBtn" class="btn btn-primary btn-lg" data-testid="button-save">
-                            💾 저장하기
+                            💾 옷장에 저장
                         </button>
-                        <button id="downloadBtn" class="btn btn-secondary btn-lg" data-testid="button-download">
-                            📥 다운로드
+                        <button id="nextPersonBtn" class="btn btn-secondary btn-lg" data-testid="button-next-person">
+                            👤 다음 사람
                         </button>
                     </div>
                 `;
                 
                 // Re-attach event listeners
                 document.getElementById('refitBtn').addEventListener('click', refitCurrentPhotos);
-                document.getElementById('tryNewBtn').addEventListener('click', () => {
+                document.getElementById('tryNewClothesBtn').addEventListener('click', () => {
                     resetClothesOnly(); // Keep person photo, reset clothes only
                     setState('uploaded'); // Go back to "ready to fit" state
                 });
                 document.getElementById('saveBtn').addEventListener('click', openSaveFitModal);
-                document.getElementById('downloadBtn').addEventListener('click', downloadResult);
+                document.getElementById('nextPersonBtn').addEventListener('click', () => {
+                    resetAll(); // Reset everything (person + clothes)
+                    setState('empty'); // Start from beginning
+                    showToast('👤 다음 사람이 사진을 업로드해주세요!', 'info');
+                });
             }
             
             // Show success toast after 300ms
