@@ -473,8 +473,8 @@ body {
 
 .delete-btn {
     position: absolute;
-    top: -8px;
-    right: -8px;
+    top: 8px;
+    right: 8px;
     width: 32px;
     height: 32px;
     background: var(--primary-green);
