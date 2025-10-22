@@ -42,17 +42,7 @@
                 font-size: 1.1rem !important;
             }
             
-            /* Info bar mobile - stack vertically */
-            .max-w-6xl .flex {
-                flex-direction: column !important;
-            }
-            
-            .max-w-6xl .flex > div {
-                width: 100% !important;
-                min-width: 100% !important;
-            }
-            
-            /* Credits display */
+            /* Credits display mobile */
             #creditsDisplay {
                 padding: 1rem !important;
             }
@@ -214,34 +204,23 @@
                 <p class="text-2xl" style="color: #F5F1EA;">입어보고 사자 - 내 사진에 어울리는 스타일 찾기</p>
             </div>
 
-            <!-- Info Bar: Guide (Left) + Credits (Right) - Always Visible -->
-            <div class="max-w-6xl mx-auto mb-4">
-                <div class="flex justify-between items-center gap-4 flex-wrap">
-                    <!-- Left: Style Guide -->
-                    <div class="flex-1 min-w-[280px] rounded-2xl p-4 shadow-lg" style="background: var(--ivory);">
-                        <p class="text-lg font-bold mb-2" style="color: var(--primary-green);">💡 나에게 어울리는 스타일은?</p>
-                        <p class="text-sm" style="color: var(--wood-brown);">
-                            사진 업로드 → 카테고리 선택 → 입어보기
-                        </p>
-                    </div>
-                    
-                    <!-- Right: Credits Display -->
-                    <div id="creditsDisplay" class="flex-1 min-w-[280px] rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
-                        <div class="flex justify-around items-center">
-                            <div>
-                                <p class="text-sm mb-1" style="color: var(--wood-brown);">오늘 무료 체험</p>
-                                <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="freeRemaining">3</span>/3</p>
-                            </div>
-                            <div class="h-12 w-px" style="background: var(--wood-brown); opacity: 0.3;"></div>
-                            <div>
-                                <p class="text-sm mb-1" style="color: var(--wood-brown);">보유 크레딧</p>
-                                <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="creditsCount">0</span></p>
-                            </div>
+            <!-- Credits Display (Center) -->
+            <div class="max-w-2xl mx-auto mb-4">
+                <div id="creditsDisplay" class="rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="text-sm mb-1" style="color: var(--wood-brown);">오늘 무료 체험</p>
+                            <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="freeRemaining">3</span>/3</p>
                         </div>
-                        <button id="buyCreditsBtn" class="btn btn-primary btn-lg hidden mt-3 w-full" data-testid="button-buy-credits">
-                            💳 크레딧 구매 ($2 = 10회)
-                        </button>
+                        <div class="h-12 w-px" style="background: var(--wood-brown); opacity: 0.3;"></div>
+                        <div>
+                            <p class="text-sm mb-1" style="color: var(--wood-brown);">보유 크레딧</p>
+                            <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="creditsCount">0</span></p>
+                        </div>
                     </div>
+                    <button id="buyCreditsBtn" class="btn btn-primary btn-lg hidden mt-3 w-full" data-testid="button-buy-credits">
+                        💳 크레딧 구매 ($2 = 10회)
+                    </button>
                 </div>
                 
                 <!-- Developer Test Tools -->

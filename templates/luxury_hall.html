@@ -36,10 +36,10 @@
             
             <!-- Tabs -->
             <div class="luxury-tabs">
-                <button class="luxury-tab youth active" data-category="youth" onclick="switchTab('youth')">
+                <button class="luxury-tab youth" data-category="youth" onclick="switchTab('youth')">
                     🌸 Youth
                 </button>
-                <button class="luxury-tab modern" data-category="modern" onclick="switchTab('modern')">
+                <button class="luxury-tab modern active" data-category="modern" onclick="switchTab('modern')">
                     🖤 Modern
                 </button>
                 <button class="luxury-tab classic" data-category="classic" onclick="switchTab('classic')">
@@ -48,7 +48,7 @@
             </div>
             
             <!-- Brand Grid - Youth -->
-            <div id="youth-brands" class="brand-grid">
+            <div id="youth-brands" class="brand-grid" style="display: none;">
                 <!-- Miu Miu -->
                 <div class="brand-card youth" onclick="location.href='/room/miu_miu'">
                     <div class="brand-name" style="color: var(--youth-primary);">Miu Miu</div>
@@ -87,7 +87,7 @@
             </div>
             
             <!-- Brand Grid - Modern -->
-            <div id="modern-brands" class="brand-grid" style="display: none;">
+            <div id="modern-brands" class="brand-grid">
                 <!-- Dior -->
                 <div class="brand-card modern" onclick="location.href='/room/dior'">
                     <div class="brand-name" style="color: var(--modern-secondary);">Dior</div>
