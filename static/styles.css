@@ -473,8 +473,9 @@ body {
 
 .delete-btn {
     position: absolute;
-    bottom: 8px;
+    top: 50%;
     right: 8px;
+    transform: translateY(-50%);
     width: 32px;
     height: 32px;
     background: var(--primary-green);
@@ -490,7 +491,7 @@ body {
 
 .delete-btn:hover {
     background: var(--gold);
-    transform: scale(1.15);
+    transform: translateY(-50%) scale(1.15);
     box-shadow: 0 4px 12px rgba(217, 179, 119, 0.4);
 }
 
