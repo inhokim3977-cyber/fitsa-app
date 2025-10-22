@@ -166,44 +166,48 @@ function renderButtons() {
             break;
             
         case 'completed':
-            // Show result image + 3 action buttons only
+            // Show result image + 2x2 grid buttons
             if (resultsSection) resultsSection.classList.remove('hidden');
             if (buttonContainer) {
                 buttonContainer.classList.remove('hidden');
                 buttonContainer.innerHTML = `
-                    <div class="btn-group-center">
+                    <!-- 2x2 Grid Layout -->
+                    <div class="grid grid-cols-2 gap-4 mb-4 max-w-xl mx-auto">
                         <button id="refitBtn" class="btn btn-secondary btn-lg" data-testid="button-refit">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            다시 입어보기
+                            🔄 다시 입어보기
                         </button>
+                        <button id="tryNewBtn" class="btn btn-secondary btn-lg" data-testid="button-try-new">
+                            👔 다른 옷 입어보기
+                        </button>
+                    </div>
+                    
+                    <!-- Refit Counter (moved here, below first row) -->
+                    <div id="refitCounter" class="text-center mb-6">
+                        <div id="refitBadge" class="inline-block px-4 py-2 rounded-full text-sm font-medium" style="background-color: var(--ivory); color: var(--primary-green); border: 2px solid var(--gold);">
+                            재피팅 <span id="refitCount">5</span>/5회 남음
+                            <span id="refitTimer" class="text-xs opacity-75"></span>
+                        </div>
+                        <p class="text-xs mt-2" style="color: var(--gold);">💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto">
                         <button id="saveBtn" class="btn btn-primary btn-lg" data-testid="button-save">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                            </svg>
-                            저장하기
+                            💾 저장하기
                         </button>
                         <button id="downloadBtn" class="btn btn-secondary btn-lg" data-testid="button-download">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            다운로드
-                        </button>
-                        <button id="shareBtn" class="btn btn-outline btn-lg" data-testid="button-share">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                            공유하기
+                            📥 다운로드
                         </button>
                     </div>
                 `;
                 
                 // Re-attach event listeners
                 document.getElementById('refitBtn').addEventListener('click', refitCurrentPhotos);
+                document.getElementById('tryNewBtn').addEventListener('click', () => {
+                    resetAll();
+                    setState('empty');
+                });
                 document.getElementById('saveBtn').addEventListener('click', openSaveFitModal);
                 document.getElementById('downloadBtn').addEventListener('click', downloadResult);
-                document.getElementById('shareBtn').addEventListener('click', shareResult);
             }
             
             // Show success toast after 300ms
