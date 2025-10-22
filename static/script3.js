@@ -203,8 +203,8 @@ function renderButtons() {
                 // Re-attach event listeners
                 document.getElementById('refitBtn').addEventListener('click', refitCurrentPhotos);
                 document.getElementById('tryNewBtn').addEventListener('click', () => {
-                    resetAll();
-                    setState('empty');
+                    resetClothesOnly(); // Keep person photo, reset clothes only
+                    setState('uploaded'); // Go back to "ready to fit" state
                 });
                 document.getElementById('saveBtn').addEventListener('click', openSaveFitModal);
                 document.getElementById('downloadBtn').addEventListener('click', downloadResult);
@@ -1078,6 +1078,59 @@ async function shareResult() {
     }
 }
 
+/**
+ * Reset ONLY clothing images (keep person photo)
+ * Used for "Try Different Clothes" feature
+ */
+function resetClothesOnly() {
+    // Clear only clothing images (keep personImage!)
+    hatImage = null;
+    glassesImage = null;
+    topClothImage = null;
+    bottomClothImage = null;
+    dressImage = null;
+    shoesImage = null;
+    
+    // Reset only clothing previews (keep person preview!)
+    ['hat', 'glasses', 'topCloth', 'bottomCloth', 'dress', 'shoes'].forEach(type => {
+        const preview = document.getElementById(`${type}Preview`);
+        const placeholder = document.getElementById(`${type}Placeholder`);
+        if (preview && placeholder) {
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    });
+    
+    // Hide results section
+    resultsSection.classList.add('hidden');
+    
+    // Re-enable fitting buttons (person photo still exists)
+    const fastFittingBtn = document.getElementById('fastFittingBtn');
+    const highQualityFittingBtn = document.getElementById('highQualityFittingBtn');
+    if (fastFittingBtn) fastFittingBtn.disabled = false;
+    if (highQualityFittingBtn) highQualityFittingBtn.disabled = false;
+    
+    // Reset refit counter
+    const refitCountSpan = document.getElementById('refitCount');
+    if (refitCountSpan) refitCountSpan.textContent = '5';
+    const refitBadge = document.getElementById('refitBadge');
+    if (refitBadge) {
+        refitBadge.className = 'px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200';
+    }
+    
+    // Remove limit message if exists
+    const limitMsg = document.getElementById('refitLimitMessage');
+    if (limitMsg) limitMsg.remove();
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    showToast('👔 새로운 옷을 선택해주세요!', 'info');
+}
+
+/**
+ * Reset all images (person + clothes)
+ * Used for complete restart
+ */
 function resetAll() {
     // Clear all images
     personImage = null;
@@ -1105,7 +1158,8 @@ function resetAll() {
     if (highQualityFittingBtn) highQualityFittingBtn.disabled = true;
     
     // Reset refit counter
-    document.getElementById('refitCount').textContent = '5';
+    const refitCountSpan = document.getElementById('refitCount');
+    if (refitCountSpan) refitCountSpan.textContent = '5';
     const refitBadge = document.getElementById('refitBadge');
     if (refitBadge) {
         refitBadge.className = 'px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200';
