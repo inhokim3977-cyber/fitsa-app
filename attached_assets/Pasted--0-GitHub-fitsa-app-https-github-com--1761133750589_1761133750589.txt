@@ -1,0 +1,156 @@
+### [0] 전제
+# - GitHub 계정이 있고, 새 저장소(예: fitsa-app)를 미리 만들어둔 상태라고 가정합니다.
+#   예: https://github.com/<YOUR_GH_ID>/fitsa-app  ← 주소를 아래 ORIGIN_URL에 넣으세요.
+# - Replit에서 이 프로젝트가 열려 있고, 루트에 requirements.txt / Flask 앱이 있습니다.
+# - Flask 앱 엔트리포인트: app/server.py 안에 'app = Flask(__name__)' 가 있다고 가정합니다.
+#   (다르면 START_CMD를 수정하세요.)
+
+### [1] 프로젝트 기본 세팅 (Replit Shell)
+set -e
+
+# 1-1) Git 사용자 설정 (최초 1회)
+git config --global user.name  "YOUR_NAME"
+git config --global user.email "YOUR_EMAIL@example.com"
+
+# 1-2) .gitignore 최소화 세팅 (이미 있으면 유지)
+if [ ! -f .gitignore ]; then
+cat <<'EOF' > .gitignore
+# Python / venv
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Replit
+.replit
+*.repl
+*.sqlite3
+
+# Local env
+.env
+.env.*
+# Node (혹시 프론트 포함 시)
+node_modules/
+dist/
+EOF
+fi
+
+# 1-3) 환경변수 샘플 작성(실제 키는 .env에 넣고 커밋 금지)
+if [ ! -f .env.sample ]; then
+cat <<'EOF' > .env.sample
+# 샘플 (실제 키는 Render 대시보드에 설정)
+FLASK_ENV=production
+PORT=10000
+
+# Stripe (Render에서 Live 키 설정)
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Cloudflare R2
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=
+R2_ACCOUNT_ID=
+R2_PUBLIC_URL=
+EOF
+fi
+
+# 1-4) Procfile 또는 START_CMD 점검 (Render는 startCommand를 권장)
+# gunicorn 사용 권장 (requirements.txt에 gunicorn 추가)
+if ! grep -q "gunicorn" requirements.txt; then
+  echo "gunicorn" >> requirements.txt
+fi
+
+# 1-5) render.yaml (IaC) 생성 — 웹서비스 1개 (Python + Flask)
+#   - name: 서비스 이름
+#   - buildCommand: pip install -r requirements.txt
+#   - startCommand: gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app.server:app
+#     (엔트리포인트가 다르면 app.server:app 부분만 변경)
+cat <<'EOF' > render.yaml
+services:
+  - type: web
+    name: fitsa-web
+    env: python
+    plan: free
+    region: singapore
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app.server:app
+    autoDeploy: true
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # 아래 키들은 Render 대시보드에서 실제 값으로 설정하세요 (여기선 빈 값)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false
+EOF
+
+# 1-6) 헬스체크 엔드포인트 권장(선택) — /healthz
+# Flask에 아래 라우트가 있는지 확인. 없으면 app/server.py에 추가하세요.
+# @app.get("/healthz")
+# def healthz(): return {"ok": True}, 200
+
+### [2] GitHub 원격 연결 & 최초 푸시
+# ORIGIN_URL 값을 본인 GitHub 저장소 주소로 바꾸세요
+ORIGIN_URL="https://github.com/YOUR_GH_ID/fitsa-app.git"
+
+# Git 초기화 (이미 초기화되어 있다면 스킵 무해)
+git init
+git add .
+git commit -m "chore: initial pipeline setup (render.yaml, .gitignore, env.sample)"
+git branch -M main
+
+# 원격이 이미 있다면 통과, 없으면 추가
+if git remote | grep -q origin; then
+  echo "origin remote already exists"
+else
+  git remote add origin "$ORIGIN_URL"
+fi
+
+git push -u origin main
+
+### [3] Render 연결 안내 (대시보드에서 1회만)
+cat <<'EOT'
+
+========================================================
+[Render 설정 — 대시보드에서 1회]
+1) https://render.com → New + → Web Service → "Build & deploy from a Git repository"
+2) GitHub 계정 연결 → 리포지토리(fitsa-app) 선택
+3) 'Use render.yaml' 옵션이 보이면 그대로 사용 (자동 인식)
+   - 보이지 않으면:
+     - Environment: Python
+     - Build Command: pip install --upgrade pip && pip install -r requirements.txt
+     - Start Command: gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app.server:app
+4) Environment Variables 탭에서 Live 값 설정:
+   - STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET
+   - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET / R2_ACCOUNT_ID / R2_PUBLIC_URL
+   - FLASK_ENV=production, PORT=10000 (render.yaml에 이미 있음)
+5) Create Web Service 클릭 → 첫 배포 완료
+6) 배포 완료 후 생성된 URL 확인 (예: https://fitsa-web.onrender.com)
+7) 이후엔 Replit에서 코드 수정 → git commit/push 하면 자동으로 재배포됩니다.
+
+[자동배포 확인 방법]
+- Replit에서 파일 1줄 수정 → 커밋/푸시
+- Render 대시보드 → Services → fitsa-web → “Builds” 탭에서 새 배포가 자동 시작되는지 확인
+- 문제 시 “View Logs”로 빌드/런타임 로그 확인, 필요 시 “Rollback” 버튼으로 이전 버전 복귀
+
+[추가 팁]
+- 프론트엔드 정적 사이트(PWA)가 따로 있으면 Vercel/Cloudflare Pages로 분리 배포.
+- 이 백엔드는 API 전용으로 Render, 프론트는 Vercel에서 호스팅하면 성능/캐시 유리.
+- 비밀키는 .env로 커밋 금지(이미 .gitignore 적용). 운영 키는 Render Env에만 저장.
+========================================================
+
+EOT
