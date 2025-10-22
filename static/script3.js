@@ -398,34 +398,6 @@ function initializeApp() {
         });
     });
 
-function switchClothingMode(mode) {
-    clothingMode = mode;
-    
-    if (mode === 'separate') {
-        // Show top and bottom cloth zones
-        topClothDropZone.classList.remove('hidden');
-        topClothDropZone.style.display = 'flex';
-        bottomClothDropZone.classList.remove('hidden');
-        bottomClothDropZone.style.display = 'flex';
-        
-        // Hide dress zone
-        dressDropZone.classList.add('hidden');
-        dressDropZone.style.display = 'none';
-    } else {
-        // Hide top and bottom cloth zones
-        topClothDropZone.classList.add('hidden');
-        topClothDropZone.style.display = 'none';
-        bottomClothDropZone.classList.add('hidden');
-        bottomClothDropZone.style.display = 'none';
-        
-        // Show dress zone
-        dressDropZone.classList.remove('hidden');
-        dressDropZone.style.display = 'flex';
-    }
-    
-    checkCanGenerate();
-}
-
     // Setup all drop zones
     console.log('Setting up drop zones...');
     console.log('personDropZone:', personDropZone);
@@ -459,6 +431,34 @@ function switchClothingMode(mode) {
 
     // Note: Button event listeners are now handled in renderButtons()
     // No need to attach listeners here since buttons are dynamically created
+}
+
+function switchClothingMode(mode) {
+    clothingMode = mode;
+    
+    if (mode === 'separate') {
+        // Show top and bottom cloth zones
+        topClothDropZone.classList.remove('hidden');
+        topClothDropZone.style.display = 'flex';
+        bottomClothDropZone.classList.remove('hidden');
+        bottomClothDropZone.style.display = 'flex';
+        
+        // Hide dress zone
+        dressDropZone.classList.add('hidden');
+        dressDropZone.style.display = 'none';
+    } else {
+        // Hide top and bottom cloth zones
+        topClothDropZone.classList.add('hidden');
+        topClothDropZone.style.display = 'none';
+        bottomClothDropZone.classList.add('hidden');
+        bottomClothDropZone.style.display = 'none';
+        
+        // Show dress zone
+        dressDropZone.classList.remove('hidden');
+        dressDropZone.style.display = 'flex';
+    }
+    
+    checkCanGenerate();
 }
 
 function setupDropZone(dropZone, fileInput, type) {
@@ -517,6 +517,12 @@ async function handleFile(file, type) {
         const placeholder = document.getElementById(`${type}Placeholder`);
         const deleteBtn = document.getElementById(`${type}DeleteBtn`);
         
+        // Check if DOM elements exist
+        if (!preview || !placeholder) {
+            console.error(`❌ DOM elements not found for type: ${type}`);
+            throw new Error(`DOM elements not ready for ${type}`);
+        }
+        
         // Revoke old URL if exists
         if (preview.src && preview.src.startsWith('blob:')) {
             URL.revokeObjectURL(preview.src);
@@ -549,6 +555,7 @@ async function handleFile(file, type) {
         
         checkCanGenerate();
     } catch (error) {
+        console.error(`❌ handleFile error for ${type}:`, error);
         showToast('이미지 로드 실패. 다시 시도해주세요.', 'error');
     }
 }
