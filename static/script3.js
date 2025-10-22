@@ -1752,8 +1752,78 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Load luxury clothing from localStorage
+async function loadLuxuryClothing() {
+    // Check URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFromLuxury = urlParams.get('luxury') === 'true';
+    
+    if (!isFromLuxury) return;
+    
+    try {
+        // Get clothing data from localStorage
+        const luxuryData = localStorage.getItem('luxuryClothing');
+        if (!luxuryData) return;
+        
+        const { imageUrl, category } = JSON.parse(luxuryData);
+        console.log('🏛️ Loading luxury clothing:', { imageUrl, category });
+        
+        // Fetch image and convert to File
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const filename = imageUrl.split('/').pop() || 'luxury-item.png';
+        const file = new File([blob], filename, { type: blob.type });
+        
+        console.log('✅ Luxury image loaded:', file.name, file.size, 'bytes');
+        
+        // Set clothing based on category
+        switch (category) {
+            case 'upper_body':
+                topClothImage = file;
+                clothingMode = 'separate';
+                displayImage(file, 'topClothPreview', 'topClothDropZone');
+                switchClothingMode('separate');
+                break;
+            case 'lower_body':
+                bottomClothImage = file;
+                clothingMode = 'separate';
+                displayImage(file, 'bottomClothPreview', 'bottomClothDropZone');
+                switchClothingMode('separate');
+                break;
+            case 'dress':
+                dressImage = file;
+                clothingMode = 'dress';
+                displayImage(file, 'dressPreview', 'dressDropZone');
+                switchClothingMode('dress');
+                break;
+        }
+        
+        // Update state
+        checkCanGenerate();
+        
+        // Clear localStorage
+        localStorage.removeItem('luxuryClothing');
+        
+        // Remove only luxury parameter from URL (preserve other params)
+        const url = new URL(window.location.href);
+        url.searchParams.delete('luxury');
+        url.searchParams.delete('category');
+        window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+        
+        showToast('명품관에서 선택한 옷이 담겼습니다! 📸 내 사진을 업로드하세요', 'success');
+        
+    } catch (error) {
+        console.error('❌ Failed to load luxury clothing:', error);
+        showToast('옷을 불러오는데 실패했습니다', 'error');
+        localStorage.removeItem('luxuryClothing');
+    }
+}
+
 // Event listeners for wardrobe
 document.addEventListener('DOMContentLoaded', () => {
+    // Load luxury clothing if coming from luxury hall
+    loadLuxuryClothing();
+    
     // Wardrobe navigation
     const wardrobeNavBtn = document.getElementById('wardrobeNavBtn');
     const backToMainBtn = document.getElementById('backToMainBtn');
