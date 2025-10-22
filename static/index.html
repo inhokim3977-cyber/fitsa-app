@@ -10,7 +10,7 @@
     <script>
         // Force cache refresh for mobile browsers
         (function() {
-            const APP_VERSION = '2.6.8'; // DEBUG: Full upload flow tracking
+            const APP_VERSION = '2.7.0'; // CACHE FIX: New file name
             const storedVersion = localStorage.getItem('app_version');
             if (storedVersion !== APP_VERSION) {
                 console.log('🔄 New version detected, clearing cache...');
@@ -22,15 +22,15 @@
                     });
                 }
             }
-            // Always show version in console
-            console.log('📱 FITSA v' + APP_VERSION + ' loaded');
-            alert('📱 FITSA v' + APP_VERSION + ' - 이 팝업이 나타나면 새 버전이 로드되었습니다!');
+            // Always show version
+            console.log('📱 FITSA v' + APP_VERSION);
+            alert('✅ v2.7.0 - 삼성폰 캐시 문제 해결!');
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=2.6.8">
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Mobile Responsive Design */
@@ -654,7 +654,7 @@
         👔
     </button>
     
-    <script src="/script2.js?v=2.6.8"></script>
+    <script src="/script3.js"></script>
     <script>
         // Loading Demo Toggle
         function toggleLoadingDemo() {
