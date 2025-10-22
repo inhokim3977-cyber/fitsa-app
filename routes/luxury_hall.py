@@ -76,22 +76,22 @@ def get_sample_items(brand_id, category):
     """
     items = []
     
-    # Sample items with actual stock images
+    # Sample items with actual stock images (clothing only, no models)
     if category == 'tops':
         items = [
-            {'name': '엘레강스 블라우스', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_silk_b_71e57910.jpg'},
-            {'name': '실크 셔츠', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_silk_b_2cacd77b.jpg'},
+            {'name': '엘레강스 블라우스', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_blouse_b26ec440.jpg'},
+            {'name': '실크 셔츠', 'category': '상의', 'image': '/attached_assets/stock_images/white_elegant_blouse_9e77eeaf.jpg'},
             {'name': '클래식 탑', 'category': '상의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
     elif category == 'bottoms':
         items = [
-            {'name': '테일러드 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_pants_4c2d270b.jpg'},
-            {'name': '슬랙스 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_pants_021da930.jpg'},
+            {'name': '테일러드 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_dress_3a36f3c2.jpg'},
+            {'name': '슬랙스 팬츠', 'category': '하의', 'image': '/attached_assets/stock_images/black_tailored_dress_d5c98295.jpg'},
             {'name': '데님 진', 'category': '하의', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
     elif category == 'dresses':
         items = [
-            {'name': '이브닝 드레스', 'category': '원피스', 'image': '/attached_assets/stock_images/elegant_evening_dres_f83b6dba.jpg'},
+            {'name': '이브닝 드레스', 'category': '원피스', 'image': '/attached_assets/stock_images/elegant_evening_dres_671ac27b.jpg'},
             {'name': '캐주얼 원피스', 'category': '원피스', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
             {'name': '트렌치 코트', 'category': '코트', 'image': 'https://via.placeholder.com/300x400/FFFFFF/000000?text=Coming+Soon'},
         ]
