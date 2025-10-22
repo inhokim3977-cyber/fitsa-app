@@ -191,9 +191,21 @@ function renderButtons() {
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto">
-                        <button id="saveBtn" class="btn btn-primary btn-lg" data-testid="button-save">
-                            💾 옷장에 저장
-                        </button>
+                        <!-- Save Button with Dropdown -->
+                        <div class="relative">
+                            <button id="saveBtn" class="btn btn-primary btn-lg w-full" data-testid="button-save">
+                                💾 저장
+                            </button>
+                            <div id="saveMenu" class="hidden absolute bottom-full mb-2 left-0 right-0 bg-white rounded-lg shadow-lg border-2 overflow-hidden" style="border-color: var(--gold);">
+                                <button id="saveToWardrobeBtn" class="w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors border-b" style="color: var(--primary-green); border-color: var(--gold);" data-testid="button-save-wardrobe">
+                                    👔 옷장에 저장
+                                </button>
+                                <button id="downloadImageBtn" class="w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors" style="color: var(--primary-green);" data-testid="button-download-image">
+                                    📥 다운로드
+                                </button>
+                            </div>
+                        </div>
+                        
                         <button id="nextPersonBtn" class="btn btn-secondary btn-lg" data-testid="button-next-person">
                             👤 다음 사람
                         </button>
@@ -206,7 +218,37 @@ function renderButtons() {
                     resetClothesOnly(); // Keep person photo, reset clothes only
                     setState('uploaded'); // Go back to "ready to fit" state
                 });
-                document.getElementById('saveBtn').addEventListener('click', openSaveFitModal);
+                
+                // Save button - toggle menu
+                const saveBtn = document.getElementById('saveBtn');
+                const saveMenu = document.getElementById('saveMenu');
+                saveBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    saveMenu.classList.toggle('hidden');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', () => {
+                    if (!saveMenu.classList.contains('hidden')) {
+                        saveMenu.classList.add('hidden');
+                    }
+                });
+                
+                // Save to wardrobe
+                document.getElementById('saveToWardrobeBtn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    saveMenu.classList.add('hidden');
+                    openSaveFitModal();
+                });
+                
+                // Download image
+                document.getElementById('downloadImageBtn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    saveMenu.classList.add('hidden');
+                    downloadResult();
+                });
+                
+                // Next person
                 document.getElementById('nextPersonBtn').addEventListener('click', () => {
                     resetAll(); // Reset everything (person + clothes)
                     setState('empty'); // Start from beginning
