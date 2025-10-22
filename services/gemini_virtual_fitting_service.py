@@ -4,24 +4,8 @@ import requests
 from typing import Optional
 from google import genai
 from google.genai import types
-import signal
-from contextlib import contextmanager
-
-class TimeoutError(Exception):
-    pass
-
-@contextmanager
-def timeout(seconds):
-    def timeout_handler(signum, frame):
-        raise TimeoutError(f"Operation timed out after {seconds} seconds")
-    
-    original_handler = signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, original_handler)
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import time
 
 class GeminiVirtualFittingService:
     def __init__(self, api_key: str):
@@ -231,16 +215,22 @@ OUTPUT: SAME person (identical body) with ONLY upper clothing changed + CORRECT 
             
             # Generate with Gemini using new API with 90-second timeout
             print("⏱️ Setting 90-second timeout for Gemini API call...")
-            try:
-                with timeout(90):
-                    response = self.client.models.generate_content(
-                        model="gemini-2.5-flash-image",
-                        contents=[final_prompt, person_img, clothing_img],
-                        config=config
-                    )
-            except TimeoutError as te:
-                print(f"❌ Gemini API timeout: {str(te)}")
-                raise Exception(f"Gemini API timeout after 90 seconds - please try again or contact support")
+            
+            def call_gemini():
+                return self.client.models.generate_content(
+                    model="gemini-2.5-flash-image",
+                    contents=[final_prompt, person_img, clothing_img],
+                    config=config
+                )
+            
+            # Use ThreadPoolExecutor for reliable timeout in production
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(call_gemini)
+                try:
+                    response = future.result(timeout=90)
+                except FutureTimeoutError:
+                    print(f"❌ Gemini API timeout after 90 seconds")
+                    raise Exception(f"요청 시간이 초과되었습니다 (90초). Gemini API가 응답하지 않습니다. 잠시 후 다시 시도해주세요.")
             
             print(f"✓ Gemini API call completed (new API)")
             print(f"🔍 Response has {len(response.parts) if response.parts else 0} parts")
