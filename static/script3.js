@@ -429,6 +429,35 @@ function initializeApp() {
         highQualityFittingBtn.addEventListener('click', () => generateFitting('high'));
     }
 
+    // Setup luxury hall button - save person image before leaving
+    const luxuryHallBtn = document.querySelector('[data-testid="button-luxury-hall"]');
+    console.log('🏛️ Luxury Hall button found:', luxuryHallBtn ? 'YES' : 'NO');
+    if (luxuryHallBtn) {
+        luxuryHallBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevent immediate navigation
+            console.log('🏛️ Luxury Hall button clicked, personImage exists:', !!personImage);
+            
+            // Save person image to localStorage if exists
+            if (personImage) {
+                try {
+                    // Convert personImage to Data URL for localStorage
+                    const dataUrl = await fileToDataUrl(personImage);
+                    localStorage.setItem('savedPersonImage', dataUrl);
+                    console.log('✅ Person image saved to localStorage before going to Luxury Hall');
+                } catch (err) {
+                    console.error('Failed to save person image:', err);
+                }
+            } else {
+                console.log('ℹ️ No person image to save');
+            }
+            
+            // Navigate to luxury hall after saving
+            window.location.href = '/luxury_hall';
+        });
+    } else {
+        console.error('❌ Luxury Hall button not found in DOM');
+    }
+
     // Note: Button event listeners are now handled in renderButtons()
     // No need to attach listeners here since buttons are dynamically created
 }
@@ -518,10 +547,12 @@ async function handleFile(file, type) {
         const deleteBtn = document.getElementById(`${type}DeleteBtn`);
         
         // Check if DOM elements exist
+        console.log(`🔍 handleFile(${type}) - Finding DOM elements...`);
         if (!preview || !placeholder) {
-            console.error(`❌ DOM elements not found for type: ${type}`);
+            console.error(`❌ DOM elements not found for type: ${type}`, {preview: !!preview, placeholder: !!placeholder});
             throw new Error(`DOM elements not ready for ${type}`);
         }
+        console.log(`✅ handleFile(${type}) - DOM elements found`);
         
         // Revoke old URL if exists
         if (preview.src && preview.src.startsWith('blob:')) {
@@ -534,6 +565,12 @@ async function handleFile(file, type) {
         preview.classList.remove('hidden');
         placeholder.classList.add('hidden');
         if (deleteBtn) deleteBtn.classList.add('show');
+        
+        console.log(`✅ handleFile(${type}) - Preview updated:`, {
+            src: preview.src.substring(0, 50) + '...',
+            hidden: preview.classList.contains('hidden'),
+            placeholderHidden: placeholder.classList.contains('hidden')
+        });
         
         // Store the processed file
         switch(type) {
@@ -1731,6 +1768,23 @@ async function deleteSavedFit(fitId) {
     }
 }
 
+// Helper function to convert File to Data URL
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Helper function to convert Data URL to File
+async function dataUrlToFile(dataUrl, filename) {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+}
+
 // Helper functions
 function getRelativeTime(date) {
     const now = new Date();
@@ -1768,6 +1822,24 @@ async function loadLuxuryClothing() {
     if (!isFromLuxury) return;
     
     try {
+        let personRestored = false;
+        
+        // Restore saved person image first (if exists)
+        const savedPersonImageData = localStorage.getItem('savedPersonImage');
+        if (savedPersonImageData) {
+            console.log('🔄 Restoring saved person image...');
+            try {
+                const personFile = await dataUrlToFile(savedPersonImageData, 'person.jpg');
+                await handleFile(personFile, 'person');
+                personRestored = true;
+                console.log('✅ Person image restored');
+                // Clean up after successful restore
+                localStorage.removeItem('savedPersonImage');
+            } catch (err) {
+                console.error('Failed to restore person image:', err);
+            }
+        }
+        
         // Get clothing data from localStorage
         const luxuryData = localStorage.getItem('luxuryClothing');
         if (!luxuryData) return;
@@ -1814,7 +1886,12 @@ async function loadLuxuryClothing() {
         url.searchParams.delete('category');
         window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
         
-        showToast('명품관에서 선택한 옷이 담겼습니다! 📸 내 사진을 업로드하세요', 'success');
+        // Show appropriate message based on whether person image was restored
+        if (personRestored) {
+            showToast('명품관에서 선택한 옷이 담겼습니다! ✅ 내 사진도 불러왔어요', 'success');
+        } else {
+            showToast('명품관에서 선택한 옷이 담겼습니다! 📸 내 사진을 업로드하세요', 'success');
+        }
         
     } catch (error) {
         console.error('❌ Failed to load luxury clothing:', error);
