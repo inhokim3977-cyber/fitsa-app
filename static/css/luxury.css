@@ -1,0 +1,341 @@
+/* Luxury Hall Styles - British Tailor Shop meets Fashion Boutique */
+
+:root {
+    /* Youth Theme - Pink */
+    --youth-primary: #FF69B4;
+    --youth-secondary: #FFB6D9;
+    --youth-accent: #FF1493;
+    --youth-bg: #FFF0F5;
+    
+    /* Modern Theme - Black & Gold */
+    --modern-primary: #000000;
+    --modern-secondary: #C9A961;
+    --modern-accent: #D4B883;
+    --modern-bg: #1A1A1A;
+    
+    /* Classic Theme - Beige */
+    --classic-primary: #D4C5B9;
+    --classic-secondary: #8B7355;
+    --classic-accent: #A0826D;
+    --classic-bg: #F5F1EA;
+}
+
+/* Luxury Hall Container */
+.luxury-hall-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Tab Navigation */
+.luxury-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.luxury-tab {
+    padding: 1rem 3rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+    text-align: center;
+}
+
+.luxury-tab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Youth Tab */
+.luxury-tab.youth {
+    background: linear-gradient(135deg, var(--youth-primary) 0%, var(--youth-secondary) 100%);
+    color: white;
+    border-color: var(--youth-accent);
+}
+
+.luxury-tab.youth.active {
+    border-color: var(--youth-accent);
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+}
+
+/* Modern Tab */
+.luxury-tab.modern {
+    background: linear-gradient(135deg, var(--modern-primary) 0%, #2A2A2A 100%);
+    color: var(--modern-secondary);
+    border-color: var(--modern-secondary);
+}
+
+.luxury-tab.modern.active {
+    border-color: var(--modern-secondary);
+    box-shadow: 0 0 30px rgba(201, 169, 97, 0.5);
+}
+
+/* Classic Tab */
+.luxury-tab.classic {
+    background: linear-gradient(135deg, var(--classic-primary) 0%, var(--classic-secondary) 100%);
+    color: white;
+    border-color: var(--classic-accent);
+}
+
+.luxury-tab.classic.active {
+    border-color: var(--classic-accent);
+    box-shadow: 0 0 30px rgba(160, 130, 109, 0.5);
+}
+
+/* Brand Grid */
+.brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Brand Card */
+.brand-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.brand-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Youth Cards */
+.brand-card.youth {
+    border-color: var(--youth-primary);
+}
+
+.brand-card.youth:hover {
+    box-shadow: 0 12px 30px rgba(255, 105, 180, 0.3);
+}
+
+/* Modern Cards */
+.brand-card.modern {
+    background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%);
+    color: var(--modern-secondary);
+    border-color: var(--modern-secondary);
+}
+
+.brand-card.modern:hover {
+    box-shadow: 0 12px 30px rgba(201, 169, 97, 0.4);
+}
+
+/* Classic Cards */
+.brand-card.classic {
+    border-color: var(--classic-primary);
+    background: var(--classic-bg);
+}
+
+.brand-card.classic:hover {
+    box-shadow: 0 12px 30px rgba(160, 130, 109, 0.3);
+}
+
+/* Brand Logo/Name */
+.brand-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.brand-description {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+}
+
+/* Brand Preview Images */
+.brand-preview {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.brand-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Enter Button */
+.enter-room-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.enter-room-btn.youth {
+    background: linear-gradient(135deg, var(--youth-primary) 0%, var(--youth-accent) 100%);
+    color: white;
+}
+
+.enter-room-btn.modern {
+    background: linear-gradient(135deg, var(--modern-secondary) 0%, var(--modern-accent) 100%);
+    color: var(--modern-primary);
+}
+
+.enter-room-btn.classic {
+    background: linear-gradient(135deg, var(--classic-secondary) 0%, var(--classic-accent) 100%);
+    color: white;
+}
+
+.enter-room-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Back Button */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--gold);
+    color: var(--primary-green);
+    border-radius: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid var(--gold);
+    margin-bottom: 2rem;
+}
+
+.back-btn:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 4px 15px rgba(201, 169, 97, 0.4);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .luxury-tabs {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .luxury-tab {
+        width: 100%;
+        min-width: auto;
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+    }
+    
+    .brand-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .brand-name {
+        font-size: 2rem;
+    }
+}
+
+/* Room Page Specific Styles */
+.room-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.room-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.room-logo {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.room-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.8;
+}
+
+/* Clothing Grid */
+.clothing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.clothing-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clothing-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.clothing-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background: #f5f5f5;
+}
+
+.clothing-info {
+    padding: 1rem;
+    text-align: center;
+}
+
+.clothing-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.clothing-category {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* Try On Button */
+.try-on-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary-green);
+    color: var(--gold);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.try-on-btn:hover {
+    background: var(--wood-brown);
+    transform: scale(1.05);
+}

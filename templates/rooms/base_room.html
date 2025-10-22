@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ brand_name }} - FITSA 명품관</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/static/css/luxury.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="min-h-screen py-4 px-4" style="background: linear-gradient(180deg, var(--primary-green) 0%, var(--wood-brown) 100%);">
+        <div class="room-container">
+            <!-- Back Button -->
+            <div class="mb-8">
+                <a href="/luxury_hall" class="back-btn">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    명품관으로 돌아가기
+                </a>
+            </div>
+            
+            <!-- Brand Header -->
+            <div class="room-header" style="background: var(--ivory); padding: 3rem; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);">
+                <div class="room-logo" style="color: {{ theme_color }};">
+                    {{ brand_name }}
+                </div>
+                <div class="room-subtitle" style="color: var(--wood-brown);">
+                    {{ brand_description }}
+                </div>
+            </div>
+            
+            <!-- Clothing Categories -->
+            <div style="margin: 3rem 0;">
+                <!-- Tops Section -->
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4 text-center" style="color: var(--gold);">👕 상의</h2>
+                    <div class="clothing-grid">
+                        {% for item in tops %}
+                        <div class="clothing-item">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="clothing-image">
+                            <div class="clothing-info">
+                                <div class="clothing-name" style="color: var(--primary-green);">{{ item.name }}</div>
+                                <div class="clothing-category" style="color: var(--wood-brown);">{{ item.category }}</div>
+                                <button class="try-on-btn" onclick="tryOn('{{ item.image }}', 'upper_body')">
+                                    입어보기
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Bottoms Section -->
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4 text-center" style="color: var(--gold);">👖 하의</h2>
+                    <div class="clothing-grid">
+                        {% for item in bottoms %}
+                        <div class="clothing-item">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="clothing-image">
+                            <div class="clothing-info">
+                                <div class="clothing-name" style="color: var(--primary-green);">{{ item.name }}</div>
+                                <div class="clothing-category" style="color: var(--wood-brown);">{{ item.category }}</div>
+                                <button class="try-on-btn" onclick="tryOn('{{ item.image }}', 'lower_body')">
+                                    입어보기
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Dresses Section -->
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4 text-center" style="color: var(--gold);">👗 원피스 / 코트</h2>
+                    <div class="clothing-grid">
+                        {% for item in dresses %}
+                        <div class="clothing-item">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="clothing-image">
+                            <div class="clothing-info">
+                                <div class="clothing-name" style="color: var(--primary-green);">{{ item.name }}</div>
+                                <div class="clothing-category" style="color: var(--wood-brown);">{{ item.category }}</div>
+                                <button class="try-on-btn" onclick="tryOn('{{ item.image }}', 'dress')">
+                                    입어보기
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function tryOn(imageUrl, category) {
+            // Store selected clothing in localStorage
+            localStorage.setItem('luxuryClothing', JSON.stringify({
+                imageUrl: imageUrl,
+                category: category
+            }));
+            
+            // Redirect to main fitting page
+            window.location.href = '/?luxury=true&category=' + category;
+        }
+    </script>
+</body>
+</html>

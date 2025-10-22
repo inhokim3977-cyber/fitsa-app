@@ -77,8 +77,10 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Import and register routes
 from routes.api import api_bp
 from routes.stripe_routes import stripe_bp
+from routes.luxury_hall import luxury_hall_bp
 app.register_blueprint(api_bp, url_prefix='/api')
 app.register_blueprint(stripe_bp, url_prefix='/stripe')
+app.register_blueprint(luxury_hall_bp)
 
 # Object storage - disabled in Flask-only mode
 # Objects should be served directly from GCS or configured separately

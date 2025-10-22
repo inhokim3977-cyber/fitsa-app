@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명품관 - FITSA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/static/css/luxury.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="min-h-screen py-4 px-4" style="background: linear-gradient(180deg, var(--primary-green) 0%, var(--wood-brown) 100%);">
+        <!-- Header -->
+        <div class="luxury-hall-container">
+            <div class="text-center mb-8">
+                <a href="/" class="back-btn">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    피팅으로 돌아가기
+                </a>
+            </div>
+            
+            <!-- Title -->
+            <div class="text-center mb-12">
+                <h1 class="text-6xl font-bold mb-4" style="color: var(--gold); font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    🏛️ Luxury Hall
+                </h1>
+                <p class="text-2xl" style="color: var(--ivory);">
+                    세계적인 명품 브랜드의 의상을 AI로 입어보세요
+                </p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="luxury-tabs">
+                <button class="luxury-tab youth active" data-category="youth" onclick="switchTab('youth')">
+                    🌸 Youth
+                </button>
+                <button class="luxury-tab modern" data-category="modern" onclick="switchTab('modern')">
+                    🖤 Modern
+                </button>
+                <button class="luxury-tab classic" data-category="classic" onclick="switchTab('classic')">
+                    🤎 Classic
+                </button>
+            </div>
+            
+            <!-- Brand Grid - Youth -->
+            <div id="youth-brands" class="brand-grid">
+                <!-- Miu Miu -->
+                <div class="brand-card youth" onclick="location.href='/room/miu_miu'">
+                    <div class="brand-name" style="color: var(--youth-primary);">Miu Miu</div>
+                    <div class="brand-description">젊고 감각적인 프라다의 세컨드 라인</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #FFB6D9; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FF69B4; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FF1493; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn youth">입장하기</button>
+                </div>
+                
+                <!-- Off-White -->
+                <div class="brand-card youth" onclick="location.href='/room/off_white'">
+                    <div class="brand-name" style="color: var(--youth-primary);">Off-White</div>
+                    <div class="brand-description">스트리트 럭셔리의 대명사</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #FFFFFF; border: 2px solid #000; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FFB6D9; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #000000; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn youth">입장하기</button>
+                </div>
+                
+                <!-- Diesel -->
+                <div class="brand-card youth" onclick="location.href='/room/diesel'">
+                    <div class="brand-name" style="color: var(--youth-primary);">Diesel</div>
+                    <div class="brand-description">이탈리아 감성의 데님 전문 브랜드</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #4169E1; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #2F4F4F; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FFB6D9; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn youth">입장하기</button>
+                </div>
+            </div>
+            
+            <!-- Brand Grid - Modern -->
+            <div id="modern-brands" class="brand-grid" style="display: none;">
+                <!-- Dior -->
+                <div class="brand-card modern" onclick="location.href='/room/dior'">
+                    <div class="brand-name" style="color: var(--modern-secondary);">Dior</div>
+                    <div class="brand-description">프랑스 오트 쿠튀르의 상징</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #000000; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #C9A961; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FFFFFF; border: 1px solid #ccc; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn modern">입장하기</button>
+                </div>
+                
+                <!-- Chanel -->
+                <div class="brand-card modern" onclick="location.href='/room/chanel'">
+                    <div class="brand-name" style="color: var(--modern-secondary);">Chanel</div>
+                    <div class="brand-description">영원한 우아함의 대명사</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #000000; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #FFFFFF; border: 1px solid #ccc; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #C9A961; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn modern">입장하기</button>
+                </div>
+                
+                <!-- Gucci -->
+                <div class="brand-card modern" onclick="location.href='/room/gucci'">
+                    <div class="brand-name" style="color: var(--modern-secondary);">Gucci</div>
+                    <div class="brand-description">이탈리아 장인정신의 결정체</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #006341; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #C9A961; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #8B0000; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn modern">입장하기</button>
+                </div>
+            </div>
+            
+            <!-- Brand Grid - Classic -->
+            <div id="classic-brands" class="brand-grid" style="display: none;">
+                <!-- Hermès -->
+                <div class="brand-card classic" onclick="location.href='/room/hermes'">
+                    <div class="brand-name" style="color: var(--classic-secondary);">Hermès</div>
+                    <div class="brand-description">프랑스 최고급 가죽 명가</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #FF6600; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #D4C5B9; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #8B4513; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn classic">입장하기</button>
+                </div>
+                
+                <!-- Max Mara -->
+                <div class="brand-card classic" onclick="location.href='/room/max_mara'">
+                    <div class="brand-name" style="color: var(--classic-secondary);">Max Mara</div>
+                    <div class="brand-description">이탈리아 정통 럭셔리 패션</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #D4C5B9; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #8B7355; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #A0826D; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn classic">입장하기</button>
+                </div>
+                
+                <!-- Burberry -->
+                <div class="brand-card classic" onclick="location.href='/room/burberry'">
+                    <div class="brand-name" style="color: var(--classic-secondary);">Burberry</div>
+                    <div class="brand-description">영국 전통의 트렌치코트 명가</div>
+                    <div class="brand-preview">
+                        <div style="width: 80px; height: 80px; background: #D4C5B9; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #000000; border-radius: 8px;"></div>
+                        <div style="width: 80px; height: 80px; background: #8B0000; border-radius: 8px;"></div>
+                    </div>
+                    <button class="enter-room-btn classic">입장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(category) {
+            // Hide all brand grids
+            document.getElementById('youth-brands').style.display = 'none';
+            document.getElementById('modern-brands').style.display = 'none';
+            document.getElementById('classic-brands').style.display = 'none';
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.luxury-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected brand grid
+            document.getElementById(category + '-brands').style.display = 'grid';
+            
+            // Add active class to selected tab
+            document.querySelector(`.luxury-tab.${category}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
