@@ -1,14 +1,8 @@
 import base64
+from rembg import remove
 from typing import Optional
 from io import BytesIO
 from PIL import Image
-
-try:
-    from rembg import remove
-    REMBG_AVAILABLE = True
-except ImportError:
-    REMBG_AVAILABLE = False
-    print("Warning: rembg not available. Background removal disabled.")
 
 class BackgroundRemovalService:
     def __init__(self, api_token: str = None):
@@ -26,9 +20,6 @@ class BackgroundRemovalService:
         Returns:
             Base64 data URL of the image with background removed
         """
-        if not REMBG_AVAILABLE:
-            raise ImportError("rembg library not available. Please install it or use without background removal.")
-        
         try:
             # Extract base64 data from data URL
             if image_data_url.startswith('data:image'):

@@ -1,11 +1,9 @@
 services:
   - type: web
     name: fitsa-web
-    env: python
+    env: docker
     plan: free
     region: singapore
-    buildCommand: pip install --upgrade pip && pip install -r requirements-prod.txt
-    startCommand: gunicorn --workers 2 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT app:app
     autoDeploy: true
     
     healthCheckPath: /healthz
