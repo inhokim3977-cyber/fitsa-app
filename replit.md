@@ -54,10 +54,24 @@ Preferred communication style: Simple, everyday language.
 - **Monetization Potential**: ⭐⭐⭐⭐☆ (4/5) - Proven model, needs traffic
 
 ### Immediate Action Plan (Next 2 Weeks)
-1. **Viral Features**: SNS share buttons (Instagram/KakaoTalk) with +5 credit rewards, referral system (+5 inviter, +3 friend)
+1. ✅ **Viral Features**: SNS share buttons (Instagram/KakaoTalk) with +5 credit rewards implemented - watermarking, Web Share API, daily reward limits
 2. **Paid Ads**: Instagram/TikTok $100 test campaign targeting Korean women 18-35, fashion interest
 3. **SEO**: Meta tags, Naver blog posts (3), community seeding (10 communities)
 4. **Influencer Outreach**: 20 micro-influencers (5K-30K followers), free credit sponsorships
+
+### SNS Share System (Implemented Oct 2025)
+**Features:**
+- Automatic watermark: "Created with FITSA" + fitsa.app URL on result images
+- Instagram/KakaoTalk dedicated share buttons
+- +5 credit reward per platform per day (max 1 reward/platform/day)
+- Web Share API for mobile (iOS/Android native sharing)
+- Security: Platform whitelist validation, CORS handling with fallback
+
+**Technical Implementation:**
+- Frontend: Canvas-based watermarking with crossOrigin support
+- Backend: /api/share-reward endpoint with platform validation
+- Database: share_log table (user_key, platform, shared_at, credits_rewarded)
+- Platforms: 'instagram', 'kakao', 'general'
 
 ### Revenue Projections
 - **Pessimistic** (no marketing): 100-500 monthly visitors, $50-200/month
