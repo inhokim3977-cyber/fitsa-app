@@ -1148,18 +1148,14 @@ window.refitCurrentPhotos = refitCurrentPhotos;
 async function addWatermark(imageUrl) {
     return new Promise(async (resolve, reject) => {
         try {
-            // Load image with CORS support
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
             const img = new Image();
-            const objectURL = URL.createObjectURL(blob);
             
-            // CRITICAL: Set crossOrigin to handle external image sources
-            img.crossOrigin = 'anonymous';
+            // Set crossOrigin ONLY for external URLs (not data: URIs)
+            if (!imageUrl.startsWith('data:')) {
+                img.crossOrigin = 'anonymous';
+            }
             
             img.onload = () => {
-                URL.revokeObjectURL(objectURL);
-                
                 try {
                     // Create canvas
                     const canvas = document.createElement('canvas');
@@ -1212,31 +1208,60 @@ async function addWatermark(imageUrl) {
                         }
                     }, 'image/png', 0.95);
                 } catch (canvasError) {
-                    // Canvas tainted by CORS - fallback to original blob
-                    console.warn('Canvas tainted (CORS issue), using original image:', canvasError);
-                    URL.revokeObjectURL(objectURL);
-                    reject(new Error('CORS_TAINTED'));
+                    // Canvas error - fallback
+                    console.warn('Canvas error, rejecting:', canvasError);
+                    reject(canvasError);
                 }
             };
             
-            img.onerror = () => {
-                URL.revokeObjectURL(objectURL);
+            img.onerror = (error) => {
+                console.error('Image load error:', error);
                 reject(new Error('Failed to load image'));
             };
             
-            img.src = objectURL;
+            // Load image directly (works for both data: URIs and blob: URLs)
+            img.src = imageUrl;
         } catch (error) {
             reject(error);
         }
     });
 }
 
-function downloadResult() {
+async function downloadResult() {
     const resultImage = document.getElementById('resultImage');
-    const link = document.createElement('a');
-    link.href = resultImage.src;
-    link.download = `가상피팅-${Date.now()}.png`;
-    link.click();
+    
+    if (!resultImage || !resultImage.src) {
+        showToast('다운로드할 이미지가 없습니다', 'error');
+        return;
+    }
+    
+    try {
+        showToast('워터마크 추가 중...', 'info');
+        
+        let blob;
+        try {
+            // Try to add watermark
+            blob = await addWatermark(resultImage.src);
+        } catch (watermarkError) {
+            // Fallback: Use original image if watermark fails
+            console.warn('Watermark failed, using original image:', watermarkError);
+            const response = await fetch(resultImage.src);
+            blob = await response.blob();
+        }
+        
+        // Download with watermark
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `FITSA-가상피팅-${Date.now()}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('✅ 워터마크가 추가된 이미지를 다운로드했습니다', 'success');
+    } catch (error) {
+        console.error('Download failed:', error);
+        showToast('다운로드 중 오류가 발생했습니다', 'error');
+    }
 }
 
 /**

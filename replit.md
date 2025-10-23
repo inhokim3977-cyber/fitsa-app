@@ -61,17 +61,23 @@ Preferred communication style: Simple, everyday language.
 
 ### SNS Share System (Implemented Oct 2025)
 **Features:**
-- Automatic watermark: "Created with FITSA" + fitsa.app URL on result images
+- ✅ Automatic watermark on ALL downloads and shares (bottom-right corner)
+  - "Created with FITSA" (gold text)
+  - "fitsa-web.onrender.com" (ivory text)
+  - Semi-transparent green background
 - Instagram/KakaoTalk dedicated share buttons
 - +5 credit reward per platform per day (max 1 reward/platform/day)
 - Web Share API for mobile (iOS/Android native sharing)
 - Security: Platform whitelist validation, CORS handling with fallback
 
 **Technical Implementation:**
-- Frontend: Canvas-based watermarking with crossOrigin support
+- Frontend: Canvas-based watermarking (data: URI and blob: URL support)
+- Watermark: Responsive sizing (2.5% of image width, min 14px)
 - Backend: /api/share-reward endpoint with platform validation
 - Database: share_log table (user_key, platform, shared_at, credits_rewarded)
 - Platforms: 'instagram', 'kakao', 'general'
+- Download: downloadResult() adds watermark before file save
+- Share: shareToSNS() adds watermark before Web Share API
 
 ### Revenue Projections
 - **Pessimistic** (no marketing): 100-500 monthly visitors, $50-200/month
