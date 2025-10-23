@@ -190,7 +190,7 @@ function renderButtons() {
                         <p class="text-xs mt-2" style="color: var(--gold);">💡 같은 사진으로 최대 5회 무료 재시도 가능 (1시간마다 초기화)</p>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+                    <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto mb-4">
                         <!-- Save Button with Dropdown -->
                         <div class="relative">
                             <button id="saveBtn" class="btn btn-primary btn-lg w-full" data-testid="button-save">
@@ -209,6 +209,23 @@ function renderButtons() {
                         <button id="nextPersonBtn" class="btn btn-secondary btn-lg" data-testid="button-next-person">
                             👤 다음 사람
                         </button>
+                    </div>
+                    
+                    <!-- SNS Share Section -->
+                    <div class="max-w-xl mx-auto mb-4">
+                        <div class="text-center mb-3">
+                            <p class="text-sm font-medium" style="color: var(--gold);">
+                                📸 SNS에 공유하고 +5 크레딧 받기!
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button id="shareInstagramBtn" class="btn btn-outline btn-lg" data-testid="button-share-instagram" style="background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); color: white; border: none;">
+                                📷 Instagram
+                            </button>
+                            <button id="shareKakaoBtn" class="btn btn-outline btn-lg" data-testid="button-share-kakao" style="background: #FEE500; color: #3C1E1E; border: none;">
+                                💬 카카오톡
+                            </button>
+                        </div>
                     </div>
                 `;
                 
@@ -254,6 +271,15 @@ function renderButtons() {
                     resetAll(); // Reset everything (person + clothes)
                     setState('empty'); // Start from beginning
                     showToast('👤 다음 사람이 사진을 업로드해주세요!', 'info');
+                });
+                
+                // SNS Share buttons
+                document.getElementById('shareInstagramBtn').addEventListener('click', () => {
+                    shareToSNS('instagram');
+                });
+                
+                document.getElementById('shareKakaoBtn').addEventListener('click', () => {
+                    shareToSNS('kakao');
                 });
             }
             
@@ -1114,6 +1140,97 @@ function refitCurrentPhotos() {
 // Expose to window for onclick fallback
 window.refitCurrentPhotos = refitCurrentPhotos;
 
+/**
+ * Add watermark to result image
+ * @param {string} imageUrl - Source image URL
+ * @returns {Promise<Blob>} Image with watermark
+ */
+async function addWatermark(imageUrl) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Load image with CORS support
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const img = new Image();
+            const objectURL = URL.createObjectURL(blob);
+            
+            // CRITICAL: Set crossOrigin to handle external image sources
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = () => {
+                URL.revokeObjectURL(objectURL);
+                
+                try {
+                    // Create canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw original image
+                    ctx.drawImage(img, 0, 0);
+                
+                // Watermark settings
+                const fontSize = Math.max(img.width * 0.025, 14); // Responsive font size
+                const padding = Math.max(img.width * 0.02, 10);
+                const watermarkText = 'Created with FITSA';
+                const watermarkURL = 'fitsa-web.onrender.com';
+                
+                // Set font
+                ctx.font = `${fontSize}px 'Noto Sans KR', sans-serif`;
+                
+                // Measure text
+                const textMetrics = ctx.measureText(watermarkText);
+                const urlMetrics = ctx.measureText(watermarkURL);
+                const maxWidth = Math.max(textMetrics.width, urlMetrics.width);
+                
+                // Background rectangle
+                const bgX = img.width - maxWidth - padding * 3;
+                const bgY = img.height - fontSize * 3 - padding * 2;
+                const bgWidth = maxWidth + padding * 2;
+                const bgHeight = fontSize * 3 + padding;
+                
+                // Semi-transparent background
+                ctx.fillStyle = 'rgba(30, 61, 43, 0.7)'; // Primary green with transparency
+                ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Draw watermark text
+                ctx.fillStyle = '#D4AF37'; // Gold color
+                ctx.fillText(watermarkText, bgX + padding, bgY + fontSize + padding / 2);
+                
+                // Draw URL (smaller, ivory color)
+                ctx.font = `${fontSize * 0.7}px 'Noto Sans KR', sans-serif`;
+                ctx.fillStyle = '#F5F1EA'; // Ivory color
+                ctx.fillText(watermarkURL, bgX + padding, bgY + fontSize * 2.2 + padding / 2);
+                
+                    // Convert to blob
+                    canvas.toBlob((watermarkedBlob) => {
+                        if (watermarkedBlob) {
+                            resolve(watermarkedBlob);
+                        } else {
+                            reject(new Error('Failed to create watermarked image'));
+                        }
+                    }, 'image/png', 0.95);
+                } catch (canvasError) {
+                    // Canvas tainted by CORS - fallback to original blob
+                    console.warn('Canvas tainted (CORS issue), using original image:', canvasError);
+                    URL.revokeObjectURL(objectURL);
+                    reject(new Error('CORS_TAINTED'));
+                }
+            };
+            
+            img.onerror = () => {
+                URL.revokeObjectURL(objectURL);
+                reject(new Error('Failed to load image'));
+            };
+            
+            img.src = objectURL;
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 function downloadResult() {
     const resultImage = document.getElementById('resultImage');
     const link = document.createElement('a');
@@ -1122,53 +1239,113 @@ function downloadResult() {
     link.click();
 }
 
-async function shareResult() {
+/**
+ * Share result to SNS with watermark
+ * @param {string} platform - 'instagram', 'kakao', or 'general'
+ */
+async function shareToSNS(platform = 'general') {
     const resultImage = document.getElementById('resultImage');
     
+    if (!resultImage || !resultImage.src) {
+        showToast('공유할 이미지가 없습니다', 'error');
+        return;
+    }
+    
     try {
-        // Try Web Share API first (works on mobile)
-        if (navigator.share && navigator.canShare) {
-            // Convert base64 to blob
+        showToast('워터마크 추가 중...', 'info');
+        
+        let file;
+        try {
+            // Try to add watermark
+            const watermarkedBlob = await addWatermark(resultImage.src);
+            file = new File([watermarkedBlob], `FITSA-가상피팅-${Date.now()}.png`, { 
+                type: 'image/png' 
+            });
+        } catch (watermarkError) {
+            // Fallback: Use original image if watermark fails (CORS issue)
+            console.warn('Watermark failed, using original image:', watermarkError);
             const response = await fetch(resultImage.src);
             const blob = await response.blob();
-            
-            // Try to create File object for Web Share API
-            // Some older browsers may not support File constructor
-            try {
-                const filesArray = [
-                    new File([blob], '가상피팅.png', { type: blob.type || 'image/png' })
-                ];
-                
-                if (navigator.canShare({ files: filesArray })) {
-                    await navigator.share({
-                        files: filesArray,
-                        title: '가상 피팅 결과',
-                        text: '나의 가상 피팅 결과를 확인해보세요!'
-                    });
-                    return;
-                }
-            } catch (fileError) {
-                console.warn('File constructor failed for share, trying fallback:', fileError);
-                // Continue to clipboard fallback
-            }
+            file = new File([blob], `FITSA-가상피팅-${Date.now()}.png`, { 
+                type: blob.type || 'image/png' 
+            });
         }
         
-        // Fallback: Copy image to clipboard (desktop)
-        const response = await fetch(resultImage.src);
-        const blob = await response.blob();
-        await navigator.clipboard.write([
-            new ClipboardItem({
-                [blob.type]: blob
-            })
-        ]);
+        // Try Web Share API (mobile)
+        if (navigator.share && navigator.canShare) {
+            const shareData = {
+                title: 'FITSA 가상 피팅',
+                text: '🪞 AI로 명품 옷을 입어봤어요! 무료 3회 체험 👉',
+                url: 'https://fitsa-web.onrender.com'
+            };
+            
+            // Check if files can be shared
+            if (navigator.canShare({ files: [file] })) {
+                shareData.files = [file];
+            }
+            
+            await navigator.share(shareData);
+            
+            // Track share and reward credits
+            await trackShare(platform);
+            showToast('🎉 공유 완료! +5 크레딧이 지급되었습니다', 'success');
+            updateCreditsDisplay();
+            return;
+        }
         
-        // Show success message
-        alert('이미지가 클립보드에 복사되었습니다!\n원하는 곳에 붙여넣기(Ctrl+V)하세요.');
+        // Fallback for desktop: Download with watermark
+        const url = URL.createObjectURL(watermarkedBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `FITSA-가상피팅-${Date.now()}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        // Track share
+        await trackShare(platform);
+        showToast('📥 이미지 다운로드 완료! SNS에 공유하고 +5 크레딧 받으세요', 'success');
+        
     } catch (error) {
         console.error('Share failed:', error);
-        // Final fallback: Download
-        downloadResult();
+        showToast('공유 중 오류가 발생했습니다', 'error');
     }
+}
+
+/**
+ * Track share and reward credits
+ * @param {string} platform - Social platform
+ */
+async function trackShare(platform) {
+    try {
+        const response = await fetch('/api/share-reward', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                platform: platform,
+                timestamp: new Date().toISOString()
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.credits_added) {
+            console.log(`✅ Share tracked: +${data.credits_added} credits`);
+            return data;
+        } else {
+            console.warn('⚠️ Share tracking response:', data);
+        }
+    } catch (error) {
+        console.error('Failed to track share:', error);
+    }
+}
+
+/**
+ * Legacy shareResult function (backward compatibility)
+ */
+async function shareResult() {
+    await shareToSNS('general');
 }
 
 /**

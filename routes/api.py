@@ -372,3 +372,108 @@ def delete_saved_fit(fit_id):
     except Exception as e:
         print(f'Error in delete_saved_fit endpoint: {e}')
         return jsonify({'ok': False, 'error': str(e)}), 500
+
+@api_bp.route('/share-reward', methods=['POST'])
+def share_reward():
+    """
+    Track SNS share and reward user with credits
+    Rewards +5 credits per share (max 1 reward per day per platform)
+    """
+    try:
+        from services.credits_service import CreditsService
+        from datetime import datetime, timedelta
+        import sqlite3
+        
+        # Validate request body
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid request: JSON body required'
+            }), 400
+        
+        # Validate and whitelist platform parameter (SECURITY: prevent credit abuse)
+        ALLOWED_PLATFORMS = ['instagram', 'kakao', 'general']
+        platform = data.get('platform', '').lower()
+        
+        if not platform or platform not in ALLOWED_PLATFORMS:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid platform. Allowed: {", ".join(ALLOWED_PLATFORMS)}'
+            }), 400
+        
+        # Get user identification
+        user_key = request.cookies.get('user_key')
+        
+        # Fallback to IP + UA if no cookie
+        if not user_key:
+            ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
+            user_agent = request.headers.get('User-Agent', '')
+            credits_service = CreditsService()
+            user_key = credits_service.get_user_key(ip, user_agent)
+        
+        # Initialize share tracking DB
+        conn = sqlite3.connect('credits.db')
+        c = conn.cursor()
+        
+        # Create share_log table if not exists
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS share_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_key TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                shared_at TEXT NOT NULL,
+                credits_rewarded INTEGER DEFAULT 5
+            )
+        ''')
+        conn.commit()
+        
+        # Check if user already shared on this platform today
+        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        c.execute('''
+            SELECT COUNT(*) FROM share_log 
+            WHERE user_key = ? AND platform = ? AND shared_at >= ?
+        ''', (user_key, platform, today_start))
+        
+        share_count_today = c.fetchone()[0]
+        
+        if share_count_today > 0:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': '오늘 이미 이 플랫폼에서 보상을 받으셨습니다',
+                'credits_added': 0,
+                'already_rewarded': True
+            }), 200
+        
+        # Log the share
+        now = datetime.now().isoformat()
+        c.execute('''
+            INSERT INTO share_log (user_key, platform, shared_at, credits_rewarded)
+            VALUES (?, ?, ?, 5)
+        ''', (user_key, platform, now))
+        conn.commit()
+        conn.close()
+        
+        # Add credits
+        credits_service = CreditsService()
+        credits_service.add_credits(user_key, 5)
+        
+        print(f"✅ Share reward: user={user_key}, platform={platform}, +5 credits")
+        
+        return jsonify({
+            'success': True,
+            'message': '공유 감사합니다! +5 크레딧이 지급되었습니다',
+            'credits_added': 5,
+            'platform': platform
+        }), 200
+        
+    except Exception as e:
+        print(f'Error in share_reward endpoint: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': '공유 보상 처리 중 오류가 발생했습니다'
+        }), 500
