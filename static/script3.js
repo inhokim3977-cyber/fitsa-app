@@ -1294,7 +1294,7 @@ async function shareToSNS(platform = 'general') {
         }
         
         // Fallback for desktop: Download with watermark
-        const url = URL.createObjectURL(watermarkedBlob);
+        const url = URL.createObjectURL(file);
         const link = document.createElement('a');
         link.href = url;
         link.download = `FITSA-가상피팅-${Date.now()}.png`;
