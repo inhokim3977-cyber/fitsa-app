@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>입사 - 입어보고 사자</title>
+    <script>
+        // Force cache refresh for mobile browsers
+        (function() {
+            const APP_VERSION = '3.0.0'; // Mobile browser compatibility fix
+            const storedVersion = localStorage.getItem('app_version');
+            if (storedVersion !== APP_VERSION) {
+                console.log('🔄 New version detected, clearing cache...');
+                localStorage.setItem('app_version', APP_VERSION);
+                // Clear all caches
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+            }
+            console.log('📱 FITSA v' + APP_VERSION + ' loaded');
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            /* Header adjustments */
+            h1 {
+                font-size: 3rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.1rem !important;
+            }
+            
+            /* Guide + Credits mobile - stack vertically */
+            .guide-credits-row {
+                flex-direction: column !important;
+            }
+            
+            .guide-credits-row > div {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+            
+            /* Credits display mobile */
+            #creditsDisplay {
+                padding: 1rem !important;
+            }
+            
+            /* Clothing type buttons mobile */
+            #clothingTypeSelection .flex {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            
+            #clothingTypeSelection button,
+            #clothingTypeSelection a {
+                width: 100% !important;
+                max-width: 320px !important;
+            }
+            
+            /* Button system mobile adjustments */
+            .btn-group {
+                gap: 8px;
+            }
+            
+            .btn-preview-section {
+                padding: 1.5rem 1rem;
+            }
+            
+            .btn-preview-section h3 {
+                font-size: 1.25rem;
+            }
+            
+            /* Empty state guide mobile */
+            .empty-guide {
+                padding: 1.5rem 1rem;
+            }
+            
+            .step-arrow {
+                display: none;
+            }
+            
+            .upload-cta-btn {
+                max-width: 100%;
+                font-size: 1rem;
+            }
+            
+            /* Change main container to vertical stack */
+            .upload-area-container {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                width: 100% !important;
+                height: auto !important;
+                gap: 16px !important;
+                position: static !important;
+            }
+
+            /* Reset ALL absolute positioning */
+            .upload-area-container > div {
+                position: static !important;
+                transform: none !important;
+            }
+
+            /* Person photo (center) */
+            .center-drop {
+                width: 220px !important;
+                height: 220px !important;
+                margin: 0 auto !important;
+            }
+
+            /* All item drops */
+            .item-drop.top-cloth,
+            .item-drop.bottom-cloth,
+            .item-drop.dress {
+                position: static !important;
+                transform: none !important;
+                width: 180px !important;
+                height: 180px !important;
+                margin: 0 auto !important;
+            }
+            
+            /* Generate button */
+            #generateBtn {
+                padding: 1rem 3rem !important;
+                font-size: 1.1rem !important;
+            }
+            
+            /* Result image wood frame */
+            .wood-frame-mirror {
+                border-width: 8px !important;
+                max-width: 95% !important;
+            }
+            
+            /* Action buttons */
+            #refitBtn, #shareBtn, #downloadBtn {
+                padding: 0.875rem 2rem !important;
+                font-size: 0.95rem !important;
+            }
+            
+            /* Delete buttons - larger touch target */
+            .delete-btn {
+                width: 40px !important;
+                height: 40px !important;
+                top: 50% !important;
+                right: 4px !important;
+                transform: translateY(-50%) !important;
+                display: flex !important;
+            }
+            
+            .delete-btn:not(.show) {
+                display: flex !important;
+            }
+            
+            .delete-btn:hover {
+                transform: translateY(-50%) scale(1.15) !important;
+            }
+            
+            /* Result buttons mobile optimization */
+            .grid.grid-cols-2 {
+                gap: 0.75rem !important;
+            }
+            
+            .btn-lg {
+                padding: 1rem 1.5rem !important;
+                font-size: 0.95rem !important;
+            }
+            
+            /* Save dropdown menu - larger touch targets */
+            #saveMenu button {
+                padding: 1rem 1.25rem !important;
+                font-size: 1rem !important;
+            }
+            
+            /* Refit counter mobile */
+            #refitBadge {
+                font-size: 0.95rem !important;
+                padding: 0.75rem 1.25rem !important;
+            }
+            
+            #refitCounter p {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Toast position mobile */
+            #toastContainer {
+                top: 10px !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                width: calc(100% - 40px) !important;
+                max-width: 400px !important;
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <div class="min-h-screen py-4 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header with British Tailor Shop Gradient -->
+            <div class="text-center mb-2" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--wood-brown) 100%); padding: 2rem; border-radius: 16px; border-bottom: 4px solid var(--gold); box-shadow: 0 4px 20px rgba(30, 61, 43, 0.2);">
+                <h1 class="text-7xl font-bold mb-2" style="color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">FITSA</h1>
+                <p class="text-2xl" style="color: #F5F1EA;">입어보고 사자 - 나에게 어울리는 스타일은?</p>
+            </div>
+
+            <!-- Guide + Credits (Same Row) -->
+            <div class="max-w-6xl mx-auto mb-4">
+                <div class="guide-credits-row flex justify-between items-center gap-4 flex-wrap">
+                    <!-- Left: Usage Guide -->
+                    <div class="flex-1 min-w-[280px] rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
+                        <p class="text-lg font-bold" style="color: var(--primary-green);">💡 사진업로드 → 카테고리 선택 → 입어보기</p>
+                    </div>
+                    
+                    <!-- Right: Credits Display -->
+                    <div id="creditsDisplay" class="flex-1 min-w-[280px] rounded-2xl p-4 text-center shadow-lg" style="background: var(--ivory);">
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="text-sm mb-1" style="color: var(--wood-brown);">오늘 무료 체험</p>
+                            <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="freeRemaining">3</span>/3</p>
+                        </div>
+                        <div class="h-12 w-px" style="background: var(--wood-brown); opacity: 0.3;"></div>
+                        <div>
+                            <p class="text-sm mb-1" style="color: var(--wood-brown);">보유 크레딧</p>
+                            <p class="text-3xl font-bold" style="color: var(--primary-green);"><span id="creditsCount">0</span></p>
+                        </div>
+                    </div>
+                    <button id="buyCreditsBtn" class="btn btn-primary btn-lg hidden mt-3 w-full" data-testid="button-buy-credits">
+                        💳 크레딧 구매 ($2 = 10회)
+                    </button>
+                    </div>
+                </div>
+                
+                <!-- Developer Test Tools -->
+                {% if dev_mode %}
+                <div class="mt-3 flex gap-2 justify-center flex-wrap">
+                    <button onclick="testResetCredits()" class="px-4 py-2 bg-red-500 bg-opacity-70 text-white text-xs rounded-lg hover:bg-opacity-100 transition">
+                        🔄 크레딧 리셋
+                    </button>
+                    <button onclick="testAddCredits()" class="px-4 py-2 bg-green-500 bg-opacity-70 text-white text-xs rounded-lg hover:bg-opacity-100 transition">
+                        ➕ 크레딧 +10
+                    </button>
+                    <button onclick="testClearCookie()" class="px-4 py-2 bg-blue-500 bg-opacity-70 text-white text-xs rounded-lg hover:bg-opacity-100 transition">
+                        🍪 쿠키 초기화
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Clothing Type Selection - ALWAYS VISIBLE -->
+            <div id="clothingTypeSelection" class="text-center mb-6">
+                <p class="font-semibold mb-3" style="color: var(--gold); font-size: 1.1rem;">👔 피팅할 옷 종류를 선택하세요</p>
+                <div class="flex justify-center gap-4 items-center flex-wrap">
+                    <button data-type="separate" class="cloth-type-btn btn btn-primary btn-md active" data-testid="button-type-separate" style="min-width: 180px;">
+                        <div class="flex flex-col items-center">
+                            <span class="font-bold">상의 / 재킷</span>
+                            <span class="text-xs opacity-75">(바지+코트)</span>
+                        </div>
+                    </button>
+                    <button data-type="dress" class="cloth-type-btn btn btn-secondary btn-md" data-testid="button-type-dress" style="min-width: 180px;">
+                        <div class="flex flex-col items-center">
+                            <span class="font-bold">원피스 / 드레스</span>
+                            <span class="text-xs opacity-75">(치마+코트)</span>
+                        </div>
+                    </button>
+                    <!-- Luxury Hall Button (2x size) -->
+                    <a href="/luxury_hall" class="btn btn-primary text-xl font-bold px-8 py-4" style="background: linear-gradient(135deg, var(--gold) 0%, #D4B883 100%); color: var(--primary-green); border: 3px solid var(--gold); box-shadow: 0 4px 15px rgba(201, 169, 97, 0.4); min-height: 64px;" data-testid="button-luxury-hall">
+                        🏛️ 명품관
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Main Upload Area -->
+            <div class="flex justify-center items-center mb-1">
+                <div class="relative upload-area-container" style="width: 860px; height: 640px;">
+                    <!-- Center: Person Photo -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div id="personDropZone" class="drop-zone center-drop glow cursor-pointer flex flex-col items-center justify-center">
+                            <div id="personPlaceholder" class="text-center w-full px-4">
+                                <!-- Large Upload CTA Button -->
+                                <button class="btn btn-primary btn-lg upload-cta-btn" aria-label="내 사진 업로드하기" data-testid="button-upload-photo">
+                                    <svg class="inline-block w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    내 사진 업로드
+                                </button>
+                                <!-- Micro-copy -->
+                                <p class="micro-copy mt-3" style="color: var(--gold); font-size: 0.8rem; opacity: 0.9;">
+                                    가장 잘 보이는 정면 전신 사진을 권장해요
+                                </p>
+                            </div>
+                            <img id="personPreview" class="preview-image hidden" />
+                            <div id="personDeleteBtn" class="delete-btn" onclick="clearImage('person', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <input type="file" id="personFileInput" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp">
+                        
+                        <!-- Top Cloth - Left (for separate mode) -->
+                        <div id="topClothDropZone" class="drop-zone item-drop top-cloth cursor-pointer flex flex-col items-center justify-center">
+                            <div id="topClothPlaceholder" class="text-center">
+                                <span class="text-5xl">👕</span>
+                                <p class="text-gray-700 text-sm mt-2">상의</p>
+                            </div>
+                            <img id="topClothPreview" class="preview-image hidden" />
+                            <div id="topClothDeleteBtn" class="delete-btn" onclick="clearImage('topCloth', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <input type="file" id="topClothFileInput" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp">
+                        
+                        <!-- Bottom Cloth - Right (for separate mode) -->
+                        <div id="bottomClothDropZone" class="drop-zone item-drop bottom-cloth cursor-pointer flex flex-col items-center justify-center">
+                            <div id="bottomClothPlaceholder" class="text-center">
+                                <span class="text-5xl">👖</span>
+                                <p class="text-gray-700 text-sm mt-2">하의</p>
+                            </div>
+                            <img id="bottomClothPreview" class="preview-image hidden" />
+                            <div id="bottomClothDeleteBtn" class="delete-btn" onclick="clearImage('bottomCloth', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <input type="file" id="bottomClothFileInput" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp">
+
+                        <!-- Dress - Center (for dress mode) -->
+                        <div id="dressDropZone" class="drop-zone item-drop dress cursor-pointer flex flex-col items-center justify-center hidden">
+                            <div id="dressPlaceholder" class="text-center">
+                                <span class="text-5xl">👗</span>
+                                <p class="text-gray-700 text-sm mt-2">원피스</p>
+                            </div>
+                            <img id="dressPreview" class="preview-image hidden" />
+                            <div id="dressDeleteBtn" class="delete-btn" onclick="clearImage('dress', event)">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <input type="file" id="dressFileInput" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Options (Hidden) -->
+            <div class="hidden text-center mb-8">
+                <label class="inline-flex items-center cursor-pointer bg-white px-6 py-3 rounded-full shadow-md border border-gray-200 hover:shadow-lg transition">
+                    <input type="checkbox" id="removeBgCheckbox" class="mr-3 w-5 h-5 accent-pink-500" checked>
+                    <span class="text-gray-700 font-medium">옷 배경 제거</span>
+                </label>
+            </div>
+            
+            <!-- Generate Buttons (hidden initially) -->
+            <div id="generateSection" class="text-center mb-12 mt-20 hidden">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto mb-4">
+                    <!-- Fast Fitting Button -->
+                    <button id="fastFittingBtn" disabled class="btn btn-primary btn-lg flex-1 min-w-[200px]" data-testid="button-fast-fitting" style="padding: 0.75rem 2rem; height: 56px; font-size: 1rem;">
+                        <span class="text-xl mr-2">⚡</span>
+                        <div class="inline-flex flex-col items-start">
+                            <span class="font-bold">빠른 피팅</span>
+                            <span class="text-xs opacity-80">약 30초</span>
+                        </div>
+                    </button>
+                    
+                    <!-- High Quality Fitting Button -->
+                    <button id="highQualityFittingBtn" disabled class="btn btn-lg flex-1 min-w-[200px]" data-testid="button-high-quality-fitting" style="padding: 0.75rem 2rem; height: 56px; font-size: 1rem; background: linear-gradient(135deg, #C9A961 0%, #D4B883 100%); color: var(--primary-green); border: 2px solid var(--gold);">
+                        <span class="text-xl mr-2">💎</span>
+                        <div class="inline-flex flex-col items-start">
+                            <span class="font-bold">고품질 피팅</span>
+                            <span class="text-xs opacity-80">약 60초</span>
+                        </div>
+                    </button>
+                </div>
+                
+                <div id="loadingIndicator" class="hidden mt-6">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-t-transparent" style="border-color: var(--gold); border-top-color: transparent;"></div>
+                    <p class="mt-4 font-semibold" style="color: var(--ivory);">패브릭 입히는 중...</p>
+                    <p id="loadingTime" class="text-sm mt-2" style="color: var(--gold);">완성까지 약 30초 소요됩니다</p>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden fade-in">
+                <!-- Result Image - Wood Frame Mirror -->
+                <div class="flex justify-center mb-8">
+                    <div class="wood-frame-mirror p-4" style="max-width: 900px; width: 100%; background: var(--ivory);">
+                        <img id="resultImage" src="" alt="Virtual Fitting Result" class="w-full h-auto max-h-[75vh] object-contain rounded-2xl">
+                    </div>
+                </div>
+                
+                <!-- Action Buttons Container (Managed by renderButtons()) -->
+                <div id="actionButtons" class="max-w-2xl mx-auto hidden">
+                    <!-- Buttons will be dynamically rendered here by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Saved Fits (Wardrobe) Section -->
+            <div id="savedFitsSection" class="hidden fade-in">
+                <!-- Navigation Bar -->
+                <div class="text-center mb-6">
+                    <button id="backToMainBtn" class="btn btn-ghost btn-md" data-testid="button-back-main">
+                        ← 피팅으로 돌아가기
+                    </button>
+                </div>
+                
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold mb-2" style="color: var(--gold);">👔 내 옷장</h2>
+                    <p class="text-lg" style="color: var(--ivory);">저장한 착용샷과 상품 정보</p>
+                </div>
+                
+                <!-- Search/Filter Bar (Optional) -->
+                <div class="max-w-2xl mx-auto mb-8">
+                    <div class="flex gap-3 flex-wrap justify-center">
+                        <input 
+                            type="text" 
+                            id="savedFitsSearch" 
+                            placeholder="검색 (쇼핑몰, 상품명...)" 
+                            class="px-4 py-2 rounded-lg border-2 text-sm flex-1 min-w-[200px]"
+                            style="background: var(--ivory); border-color: var(--wood-brown); color: var(--text-dark);"
+                            data-testid="input-search-fits">
+                        <button id="searchFitsBtn" class="btn btn-primary btn-md" data-testid="button-search-fits">
+                            🔍 검색
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="savedFitsEmpty" class="text-center py-16 hidden">
+                    <div class="max-w-md mx-auto p-8 rounded-2xl" style="background: var(--ivory);">
+                        <div class="text-6xl mb-4">👔</div>
+                        <p class="text-xl font-semibold mb-2" style="color: var(--primary-green);">
+                            아직 저장한 착용샷이 없어요
+                        </p>
+                        <p class="text-sm" style="color: var(--wood-brown);">
+                            결과 화면에서 '저장하기'를 눌러주세요
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Grid Container -->
+                <div id="savedFitsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
+                    <!-- Cards will be dynamically inserted here -->
+                </div>
+                
+                <!-- Pagination -->
+                <div id="savedFitsPagination" class="flex justify-center gap-2 mt-8 hidden">
+                    <!-- Pagination buttons will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save Fit Modal -->
+    <div id="saveFitModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="max-w-md w-full mx-4 p-6 rounded-2xl shadow-2xl" style="background: var(--ivory);">
+            <h3 class="text-2xl font-bold mb-4 text-center" style="color: var(--primary-green);">👔 옷장에 저장하기</h3>
+            
+            <form id="saveFitForm" class="space-y-4">
+                <!-- Shop Name -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">쇼핑몰 *</label>
+                    <input 
+                        type="text" 
+                        id="saveFitShopName" 
+                        required
+                        placeholder="예: 무신사, ZARA, 쿠팡" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-shop-name">
+                </div>
+                
+                <!-- Product Name -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">상품명 *</label>
+                    <input 
+                        type="text" 
+                        id="saveFitProductName" 
+                        required
+                        placeholder="예: 스트레이트 데님 팬츠" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-product-name">
+                </div>
+                
+                <!-- Product URL -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">상품 링크</label>
+                    <input 
+                        type="url" 
+                        id="saveFitProductUrl" 
+                        placeholder="https://..." 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-product-url">
+                </div>
+                
+                <!-- Price -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">가격</label>
+                    <input 
+                        type="text" 
+                        id="saveFitPrice" 
+                        placeholder="예: 89,000원" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="input-price">
+                </div>
+                
+                <!-- Note (Optional) -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">메모 (선택)</label>
+                    <textarea 
+                        id="saveFitNote" 
+                        rows="2" 
+                        placeholder="자유롭게 메모하세요" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="textarea-note"></textarea>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="cancelSaveBtn" class="btn btn-ghost btn-lg flex-1" data-testid="button-cancel-save">
+                        취소
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg flex-1" data-testid="button-submit-save">
+                        저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Wardrobe Navigation Button (Floating) -->
+    <button id="wardrobeNavBtn" class="fixed bottom-6 right-6 btn btn-primary btn-lg shadow-2xl z-40 hidden" data-testid="button-wardrobe-nav" style="border-radius: 50%; width: 64px; height: 64px; padding: 0;">
+        👔
+    </button>
+    
+    <script src="/script3.js"></script>
+    <script>
+        // Loading Demo Toggle
+        function toggleLoadingDemo() {
+            const btn = document.getElementById('loadingDemoBtn');
+            btn.classList.toggle('loading');
+            if (btn.classList.contains('loading')) {
+                btn.innerHTML = '<span class="spinner"></span>로딩 중...';
+            } else {
+                btn.innerHTML = '완료!';
+                setTimeout(() => {
+                    btn.innerHTML = '<span class="spinner"></span>로딩 중...';
+                    btn.classList.add('loading');
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
