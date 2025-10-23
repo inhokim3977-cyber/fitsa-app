@@ -118,11 +118,9 @@ def virtual_fitting():
         
         # Lazy import heavy AI packages (only when endpoint is called)
         from services.replicate_service import ReplicateService
-        from services.background_removal_service import BackgroundRemovalService
         
         # Initialize services
         replicate_service = ReplicateService(current_app.config['REPLICATE_API_TOKEN'])
-        background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
         
         # Check if background removal is requested
         remove_bg = request.form.get('removeBackground', 'false').lower() == 'true'
@@ -133,6 +131,10 @@ def virtual_fitting():
         # Optional: Remove background from clothing image
         if remove_bg:
             try:
+                print("Background removal requested, initializing service...")
+                from services.background_removal_service import BackgroundRemovalService
+                background_removal_service = BackgroundRemovalService(current_app.config['REPLICATE_API_TOKEN'])
+                
                 print("Removing background from clothing image...")
                 clothing_data_url = f"data:image/png;base64,{base64.b64encode(clothing_photo_bytes).decode('utf-8')}"
                 
@@ -142,6 +144,9 @@ def virtual_fitting():
                     bg_removed_b64 = bg_removed_url.split(',')[1]
                     clothing_final_bytes = base64.b64decode(bg_removed_b64)
                     print(f"✓ Background removed successfully, new size: {len(clothing_final_bytes)} bytes")
+            except ImportError as e:
+                print(f"✗ Background removal not available (rembg not installed): {e}")
+                print("Continuing without background removal...")
             except Exception as e:
                 print(f"✗ Background removal failed, using original image: {e}")
         
