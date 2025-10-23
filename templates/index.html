@@ -32,7 +32,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Mobile Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             /* Header adjustments */
             h1 {
                 font-size: 3rem !important;
@@ -500,23 +500,42 @@
                 
                 <!-- Product URL -->
                 <div>
-                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">상품 링크</label>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">구매 링크 (HTTPS) *</label>
                     <input 
                         type="url" 
                         id="saveFitProductUrl" 
+                        required
                         placeholder="https://..." 
                         class="w-full px-4 py-2 rounded-lg border-2"
                         style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
                         data-testid="input-product-url">
                 </div>
                 
-                <!-- Price -->
+                <!-- Category -->
                 <div>
-                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">가격</label>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">카테고리</label>
+                    <select 
+                        id="saveFitCategory" 
+                        class="w-full px-4 py-2 rounded-lg border-2"
+                        style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
+                        data-testid="select-category">
+                        <option value="">선택 안함</option>
+                        <option value="상의">상의</option>
+                        <option value="하의">하의</option>
+                        <option value="원피스">원피스</option>
+                        <option value="아우터">아우터</option>
+                        <option value="신발">신발</option>
+                        <option value="악세서리">악세서리</option>
+                    </select>
+                </div>
+                
+                <!-- Price (Optional) -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1" style="color: var(--text-dark);">가격 (선택)</label>
                     <input 
-                        type="text" 
+                        type="number" 
                         id="saveFitPrice" 
-                        placeholder="예: 89,000원" 
+                        placeholder="예: 49000" 
                         class="w-full px-4 py-2 rounded-lg border-2"
                         style="background: white; border-color: var(--wood-brown); color: var(--text-dark);"
                         data-testid="input-price">
@@ -571,3 +590,4 @@
     </script>
 </body>
 </html>
+<!-- Production: Clean version without dev UI components -->
