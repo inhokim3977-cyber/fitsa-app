@@ -26,8 +26,8 @@ COPY requirements-prod.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements-prod.txt
 
-# Force cache invalidation before copying source code
-RUN echo "Cache bust: ${CACHEBUST}"
+# Force cache invalidation using GitHub API (auto-invalidates on new commits)
+ADD "https://api.github.com/repos/inhokim3977-cyber/fitsa-app/commits?per_page=1" /tmp/latest_commit
 
 # Copy application code
 COPY . .
